@@ -7,28 +7,42 @@ from twisted.web.wsgi import WSGIResource
 
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
-from unga.auth import Authenticator
+from unga.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
 
 app = Flask(__name__)
 app.debug = True
 
 GRANT_TYPE_JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+GRANT_TYPE_REFRESH_TOKEN = "refresh_token"
 
 @app.route('/v1/auth/token', methods=['POST'])
 def auth_token():
     try:
         client_id = request.form['client_id']
         grant_type = request.form['grant_type']
-        assertion = request.form['assertion']
     except KeyError:
         return Response('invalid_request', status=400)
 
     if grant_type == GRANT_TYPE_JWT_BEARER:
-        authenticator = Authenticator(client_id)
+        try:
+            assertion = request.form['assertion']
+        except KeyError:
+            return Response('invalid_request', status=400)
+
+        authenticator = IdTokenAuthenticator(client_id)
+        session = authenticator.validate(assertion)
+    elif grant_type == GRANT_TYPE_REFRESH_TOKEN:
+        try:
+            refresh_token = request.form['refresh_token']
+        except KeyError:
+            return Response('invalid_request', status=400)
+
+        authenticator = RefreshTokenAuthenticator(client_id)
+        session = authenticator.validate(refresh_token)
     else:
         return Response('unsupported_grant_type', status=400)
 
-    session = authenticator.validate(assertion)
+    # TODO: use old refresh_token for grant_type=refresh_token
     access_token = session.generate_access_token()
     refresh_token = session.generate_refresh_token()
 
