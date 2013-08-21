@@ -9,6 +9,7 @@ setup(name='unga',
       author='Junya Hayashi',
       install_requires=[
           "Twisted>=13.1.0",
+          "Flask",
           "cql>=1.4.0",
       ]
 )

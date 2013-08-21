@@ -3,7 +3,7 @@ from twisted.internet import reactor, protocol
 from twisted.protocols import basic
 
 
-class PubProtocol(basic.LineReceiver):
+class StreamProtocol(basic.LineReceiver):
     def __init__(self, factory):
         self.factory = factory
 
@@ -17,14 +17,16 @@ class PubProtocol(basic.LineReceiver):
         for c in self.factory.clients:
             c.sendLine("<{}> {}".format(self.transport.getHost(), line))
 
-class PubFactory(protocol.Factory):
+class StreamFactory(protocol.Factory):
     def __init__(self):
         self.clients = set()
 
     def buildProtocol(self, addr):
-        return PubProtocol(self)
+        return StreamProtocol(self)
+
+stream_app = StreamFactory()
 
 
 if __name__ == "__main__":
-    reactor.listenTCP(1025, PubFactory())
+    reactor.listenTCP(1025, stream_app)
     reactor.run()
