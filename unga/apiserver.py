@@ -8,6 +8,7 @@ from twisted.web.wsgi import WSGIResource
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
 from unga.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
+from unga.exception import *
 
 app = Flask(__name__)
 app.debug = True
@@ -21,13 +22,13 @@ def auth_token():
         client_id = request.form['client_id']
         grant_type = request.form['grant_type']
     except KeyError:
-        return Response('invalid_request', status=400)
+        raise InvalidRequestError('invalid request')
 
     if grant_type == GRANT_TYPE_JWT_BEARER:
         try:
             assertion = request.form['assertion']
         except KeyError:
-            return Response('invalid_request', status=400)
+            raise InvalidRequestError('invalid request')
 
         authenticator = IdTokenAuthenticator(client_id)
         session = authenticator.validate(assertion)
@@ -35,12 +36,12 @@ def auth_token():
         try:
             refresh_token = request.form['refresh_token']
         except KeyError:
-            return Response('invalid_request', status=400)
+            raise InvalidRequestError('invalid request')
 
         authenticator = RefreshTokenAuthenticator(client_id)
         session = authenticator.validate(refresh_token)
     else:
-        return Response('unsupported_grant_type', status=400)
+        raise UnsupportedGrantTypeError('unsupported grant type: %s' % grant_type)
 
     # TODO: use old refresh_token for grant_type=refresh_token
     access_token = session.generate_access_token()
@@ -53,6 +54,13 @@ def auth_token():
         refresh_token = refresh_token.token)
 
     return jsonify(res)
+
+@app.errorhandler(Exception)
+def handle_exception(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
 
 wsgi_resource = WSGIResource(reactor, reactor.getThreadPool(), app)
 wsgi_app = Site(wsgi_resource)
