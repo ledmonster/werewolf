@@ -1,13 +1,21 @@
 """ auth """
 
+import settings
+
+from oauth2client.client import verify_id_token
+from oauth2client.crypt import AppIdentityError
+
 from unga.models import ClientSession, Client, User
+from unga.exception import *
+
 
 
 class Authenticator(object):
     """ Authenticator """
 
     def __init__(self, client_id):
-        # TODO: validate client_id
+        if settings.OAUTH2["CLIENT_ID"] != client_id:
+            raise InvalidClientError('Invalid client_id: %s' % client_id)
         self.client = Client(client_id)
 
 
@@ -16,11 +24,13 @@ class IdTokenAuthenticator(Authenticator):
 
     def validate(self, assertion):
         """ validate assertion and return client session """
-        # TODO: validate assertion
+        try:
+            audience = settings.OAUTH2["CLIENT_ID"]
+            payload = verify_id_token(assertion, audience)
+        except AppIdentityError:
+            raise InvalidGrantError('Invalid id_token: %s' % assertion)
 
-        # TODO: get or create user from client and assertion
-        user = User.create('1')
-
+        user = User.create(payload['sub'])
         return ClientSession.create(user, self.client)
 
 

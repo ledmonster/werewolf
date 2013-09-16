@@ -11,5 +11,7 @@ setup(name='unga',
           "Twisted>=13.1.0",
           "Flask",
           "cql>=1.4.0",
+          "google-api-python-client",
+          "pyOpenSSL",
       ]
 )
