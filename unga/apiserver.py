@@ -16,6 +16,11 @@ app.debug = True
 GRANT_TYPE_JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer"
 GRANT_TYPE_REFRESH_TOKEN = "refresh_token"
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
 @app.route('/v1/auth/token', methods=['POST'])
 def auth_token():
     try:
