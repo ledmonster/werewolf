@@ -58,5 +58,5 @@ class RefreshToken(object):
 
 def generate_token():
     import random, string
-    return ''.join(random.SystemRandom('unga').choice(
+    return ''.join(random.SystemRandom('werewolf').choice(
         string.ascii_letters + string.digits) for x in range(32))

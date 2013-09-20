@@ -7,8 +7,8 @@ from twisted.web.wsgi import WSGIResource
 
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
-from unga.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
-from unga.exception import *
+from werewolf.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
+from werewolf.exception import *
 
 app = Flask(__name__)
 app.debug = True
@@ -62,6 +62,8 @@ def auth_token():
 
 @app.errorhandler(Exception)
 def handle_exception(error):
+    if not isinstance(error, APIError):
+        error = ServerError(str(error))
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response

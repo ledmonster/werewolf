@@ -1,7 +1,7 @@
-""" unga server """
+""" werewolf server """
 from twisted.internet import reactor
-from unga.apiserver import wsgi_app
-from unga.streamserver import stream_app
+from werewolf.apiserver import wsgi_app
+from werewolf.streamserver import stream_app
 
 def main():
     reactor.listenTCP(1025, stream_app)

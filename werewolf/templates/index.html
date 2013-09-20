@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>Unga</title>
+    <title>Werewolf</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     <script type="text/javascript">
@@ -15,7 +15,7 @@
     </script>
   </head>
   <body>
-    <h1>Unga</h1>
+    <h1>Werewolf</h1>
     <div id="gConnect">
       <button class="g-signin"
           data-scope="https://www.googleapis.com/auth/plus.login openid"
@@ -29,7 +29,7 @@
     <div id="result" style="display:none">
       <button id="disconnect" >Disconnect your Google account from this app</button>
       <pre id="authResult"></pre>
-      <pre id="ungaAuthResult"></pre>
+      <pre id="werewolfAuthResult"></pre>
     </div>
 
     <script src="//code.jquery.com/jquery.js"></script>
@@ -48,7 +48,7 @@
         }
         if (authResult['access_token']) {
           $('#gConnect').hide();
-          authenticateUnga(authResult['id_token']);
+          authenticateWerewolf(authResult['id_token']);
         } else if (authResult['error']) {
           console.log('There was an error: ' + authResult['error']);
           $('#authResult').append('Logged out');
@@ -80,7 +80,7 @@
         });
       }
 
-      function authenticateUnga(idToken) {
+      function authenticateWerewolf(idToken) {
         console.log('id_token: ', idToken);
         $.ajax({
           type: 'POST',
@@ -92,14 +92,14 @@
           },
           dataType: 'json',
           success: function(result) {
-            $('#ungaAuthResult').html('Unga Auth Result:<br/>');
+            $('#werewolfAuthResult').html('Werewolf Auth Result:<br/>');
             for (var field in result) {
-              $('#ungaAuthResult').append(' ' + field + ': ' +
+              $('#werewolfAuthResult').append(' ' + field + ': ' +
                   result[field] + '<br/>');
             }
           },
           error: function(error) {
-            $('#ungaAuthResult').html('Unga Auth Result: Error');
+            $('#werewolfAuthResult').html('Werewolf Auth Result: Error');
             console.log(error);
           }
         });

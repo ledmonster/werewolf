@@ -1,12 +1,11 @@
 """ auth """
 
-import settings
-
 from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
 
-from unga.models import ClientSession, Client, User
-from unga.exception import *
+from werewolf import settings
+from werewolf.models import ClientSession, Client, User
+from werewolf.exception import *
 
 
 
