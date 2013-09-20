@@ -1,7 +1,7 @@
-unga
+Werewolf
 ====
 
-Twisted based messaging application
+人狼アプリのバックエンド及び Python クライアントです。
 
 How to build for development ?
 ==============================

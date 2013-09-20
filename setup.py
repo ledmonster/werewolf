@@ -1,16 +1,16 @@
 from setuptools import setup
 
 
-setup(name='unga',
+setup(name='werewolf',
       version='0.1',
-      description='Twisted based messaging service',
-      packages = ['unga'],
+      description='Jinro backend and CLI',
+      packages = ['unga', 'werewolf'],
       license='MIT',
       author='Junya Hayashi',
       install_requires=[
           "Twisted>=13.1.0",
+          "Django>=1.5.4",
           "Flask",
-          "cql>=1.4.0",
           "google-api-python-client",
           "pyOpenSSL",
       ]
