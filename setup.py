@@ -9,12 +9,16 @@ setup(name='werewolf',
       author='Junya Hayashi',
       install_requires=[
           "Twisted>=13.1.0",
-          "Django>=1.5.4",
+          "Django>=1.6b4",
           "django-uuidfield",
+          "jsonfield",
           "Flask",
           "google-api-python-client",
           "pyOpenSSL",
           "mysql-python",
           "PIL",
+      ],
+      dependency_links=[
+          "https://github.com/django/django/archive/1.6b4.zip#egg=Django-1.6b4",
       ]
 )
