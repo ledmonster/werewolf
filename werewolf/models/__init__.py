@@ -1,4 +1,4 @@
 from .auth import ClientSession, AccessToken, RefreshToken
 from .user import User
 from .village import Village, Player, Character, GameResult
-from .message import Message
+from .event import Event
