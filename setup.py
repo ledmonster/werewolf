@@ -14,6 +14,7 @@ setup(name='werewolf',
           "Flask",
           "google-api-python-client",
           "pyOpenSSL",
-          "mysql-python"
+          "mysql-python",
+          "PIL",
       ]
 )
