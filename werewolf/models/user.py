@@ -1,14 +1,17 @@
 """ user """
 import uuid
 
+from django.db import models
+from uuidfield import UUIDField
 
-class User(object):
+class User(models.Model):
     """ user """
-    def __init__(self, identity, ref_key=None):
-        self.identity = identity
-        self.ref_key = ref_key
+    identity = UUIDField(auto=True, primary_key=True)
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    status = models.SmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    @classmethod
-    def create(cls, ref_key):
-        identity = uuid.uuid1()
-        return cls(identity, ref_key)
+    class Meta:
+      app_label = 'werewolf'

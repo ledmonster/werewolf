@@ -114,6 +114,7 @@ TEMPLATE_DIRS = (
 )
 
 INSTALLED_APPS = (
+    'werewolf',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

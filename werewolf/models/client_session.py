@@ -2,8 +2,10 @@
 import datetime
 import uuid
 
+from django.db import models
 
-class ClientSession(object):
+
+class ClientSession(models.Model):
     """ Client Session """
 
     def __init__(self, identity, user, client):
@@ -22,7 +24,7 @@ class ClientSession(object):
         return RefreshToken.create(self)
 
 
-class AccessToken(object):
+class AccessToken(models.Model):
     """ access token """
 
     EXPIRES_IN = 3600
@@ -39,7 +41,7 @@ class AccessToken(object):
         return cls(client_session, token, expires_at)
 
 
-class RefreshToken(object):
+class RefreshToken(models.Model):
     """ refresh token """
 
     EXPIRES_IN = 3600 * 24 * 365  # 1 year

@@ -10,6 +10,7 @@ setup(name='werewolf',
       install_requires=[
           "Twisted>=13.1.0",
           "Django>=1.5.4",
+          "django-uuidfield",
           "Flask",
           "google-api-python-client",
           "pyOpenSSL",
