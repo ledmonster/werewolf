@@ -23,3 +23,12 @@
     <pre id="werewolfAuthResult"></pre>
   </div>
 {% endblock %}
+
+{% block javascript %}
+  function onSignInCallback(authResult) {
+    werewolf.onSignInCallback(authResult);
+  }
+  $(document).ready(function() {
+    $('#disconnect').click(werewolf.disconnect);
+  });
+{% endblock %}
