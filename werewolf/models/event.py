@@ -20,7 +20,7 @@ class Event(models.Model):
         (TYPE_GAME_START, 'game_start'),
     )
 
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     event_type = models.CharField(max_length=32, choices=EVENT_TYPE_CHOICES, default=TYPE_MESSAGE)
     user = models.ForeignKey('User', null=True)
     player = models.ForeignKey('Player', null=True)

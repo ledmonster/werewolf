@@ -14,7 +14,7 @@ def generate_token():
 
 class ClientSession(models.Model):
     """ Client Session """
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     user = models.ForeignKey('User')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
