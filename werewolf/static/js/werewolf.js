@@ -108,7 +108,7 @@ var werewolf = (function (){
         type: 'POST',
         url: 'http://werewolf.example.com:8000/api/v1/village/join',
         beforeSend: function (xhr) {
-          xhr.setRequestHeader('Authorization', "OAuth " + localStorage.getItem("access_token"));
+          xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("access_token"));
           xhr.setRequestHeader('Accept', "application/json");
         },
         data: {
