@@ -95,7 +95,7 @@ USE_TZ = True
 STATIC_ROOT = ''
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = BASE_DIR + "/static/media"
+MEDIA_ROOT = BASE_DIR + "/werewolf/static/media"
 MEDIA_URL = '/static/media/'
 
 OAUTH2 = {
