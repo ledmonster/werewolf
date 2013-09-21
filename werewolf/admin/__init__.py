@@ -2,6 +2,7 @@ from werewolf.models import *
 from django.contrib import admin
 
 admin.site.register(User)
+admin.site.register(UserCredential)
 admin.site.register(Village)
 admin.site.register(Player)
 admin.site.register(Character)
