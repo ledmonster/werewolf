@@ -4,7 +4,7 @@ from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
 
 from werewolf import settings
-from werewolf.models import ClientSession, User
+from werewolf.models import ClientSession, User, UserCredential
 from werewolf.exception import *
 
 
@@ -28,7 +28,23 @@ class IdTokenAuthenticator(Authenticator):
         except AppIdentityError:
             raise InvalidGrantError('Invalid id_token: %s' % assertion)
 
-        user, created = User.objects.get_or_create(identity=payload['sub'])
+        try:
+            credential = UserCredential.objects.get(
+                credential_type=UserCredential.CREDENTIAL_TYPE_GOOGLE,
+                key=payload['sub'])
+            user = credential.user
+        except UserCredential.DoesNotExist:
+            params = dict()
+            if 'email' in payload.keys():
+                params['email'] = payload['email']
+                params['name'] = payload['email'].split('@')[0]
+            # TODO: get existing user by email
+            user = User.objects.create(**params)
+            UserCredential.objects.create(
+                user=user,
+                credential_type=UserCredential.CREDENTIAL_TYPE_GOOGLE,
+                key=payload['sub'])
+
         return ClientSession.objects.create(user=user)
 
 
