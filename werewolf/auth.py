@@ -1,10 +1,10 @@
-""" auth """
+""" auth (using Google Backend) """
 
 from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
 
 from werewolf import settings
-from werewolf.models import ClientSession, Client, User
+from werewolf.models import ClientSession, User
 from werewolf.exception import *
 
 
@@ -15,7 +15,6 @@ class Authenticator(object):
     def __init__(self, client_id):
         if settings.OAUTH2["CLIENT_ID"] != client_id:
             raise InvalidClientError('Invalid client_id: %s' % client_id)
-        self.client = Client(client_id)
 
 
 class IdTokenAuthenticator(Authenticator):
@@ -29,8 +28,8 @@ class IdTokenAuthenticator(Authenticator):
         except AppIdentityError:
             raise InvalidGrantError('Invalid id_token: %s' % assertion)
 
-        user = User.create(payload['sub'])
-        return ClientSession.create(user, self.client)
+        user, created = User.objects.get_or_create(identity=payload['sub'])
+        return ClientSession.objects.create(user=user)
 
 
 class RefreshTokenAuthenticator(Authenticator):
@@ -38,9 +37,4 @@ class RefreshTokenAuthenticator(Authenticator):
 
     def validate(self, refresh_token):
         """ validate refresh_token and return client session """
-        # TODO: get refresh_token object, and check expire
-
-        # TODO: get client session assigned to refresh token
-        user = User.create('1')
-
-        return ClientSession.create(user, self.client)
+        raise NotImplementedError()

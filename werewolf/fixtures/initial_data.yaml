@@ -1,23 +1,23 @@
 - model: werewolf.character
-  pk: eb69501c225311e3a09ab8f6b11aaf33
+  pk: 1
   fields:
     name: ミコト
     job: 姫
     profile_image: character/mikoto.gif
 - model: werewolf.character
-  pk: f97a4333225311e3b4bab8f6b11aaf33
+  pk: 1
   fields:
     name: ウォーレンス
     job: 執事
     profile_image: character/wallens.gif
 - model: werewolf.character
-  pk: fd424c82225311e3b3ccb8f6b11aaf33
+  pk: 3
   fields:
     name: ポロン
     job: 旅人
     profile_image: character/pollon.gif
 - model: werewolf.character
-  pk: 01413bf3225411e38c7cb8f6b11aaf33
+  pk: 4
   fields:
     name: パーン
     job: 騎士

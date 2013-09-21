@@ -17,11 +17,11 @@ class ClientSession(EntityModel):
 
     def generate_access_token(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN)
-        return AccessToken(client_session=self, expires_at=expires_at)
+        return AccessToken.objects.create(client_session=self, expires_at=expires_at)
 
     def generate_refresh_token(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=RefreshToken.EXPIRES_IN)
-        return RefreshToken(client_session=self, expires_at=expires_at)
+        return RefreshToken.objects.create(client_session=self, expires_at=expires_at)
 
     class Meta:
         app_label = 'werewolf'
