@@ -32,25 +32,10 @@ class Village(models.Model):
 
 class Player(models.Model):
     """ player """
-    ROLE_WOLF = "wolf"
-    ROLE_VILLAGER = "villager"
-    ROLE_FORTUNE_TELLER = "fortune teller"
-    ROLE_PHANTOM_THIEF = "phantom thief"
-
-    ROLE_CHOICES = (
-        (ROLE_WOLF, u'人狼'),
-        (ROLE_VILLAGER, u'村人'),
-        (ROLE_FORTUNE_TELLER, u'占い師'),
-        (ROLE_PHANTOM_THIEF, u'怪盗'),
-    )
 
     identity = UUIDField(auto=True, primary_key=True)
     user = models.ForeignKey('User')
-    village = models.ForeignKey('Village')
     character = models.ForeignKey('Character')
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    executed = models.BooleanField(default=False)
-    execute_target = models.ForeignKey('self')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -73,6 +58,42 @@ class Character(models.Model):
     job = models.CharField(max_length=100)
     profile_image = models.ImageField(upload_to="charactor/")
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        app_label = 'werewolf'
+
+
+class PlayerRole(models.Model):
+    u""" 村での Player の役職 """
+    ROLE_WOLF = "wolf"
+    ROLE_VILLAGER = "villager"
+    ROLE_BERSERKER = "berserker"
+    ROLE_FORTUNE_TELLER = "fortune_teller"
+    ROLE_PHANTOM_THIEF = "phantom_thief"
+
+    ROLE_CHOICES = (
+        (ROLE_WOLF, u'人狼'),
+        (ROLE_VILLAGER, u'村人'),
+        (ROLE_BERSERKER, u'狂人'),
+        (ROLE_FORTUNE_TELLER, u'占い師'),
+        (ROLE_PHANTOM_THIEF, u'怪盗'),
+    )
+
+    STATUS_ALIVE = 1
+    STATUS_EXECUTED = 2
+
+    STATUS_CHOICES = (
+        (STATUS_ALIVE, 'alive'),
+        (STATUS_EXECUTED, 'executed'),
+    )
+
+    identity = UUIDField(auto=True, primary_key=True)
+    village = models.ForeignKey('Village')
+    player = models.ForeignKey('Player')
+    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ALIVE)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
