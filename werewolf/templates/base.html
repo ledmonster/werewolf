@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>みんなの人狼</title>
+    <link href="//netdna.bootstrapcdn.com/bootswatch/3.0.0/slate/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="/static/css/sticky-footer-navbar.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../../assets/js/html5shiv.js"></script>
+      <script src="../../assets/js/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript">
+    (function() {
+      var po = document.createElement('script');
+      po.type = 'text/javascript'; po.async = true;
+      po.src = 'https://plus.google.com/js/client:plusone.js';
+      var s = document.getElementsByTagName('script')[0];
+      s.parentNode.insertBefore(po, s);
+    })();
+    </script>
+  </head>
+  <body>
+
+    <!-- Wrap all page content here -->
+    <div id="wrap">
+
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+
+          <a href="https://git.gree-dev.net/junya-hayashi/werewolf"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">みんなの人狼</a>
+          </div>
+
+          <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+              <li><a href="/village/list">村一覧</a></li>
+            </ul>
+
+            <form class="navbar-form navbar-left">
+              <button id="disconnect" style="display:none" class="btn btn-default navbar-btn">Logout</button>
+            </form>
+          </div>
+      </nav>
+
+      <!-- Begin page content -->
+      <div class="container">
+        {% block container %}{% endblock %}
+      </div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="text-muted credit">Junya Hayashi 2013.</p>.
+      </div>
+    </div>
+
+    <script src="//code.jquery.com/jquery.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="/static/js/werewolf.js">
+    <script>
+      $(document).ready(function() {
+        $('#disconnect').click(disconnect);
+      });
+    </script>
+  </body>
+</html>
