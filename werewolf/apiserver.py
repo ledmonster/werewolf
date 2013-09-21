@@ -7,7 +7,7 @@ from twisted.web.wsgi import WSGIResource
 
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
-from werewolf.models import Village
+from werewolf.models import *
 from werewolf.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
 from werewolf.exception import *
 
@@ -34,7 +34,9 @@ def village_detail(identity):
         village = Village.objects.get(identity=identity)
     except Village.DoesNotExist:
         raise NotFoundError('page not found')
-    return render_template('village/detail.html', village=village)
+
+    player_role_list = village.playerrole_set.all()
+    return render_template('village/detail.html', village=village, player_role_list=player_role_list)
 
 
 #TODO: OAuth Authorization for this endpoint
@@ -43,6 +45,21 @@ def api_village_list():
     village_list = dict([(entity.identity, entity.to_dict())
                          for entity in Village.objects.all()])
     return jsonify(village_list)
+
+
+@app.route('/api/v1/village/join', methods=['POST'])
+def api_village_join():
+    village_identity = request.form['identity']
+    token = request.headers["authorization"].split()[1]
+    user = AccessToken.objects.get(token=token).client_session.user
+
+    village = Village.objects.get(identity=village_identity)
+    mikoto = Character.objects.get(id=1)
+    player, created = Player.objects.get_or_create(user=user, character=mikoto)
+    # TODO: random role
+    role, created = PlayerRole.objects.get_or_create(village=village, player=player, role=PlayerRole.ROLE_WOLF)
+
+    return jsonify(dict(result="ok"))
 
 
 @app.route('/api/v1/auth/token', methods=['POST'])

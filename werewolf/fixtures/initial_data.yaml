@@ -22,7 +22,7 @@
     job: 姫
     profile_image: character/mikoto.gif
 - model: werewolf.character
-  pk: 1
+  pk: 2
   fields:
     name: ウォーレンス
     job: 執事

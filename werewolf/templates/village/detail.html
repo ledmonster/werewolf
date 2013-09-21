@@ -3,6 +3,19 @@
 {% block container %}
   <div class="page-header">
     <h1>{{ village.name }}</h1>
+    <p>
+      この村の定員は3人です。ただの村人（1人）のほかに、狂人（1人）、人狼（1人）が混じっています。<br />
+      みんなで協力して人狼を見つけて吊りましょう。
+    </p>
+    <table id="village_table" class="table table-striped">
+      <tr><th>名前</th><th>職業</th></tr>
+      {% for player_role in player_role_list %}
+        <tr>
+          <td>{{ player_role.player.character.name }}</td>
+          <td>{{ player_role.player.character.job }}</td>
+        </tr>
+      {% endfor %}
+    </table>
   </div>
   <div id="join">
     <button type="button" class="btn btn-default" id="joinToVillage">参加する</button>
