@@ -66,6 +66,36 @@ var werewolf = (function (){
           console.log(error);
         }
       });
+    },
+
+    loadVillageList: function() {
+      $.ajax({
+        type: 'GET',
+        url: 'http://localhost:8000/api/v1/village/list',
+        data: {},
+        dataType: 'json',
+        success: function(result) {
+          console.log(result);
+          for (var identity in result) {
+            var item = result[identity];
+            $("#village_table").append(
+             $("<tr></tr>")
+               .append($("<td></td>").text(item.name))
+               .append($("<td></td>").text(item.status))
+               .append($("<td></td>").text(item.start_at))
+               .append($("<td></td>").text(item.end_at))
+               .append($("<td></td>")
+                 .append($("<button type='button' class='btn btn-default'>参加する</button>"))
+               )
+            );
+          }
+        },
+        error: function(error) {
+          $('#error').show();
+          $('#error').html(error);
+        }
+      });
     }
+
   };
 })();

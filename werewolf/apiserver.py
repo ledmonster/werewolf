@@ -7,8 +7,10 @@ from twisted.web.wsgi import WSGIResource
 
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
+from werewolf.models import Village
 from werewolf.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
 from werewolf.exception import *
+
 
 app = Flask(__name__)
 app.debug = True
@@ -21,8 +23,21 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/v1/auth/token', methods=['POST'])
-def auth_token():
+@app.route('/village/list')
+def village_list():
+    return render_template('village/list.html')
+
+
+#TODO: OAuth Authorization for this endpoint
+@app.route('/api/v1/village/list')
+def api_village_list():
+    village_list = dict([(entity.identity, entity.to_dict())
+                         for entity in Village.objects.all()])
+    return jsonify(village_list)
+
+
+@app.route('/api/v1/auth/token', methods=['POST'])
+def api_auth_token():
     try:
         client_id = request.form['client_id']
         grant_type = request.form['grant_type']

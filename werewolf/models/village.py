@@ -23,6 +23,16 @@ class Village(EntityModel):
     start_at = models.DateTimeField(null=True)
     end_at = models.DateTimeField(null=True)
 
+    def to_dict(self):
+        return dict(
+            identity=self.identity,
+            name=self.name,
+            status=self.get_status_display(),
+            start_at=self.start_at,
+            end_at=self.end_at,
+            created=self.created,
+            modified=self.modified)
+
     class Meta:
         app_label = 'werewolf'
 
