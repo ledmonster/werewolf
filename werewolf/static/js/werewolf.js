@@ -36,6 +36,8 @@ var werewolf = (function (){
           $('#authResult').empty();
           $('#gConnect').show();
           $('#disconnect').hide();
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
         },
         error: function(e) {
           console.log(e);
@@ -47,7 +49,7 @@ var werewolf = (function (){
       console.log('id_token: ', idToken);
       $.ajax({
         type: 'POST',
-        url: 'http://localhost:8000/api/v1/auth/token',
+        url: 'http://werewolf.example.com:8000/api/v1/auth/token',
         data: {
           'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
           'client_id': '793850702446.apps.googleusercontent.com',
@@ -59,7 +61,9 @@ var werewolf = (function (){
           for (var field in result) {
             $('#werewolfAuthResult').append(' ' + field + ': ' +
                 result[field] + '<br/>');
-          }
+          };
+          localStorage.setItem("access_token", result["access_token"]);
+          localStorage.setItem("refresh_token", result["refresh_token"]);
         },
         error: function(error) {
           $('#werewolfAuthResult').html('Werewolf Auth Result: Error');
@@ -71,7 +75,7 @@ var werewolf = (function (){
     loadVillageList: function() {
       $.ajax({
         type: 'GET',
-        url: 'http://localhost:8000/api/v1/village/list',
+        url: 'http://werewolf.example.com:8000/api/v1/village/list',
         data: {},
         dataType: 'json',
         success: function(result) {
@@ -91,6 +95,30 @@ var werewolf = (function (){
                )
             );
           }
+        },
+        error: function(error) {
+          $('#error').show();
+          $('#error').html(error);
+        }
+      });
+    },
+
+    joinToVillage: function(identity) {
+      $.ajax({
+        type: 'POST',
+        url: 'http://werewolf.example.com:8000/api/v1/village/join',
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader('Authorization', "OAuth " + localStorage.getItem("access_token"));
+          xhr.setRequestHeader('Accept', "application/json");
+        },
+        data: {
+          'identity': identity
+        },
+        dataType: 'json',
+        success: function(result) {
+          $('#join').hide();
+          $('#joined').show();
+          console.log(result);
         },
         error: function(error) {
           $('#error').show();

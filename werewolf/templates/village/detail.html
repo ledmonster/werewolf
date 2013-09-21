@@ -4,12 +4,21 @@
   <div class="page-header">
     <h1>{{ village.name }}</h1>
   </div>
+  <div id="join">
+    <button type="button" class="btn btn-default" id="joinToVillage">参加する</button>
+  </div>
+  <div id="joined" style="display:none">
+    <strong>参加中</strong>
+  </div>
   <p id="error" style="display:none"></p>
 {% endblock %}
 
 {% block javascript %}
+  function joinToVillage() {
+    werewolf.joinToVillage("{{ village.identity }}");
+  }
   $(document).ready(function() {
     $('#disconnect').click(werewolf.disconnect);
-    werewolf.loadVillageList();
+    $('#joinToVillage').click(joinToVillage);
   });
 {% endblock %}
