@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block container %}
+  <div class="page-header">
+    <h1>村一覧</h1>
+  </div>
+  <table class="table table-striped">
+    <tr><th>村の名前</th><th>状態</th><th>ゲーム開始日時</th><th>ゲーム終了日時</th><th>アクション</th></tr>
+  </table>
+{% endblock %}
+
+{% block javascript %}
+  $(document).ready(function() {
+    $('#disconnect').click(werewolf.disconnect);
+  });
+{% endblock %}
