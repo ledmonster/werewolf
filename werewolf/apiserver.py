@@ -28,6 +28,15 @@ def village_list():
     return render_template('village/list.html')
 
 
+@app.route('/village/<identity>')
+def village_detail(identity):
+    try:
+        village = Village.objects.get(identity=identity)
+    except Village.DoesNotExist:
+        raise NotFoundError('page not found')
+    return render_template('village/detail.html', village=village)
+
+
 #TODO: OAuth Authorization for this endpoint
 @app.route('/api/v1/village/list')
 def api_village_list():

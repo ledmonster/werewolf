@@ -80,7 +80,9 @@ var werewolf = (function (){
             var item = result[identity];
             $("#village_table").append(
              $("<tr></tr>")
-               .append($("<td></td>").text(item.name))
+               .append($("<td></td>")
+                 .append($("<a href='/village/" + item.identity + "'></a>").text(item.name))
+               )
                .append($("<td></td>").text(item.status))
                .append($("<td></td>").text(item.start_at))
                .append($("<td></td>").text(item.end_at))

@@ -50,6 +50,11 @@ class InvalidScopeError(APIError):
     error = "invalid_scope"
 
 
+class NotFoundError(APIError):
+    status_code = 404
+    error = "not_found"
+
+
 class ServerError(APIError):
     status_code = 500
     error = "server_error"
