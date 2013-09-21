@@ -20,8 +20,8 @@ class Village(EntityModel):
 
     name = models.CharField(max_length=100)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_OPEN)
-    start_at = models.DateTimeField()
-    end_at = models.DateTimeField()
+    start_at = models.DateTimeField(null=True)
+    end_at = models.DateTimeField(null=True)
 
     class Meta:
         app_label = 'werewolf'
