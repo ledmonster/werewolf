@@ -1,12 +1,12 @@
 # -*- encoding: utf-8 -*-
 """ village """
-import uuid
-
 from django.db import models
-from uuidfield import UUIDField
+from django_extensions.db.models import TimeStampedModel
+
+from .base import EntityModel
 
 
-class Village(models.Model):
+class Village(EntityModel):
     """ village """
     STATUS_OPEN = 1
     STATUS_IN_PROGRESS = 2
@@ -18,32 +18,26 @@ class Village(models.Model):
         (STATUS_CLOSED, 'closed'),
     )
 
-    identity = UUIDField(version=1, auto=True, primary_key=True)
     name = models.CharField(max_length=100)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_OPEN)
     start_at = models.DateTimeField()
     end_at = models.DateTimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         app_label = 'werewolf'
 
 
-class Player(models.Model):
+class Player(EntityModel):
     """ player """
 
-    identity = UUIDField(version=1, auto=True, primary_key=True)
     user = models.ForeignKey('User')
     character = models.ForeignKey('Character')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         app_label = 'werewolf'
 
 
-class Character(models.Model):
+class Character(EntityModel):
     """ character """
     STATUS_ENABLED = 1
     STATUS_DISABLED = 2
@@ -53,19 +47,19 @@ class Character(models.Model):
         (STATUS_DISABLED, 'disabled'),
     )
 
-    identity = UUIDField(version=1, auto=True, primary_key=True)
     name = models.CharField(max_length=100)
     job = models.CharField(max_length=100)
-    profile_image = models.ImageField(upload_to="charactor/")
+    profile_image = models.ImageField(upload_to="character/")
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         app_label = 'werewolf'
 
 
-class PlayerRole(models.Model):
+class PlayerRole(EntityModel):
     u""" 村での Player の役職 """
     ROLE_WOLF = "wolf"
     ROLE_VILLAGER = "villager"
@@ -89,19 +83,16 @@ class PlayerRole(models.Model):
         (STATUS_EXECUTED, 'executed'),
     )
 
-    identity = UUIDField(version=1, auto=True, primary_key=True)
     village = models.ForeignKey('Village')
     player = models.ForeignKey('Player')
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ALIVE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         app_label = 'werewolf'
 
 
-class GameResult(models.Model):
+class GameResult(TimeStampedModel):
     """ play result """
 
     WINNER_VILLAGER = 1
@@ -114,8 +105,6 @@ class GameResult(models.Model):
 
     village = models.OneToOneField('Village', primary_key=True)
     winner = models.CharField(max_length=20, choices=WINNER_CHOICES)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         app_label = 'werewolf'

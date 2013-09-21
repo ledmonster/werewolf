@@ -1,9 +1,8 @@
 """ client session """
 import datetime
-import uuid
-
 from django.db import models
-from uuidfield import UUIDField
+
+from .base import EntityModel
 
 
 def generate_token():
@@ -12,12 +11,9 @@ def generate_token():
         string.ascii_letters + string.digits) for x in range(32))
 
 
-class ClientSession(models.Model):
+class ClientSession(EntityModel):
     """ Client Session """
-    identity = UUIDField(version=1, auto=True, primary_key=True)
     user = models.ForeignKey('User')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def generate_access_token(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN)
