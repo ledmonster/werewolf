@@ -7,15 +7,14 @@
       この村の定員は3人です。ただの村人（1人）のほかに、狂人（1人）、人狼（1人）が混じっています。<br />
       みんなで協力して人狼を見つけて吊りましょう。
     </p>
-    <table id="village_table" class="table table-striped">
-      <tr><th>名前</th><th>職業</th></tr>
-      {% for player_role in player_role_list %}
-        <tr>
-          <td>{{ player_role.player.character.name }}</td>
-          <td>{{ player_role.player.character.job }}</td>
-        </tr>
-      {% endfor %}
-    </table>
+    <div class="row">
+    {% for player_role in player_role_list %}
+      <div class="col-md-3">
+        <img src="{{ player_role.player.character.profile_image.url }}"><br>
+        {{ player_role.player.character.name }}({{ player_role.player.character.job }})
+      </div>
+    {% endfor %}
+    </div>
   </div>
   <div id="join">
     <button type="button" class="btn btn-default" id="joinToVillage">参加する</button>
@@ -24,6 +23,17 @@
     <strong>参加中</strong>
   </div>
   <p id="error" style="display:none"></p>
+  <h3>message area</h3>
+  <div id="message_area" style="width: 800px;">
+  </div>
+
+  <div class="input-group">
+    <form>
+      <input id="input_text" type="text" class="form-control">
+      <button id="send" class="btn btn-default" type="button">送信</button>
+    </form>
+  </div>
+
 {% endblock %}
 
 {% block javascript %}
@@ -34,4 +44,20 @@
     $('#disconnect').click(werewolf.disconnect);
     $('#joinToVillage').click(joinToVillage);
   });
+
+  var ws = new WebSocket("ws://werewolf.example.com:8000/websocket");
+  ws.onopen = function() {
+  };
+  ws.onmessage = function (evt) {
+     $('#message_area').append($("<p></p>").text(evt.data));
+  };
+
+  function sendByWebsocket() {
+    ws.send($('#input_text').val());
+    $('#input_text').val("");
+  };
+
+  $("#send").click(sendByWebsocket);
+
+
 {% endblock %}
