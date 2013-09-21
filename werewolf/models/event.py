@@ -14,10 +14,10 @@ class Event(models.Model):
     TYPE_GAME_START = "game_start"
 
     EVENT_TYPE_CHOICES = (
-        TYPE_MESSAGE, 'message',
-        TYPE_EXECUTION, 'execution',
-        TYPE_SET_EXECUTION, 'set execution',
-        TYPE_GAME_START = 'game_start',
+        (TYPE_MESSAGE, 'message'),
+        (TYPE_EXECUTION, 'execution'),
+        (TYPE_SET_EXECUTION, 'set execution'),
+        (TYPE_GAME_START, 'game_start'),
     )
 
     identity = UUIDField(auto=True, primary_key=True)
@@ -25,7 +25,7 @@ class Event(models.Model):
     user = models.ForeignKey('User', null=True)
     player = models.ForeignKey('Player', null=True)
     village = models.ForeignKey('Village')
-    value = models.JSONField()
+    value = JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
