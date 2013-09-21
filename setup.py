@@ -8,7 +8,7 @@ setup(name='werewolf',
       license='MIT',
       author='Junya Hayashi',
       install_requires=[
-          "Twisted>=13.1.0",
+          "tornado",
           "Django>=1.6b4",
           "django-extensions",
           "Flask",

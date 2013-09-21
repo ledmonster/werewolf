@@ -1,10 +1,6 @@
 """ api server """
 import datetime
 
-from twisted.internet import reactor, protocol
-from twisted.web.server import Site
-from twisted.web.wsgi import WSGIResource
-
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
 from werewolf.models import *
@@ -110,10 +106,12 @@ def handle_exception(error):
     return response
 
 
-wsgi_resource = WSGIResource(reactor, reactor.getThreadPool(), app)
-wsgi_app = Site(wsgi_resource)
-
-
 if __name__ == "__main__":
-    reactor.listenTCP(8000, wsgi_app)
-    reactor.run()
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    from tornado.ioloop import IOLoop
+
+    wsgi_app = WSGIContainer(app)
+    http_server = HTTPServer(wsgi_app)
+    http_server.listen(8000)
+    IOLoop.instance().start()
