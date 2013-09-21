@@ -37,7 +37,7 @@ class Player(EntityModel):
         app_label = 'werewolf'
 
 
-class Character(EntityModel):
+class Character(TimeStampedModel):
     """ character """
     STATUS_ENABLED = 1
     STATUS_DISABLED = 2
@@ -47,6 +47,7 @@ class Character(EntityModel):
         (STATUS_DISABLED, 'disabled'),
     )
 
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     job = models.CharField(max_length=100)
     profile_image = models.ImageField(upload_to="character/")

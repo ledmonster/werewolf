@@ -1,4 +1,9 @@
 """ werewolf server """
+import os
+
+# initialize django
+os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
+
 from twisted.internet import reactor
 from werewolf.apiserver import wsgi_app
 from werewolf.streamserver import stream_app
