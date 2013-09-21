@@ -18,7 +18,7 @@ class Village(models.Model):
         (STATUS_CLOSED, 'closed'),
     )
 
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     name = models.CharField(max_length=100)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_OPEN)
     start_at = models.DateTimeField()
@@ -33,7 +33,7 @@ class Village(models.Model):
 class Player(models.Model):
     """ player """
 
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     user = models.ForeignKey('User')
     character = models.ForeignKey('Character')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,7 +53,7 @@ class Character(models.Model):
         (STATUS_DISABLED, 'disabled'),
     )
 
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     name = models.CharField(max_length=100)
     job = models.CharField(max_length=100)
     profile_image = models.ImageField(upload_to="charactor/")
@@ -89,7 +89,7 @@ class PlayerRole(models.Model):
         (STATUS_EXECUTED, 'executed'),
     )
 
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     village = models.ForeignKey('Village')
     player = models.ForeignKey('Player')
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ALIVE)

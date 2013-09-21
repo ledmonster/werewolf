@@ -14,7 +14,7 @@ class User(models.Model):
         (STATUS_DISABLED, 'disabled'),
     )
 
-    identity = UUIDField(auto=True, primary_key=True)
+    identity = UUIDField(version=1, auto=True, primary_key=True)
     name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(blank=True)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
