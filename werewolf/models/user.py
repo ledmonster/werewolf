@@ -1,10 +1,10 @@
 """ user """
-import uuid
-
 from django.db import models
-from uuidfield import UUIDField
 
-class User(models.Model):
+from .base import EntityModel
+
+
+class User(EntityModel):
     """ user """
     STATUS_ENABLED = 1
     STATUS_DISABLED = 2
@@ -14,12 +14,9 @@ class User(models.Model):
         (STATUS_DISABLED, 'disabled'),
     )
 
-    identity = UUIDField(version=1, auto=True, primary_key=True)
     name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(blank=True)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         app_label = 'werewolf'
