@@ -10,11 +10,14 @@ from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 
 from werewolf.apiserver import app as flask_app
+from werewolf.admin.wsgi import application as django_admin_app
 from werewolf.websocketserver import SocketHandler
 
 def main():
     app = Application([
         (r'/websocket', SocketHandler),
+        ('/admin/.*', FallbackHandler, dict(fallback=WSGIContainer(django_admin_app))),
+        ('/static/admin/.*', FallbackHandler, dict(fallback=WSGIContainer(django_admin_app))),
         ('.*', FallbackHandler, dict(fallback=WSGIContainer(flask_app))),
     ])
     http_server = HTTPServer(app)
