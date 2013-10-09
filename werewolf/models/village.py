@@ -18,10 +18,19 @@ class Village(EntityModel):
         (STATUS_CLOSED, 'closed'),
     )
 
+    WINNER_VILLAGER = 1
+    WINNER_WOLF = 2
+
+    WINNER_CHOICES = (
+        (WINNER_VILLAGER, u'村人の勝利'),
+        (WINNER_WOLF, u'人狼の勝利'),
+    )
+
     name = models.CharField(max_length=100)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_OPEN)
     start_at = models.DateTimeField(null=True)
     end_at = models.DateTimeField(null=True)
+    winner = models.CharField(max_length=20, choices=WINNER_CHOICES)
 
     def to_dict(self):
         return dict(
@@ -65,24 +74,9 @@ class Resident(EntityModel):
     user = models.ForeignKey('User')
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ALIVE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-
-    class Meta:
-        app_label = 'werewolf'
-
-
-class GameResult(TimeStampedModel):
-    """ play result """
-
-    WINNER_VILLAGER = 1
-    WINNER_WOLF = 2
-
-    WINNER_CHOICES = (
-        (WINNER_VILLAGER, u'村人の勝利'),
-        (WINNER_WOLF, u'人狼の勝利'),
-    )
-
-    village = models.OneToOneField('Village', primary_key=True)
-    winner = models.CharField(max_length=20, choices=WINNER_CHOICES)
+    is_winner = models.BooleanField(null=True)
+    execution_target = models.ForeignKey('Resident', null=True)
+    hunt_target = models.ForeignKey('Resident', null=True)
 
     class Meta:
         app_label = 'werewolf'
