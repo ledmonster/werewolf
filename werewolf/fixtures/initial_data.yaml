@@ -14,28 +14,3 @@
   pk: f2394c82226711e3923ab8f6b11aaf33
   fields:
     name: ハチドリ村
-
-- model: werewolf.character
-  pk: 1
-  fields:
-    name: ミコト
-    job: 姫
-    profile_image: character/mikoto.gif
-- model: werewolf.character
-  pk: 2
-  fields:
-    name: ウォーレンス
-    job: 執事
-    profile_image: character/wallens.gif
-- model: werewolf.character
-  pk: 3
-  fields:
-    name: ポロン
-    job: 旅人
-    profile_image: character/pollon.gif
-- model: werewolf.character
-  pk: 4
-  fields:
-    name: パーン
-    job: 騎士
-    profile_image: character/paan.gif
