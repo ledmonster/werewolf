@@ -8,9 +8,9 @@
       みんなで協力して人狼を見つけて吊りましょう。
     </p>
     <div class="row">
-    {% for player_role in player_role_list %}
+    {% for resident in resident_list %}
       <div class="col-md-3">
-        <strong>{{ player_role.player.user.name }}</strong>
+        <strong>{{ resident.player.user.name }}</strong>
       </div>
     {% endfor %}
     </div>
