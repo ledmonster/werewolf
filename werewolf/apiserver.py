@@ -50,8 +50,7 @@ def api_village_join():
     user = AccessToken.objects.get(token=token).client_session.user
 
     village = Village.objects.get(identity=village_identity)
-    mikoto = Character.objects.get(id=1)
-    player, created = Player.objects.get_or_create(user=user, character=mikoto)
+    player, created = Player.objects.get_or_create(user=user)
     # TODO: random role
     role, created = PlayerRole.objects.get_or_create(village=village, player=player, role=PlayerRole.ROLE_WOLF)
 

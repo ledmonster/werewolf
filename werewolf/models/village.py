@@ -41,30 +41,6 @@ class Player(EntityModel):
     """ player """
 
     user = models.ForeignKey('User')
-    character = models.ForeignKey('Character')
-
-    class Meta:
-        app_label = 'werewolf'
-
-
-class Character(TimeStampedModel):
-    """ character """
-    STATUS_ENABLED = 1
-    STATUS_DISABLED = 2
-
-    STATUS_CHOICES = (
-        (STATUS_ENABLED, 'enabled'),
-        (STATUS_DISABLED, 'disabled'),
-    )
-
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    job = models.CharField(max_length=100)
-    profile_image = models.ImageField(upload_to="character/")
-    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
-
-    def __unicode__(self):
-        return self.name
 
     class Meta:
         app_label = 'werewolf'

@@ -10,8 +10,7 @@
     <div class="row">
     {% for player_role in player_role_list %}
       <div class="col-md-3">
-        <img src="{{ player_role.player.character.profile_image.url }}"><br>
-        <strong>{{ player_role.player.character.name }}({{ player_role.player.character.job }})</strong>
+        <strong>{{ player_role.player.user.name }}</strong>
       </div>
     {% endfor %}
     </div>
