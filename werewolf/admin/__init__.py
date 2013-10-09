@@ -4,7 +4,7 @@ from django.contrib import admin
 admin.site.register(User)
 admin.site.register(UserCredential)
 admin.site.register(Village)
-admin.site.register(Player)
+admin.site.register(Resident)
 admin.site.register(GameResult)
 admin.site.register(Event)
 admin.site.register(ClientSession)

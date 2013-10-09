@@ -37,15 +37,6 @@ class Village(EntityModel):
         app_label = 'werewolf'
 
 
-class Player(EntityModel):
-    """ player """
-
-    user = models.ForeignKey('User')
-
-    class Meta:
-        app_label = 'werewolf'
-
-
 class Resident(EntityModel):
     u""" 村の住民 """
     ROLE_WOLF = "wolf"
@@ -71,7 +62,7 @@ class Resident(EntityModel):
     )
 
     village = models.ForeignKey('Village')
-    player = models.ForeignKey('Player')
+    user = models.ForeignKey('User')
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ALIVE)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 

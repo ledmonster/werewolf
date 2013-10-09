@@ -50,9 +50,8 @@ def api_village_join():
     user = AccessToken.objects.get(token=token).client_session.user
 
     village = Village.objects.get(identity=village_identity)
-    player, created = Player.objects.get_or_create(user=user)
     # TODO: random role
-    role, created = Resident.objects.get_or_create(village=village, player=player, role=Resident.ROLE_WOLF)
+    role, created = Resident.objects.get_or_create(village=village, user=user, role=Resident.ROLE_WOLF)
 
     return jsonify(dict(result="ok"))
 
