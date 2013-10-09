@@ -21,7 +21,7 @@ class Event(EntityModel):
 
     event_type = models.CharField(max_length=32, choices=EVENT_TYPE_CHOICES, default=TYPE_MESSAGE)
     user = models.ForeignKey('User', null=True)
-    player = models.ForeignKey('Player', null=True)
+    resident = models.ForeignKey('Resident', null=True)
     village = models.ForeignKey('Village')
     value = JSONField()
 
