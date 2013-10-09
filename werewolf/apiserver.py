@@ -31,8 +31,8 @@ def village_detail(identity):
     except Village.DoesNotExist:
         raise NotFoundError('page not found')
 
-    player_role_list = village.playerrole_set.all()
-    return render_template('village/detail.html', village=village, player_role_list=player_role_list)
+    resident_list = village.resident_set.all()
+    return render_template('village/detail.html', village=village, resident_list=resident_list)
 
 
 #TODO: OAuth Authorization for this endpoint
@@ -52,7 +52,7 @@ def api_village_join():
     village = Village.objects.get(identity=village_identity)
     player, created = Player.objects.get_or_create(user=user)
     # TODO: random role
-    role, created = PlayerRole.objects.get_or_create(village=village, player=player, role=PlayerRole.ROLE_WOLF)
+    role, created = Resident.objects.get_or_create(village=village, player=player, role=Resident.ROLE_WOLF)
 
     return jsonify(dict(result="ok"))
 

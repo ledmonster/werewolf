@@ -46,8 +46,8 @@ class Player(EntityModel):
         app_label = 'werewolf'
 
 
-class PlayerRole(EntityModel):
-    u""" 村での Player の役職 """
+class Resident(EntityModel):
+    u""" 村の住民 """
     ROLE_WOLF = "wolf"
     ROLE_VILLAGER = "villager"
     ROLE_BERSERKER = "berserker"
