@@ -20,6 +20,10 @@ var werewolf = (function (){
     },
 
     disconnect: function() {
+      // remove token
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
       // Revoke the access token.
       $.ajax({
         type: 'GET',
@@ -36,8 +40,6 @@ var werewolf = (function (){
           $('#authResult').empty();
           $('#gConnect').show();
           $('#disconnect').hide();
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
         },
         error: function(e) {
           console.log(e);
