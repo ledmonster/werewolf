@@ -38,8 +38,12 @@ class IdTokenAuthenticator(Authenticator):
             if 'email' in payload.keys():
                 params['email'] = payload['email']
                 params['name'] = payload['email'].split('@')[0]
-            # TODO: get existing user by email
-            user = User.objects.create(**params)
+            try:
+                if params.get('email'):
+                    user = User.objects.get(email=params['email'])
+            except User.DoesNotExist:
+                user = User.objects.create(**params)
+
             UserCredential.objects.create(
                 user=user,
                 credential_type=UserCredential.CREDENTIAL_TYPE_GOOGLE,
