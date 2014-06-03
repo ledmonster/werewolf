@@ -22,6 +22,9 @@ class IdTokenAuthenticator(Authenticator):
 
     def validate(self, assertion):
         """ validate assertion and return client session """
+        if isinstance(assertion, unicode):
+            assertion = assertion.encode('ascii')
+
         try:
             audience = settings.OAUTH2["CLIENT_ID"]
             payload = verify_id_token(assertion, audience)
