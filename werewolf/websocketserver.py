@@ -23,7 +23,7 @@ class SocketHandler(websocket.WebSocketHandler):
     def on_message(self, message):
         res_msg = MessageHandler.dispatch(self.village_id, self.user, message)
         for client in clients[self.village_id]:
-            if res_msg.is_target_user(client.user.identity):
+            if res_msg.is_target_user(client.user):
                 client.write_message(json.dumps(res_msg.to_dict()))
 
     def on_close(self):
