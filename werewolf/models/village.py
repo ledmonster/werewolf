@@ -6,42 +6,73 @@ from django_extensions.db.models import TimeStampedModel
 from .base import EntityModel
 
 
+class ResidentStatus(object):
+    """ Value Object """
+    ALIVE = 1
+    DEAD = 2
+
+    LABELS = (
+        (ALIVE, 'alive'),
+        (DEAD, 'dead'),
+    )
+
+    def __init__(self, value):
+        self.value = value
+
+
+class VillageStatus(object):
+    u""" VO: 村の状態 """
+    IN_GAME = 1
+    OUT_GAME = 2
+
+    LABELS = (
+        (IN_GAME, 'in_game'),
+        (OUT_GAME, 'out_game'),
+    )
+
+    def __init__(self, value):
+        self.value = value
+
+
+class Role(object):
+    """ Value Object """
+
+    WOLF = "wolf"
+    VILLAGER = "villager"
+    BERSERKER = "berserker"
+    HUNTER = "hunter"
+
+    LABELS = (
+        (WOLF, u'人狼'),
+        (VILLAGER, u'村人'),
+        (BERSERKER, u'狂人'),
+        (HUNTER, u'狩人'),
+    )
+
+    def __init__(self, value):
+        self.value = value
+
+    def is_human(self):
+        return self.value != self.WOLF
+
 class Resident(EntityModel):
     u""" 村の住民 """
-    ROLE_WOLF = "wolf"
-    ROLE_VILLAGER = "villager"
-    ROLE_BERSERKER = "berserker"
-    ROLE_FORTUNE_TELLER = "fortune_teller"
-    ROLE_PHANTOM_THIEF = "phantom_thief"
-
-    ROLE_CHOICES = (
-        (ROLE_WOLF, u'人狼'),
-        (ROLE_VILLAGER, u'村人'),
-        (ROLE_BERSERKER, u'狂人'),
-        (ROLE_FORTUNE_TELLER, u'占い師'),
-        (ROLE_PHANTOM_THIEF, u'怪盗'),
-    )
-
-    STATUS_ALIVE = 1
-    STATUS_EXECUTED = 2
-    STATUS_ATTACKED = 3
-
-    STATUS_CHOICES = (
-        (STATUS_ALIVE, 'alive'),
-        (STATUS_EXECUTED, 'executed'),
-        (STATUS_ATTACKED, 'attacked'),
-    )
 
     village = models.ForeignKey('Village')
     user = models.ForeignKey('User')
-    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ALIVE)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, null=True)
+    status = models.SmallIntegerField(
+        choices=ResidentStatus.LABELS,
+        default=ResidentStatus.ALIVE)
+    role = models.CharField(
+        max_length=20,
+        choices=Role.LABELS,
+        null=True)
     # is_winner = models.NullBooleanField(null=True)
     # execution_target = models.ForeignKey('Resident', null=True)
     # hunt_target = models.ForeignKey('Resident', null=True)
 
     def update_status(self, new_status):
-        if self.status != self.STATUS_ALIVE:
+        if self.status != ResidentStatus.ALIVE:
             raise AttributeError
         self.status = new_status
 
@@ -53,26 +84,6 @@ class Village(EntityModel):
     """ village, which is a unit of games """
     DAYTIME_LENGTH = 10  # 10 sec
 
-    STATUS_PREPARING = 1
-    STATUS_PROLOGUE = 2
-    STATUS_IN_GAME = 3
-    STATUS_EPILOGUE = 4
-    STATUS_CLOSED = 5
-
-    STATUS_CHOICES = (
-        (STATUS_PREPARING, 'preparing'),
-        (STATUS_PROLOGUE, 'prologue'),
-        (STATUS_IN_GAME, 'in_game'),
-        (STATUS_EPILOGUE, 'epilogue'),
-        (STATUS_CLOSED, 'closed'),
-    )
-
-    allowed_transitions = {
-        STATUS_PREPARING: [STATUS_PROLOGUE],
-        STATUS_PROLOGUE: [STATUS_IN_GAME],
-        STATUS_IN_GAME: [STATUS_EPILOGUE],
-        STATUS_EPILOGUE: [STATUS_CLOSED]}
-
     WINNER_VILLAGER = 1
     WINNER_WOLF = 2
 
@@ -81,16 +92,10 @@ class Village(EntityModel):
         (WINNER_WOLF, u'人狼の勝利'),
     )
 
-    ROLES = [
-        Resident.ROLE_WOLF,
-        Resident.ROLE_VILLAGER,
-        Resident.ROLE_VILLAGER,
-        Resident.ROLE_VILLAGER,
-        Resident.ROLE_VILLAGER,
-        ]
-
     name = models.CharField(max_length=100)
-    status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_PREPARING)
+    status = models.SmallIntegerField(
+        choices=VillageStatus.LABELS,
+        default=VillageStatus.OUT_GAME)
     day = models.IntegerField(default=0)
 
     # start_at = models.DateTimeField(null=True)
@@ -102,19 +107,17 @@ class Village(EntityModel):
             identity=self.identity,
             name=self.name,
             status=self.get_status_display(),
-            start_at=self.start_at,
-            end_at=self.end_at,
+            day=self.day,
+            # start_at=self.start_at,
+            # end_at=self.end_at,
             created=self.created,
             modified=self.modified)
 
     def update_status(self, new_status):
-        allowed_status = self.allowed_transitions.get(self.status, [])
-        if new_status not in allowed_status:
-            raise AttributeError
         self.status = new_status
 
     def increment_day(self):
-        if self.status != self.STATUS_IN_GAME:
+        if self.status != VillageStatus.IN_GAME:
             raise RuntimeError
         self.day = self.day + 1
 
