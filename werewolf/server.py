@@ -9,6 +9,7 @@ from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 
+from werewolf import settings
 from werewolf.apiserver import app as flask_app
 from werewolf.admin.wsgi import application as django_admin_app
 from werewolf.websocketserver import SocketHandler
@@ -19,7 +20,7 @@ def main():
         ('/admin/.*', FallbackHandler, dict(fallback=WSGIContainer(django_admin_app))),
         ('/static/admin/.*', FallbackHandler, dict(fallback=WSGIContainer(django_admin_app))),
         ('.*', FallbackHandler, dict(fallback=WSGIContainer(flask_app))),
-    ])
+    ], debug=settings.DEBUG)
     http_server = HTTPServer(app)
     http_server.listen(8000)
     IOLoop.instance().start()
