@@ -51,7 +51,7 @@ var werewolf = (function (){
       console.log('id_token: ', idToken);
       $.ajax({
         type: 'POST',
-        url: 'http://werewolf.example.com:8000/api/v1/auth/token',
+        url: 'http://g-pc-4261.intra.gree-office.net:8000/api/v1/auth/token',
         data: {
           'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
           'client_id': '793850702446.apps.googleusercontent.com',
@@ -77,7 +77,7 @@ var werewolf = (function (){
     loadVillageList: function() {
       $.ajax({
         type: 'GET',
-        url: 'http://werewolf.example.com:8000/api/v1/village/list',
+        url: 'http://g-pc-4261.intra.gree-office.net:8000/api/v1/village/list',
         data: {},
         dataType: 'json',
         success: function(result) {
@@ -108,7 +108,7 @@ var werewolf = (function (){
     joinToVillage: function(identity) {
       $.ajax({
         type: 'POST',
-        url: 'http://werewolf.example.com:8000/api/v1/village/join',
+        url: 'http://g-pc-4261.intra.gree-office.net:8000/api/v1/village/join',
         beforeSend: function (xhr) {
           xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("access_token"));
           xhr.setRequestHeader('Accept', "application/json");

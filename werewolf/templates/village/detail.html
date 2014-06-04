@@ -45,7 +45,7 @@
   });
 
   var access_token = localStorage.getItem("access_token");
-  var ws = new WebSocket("ws://werewolf.example.com:8000/websocket?access_token=" + access_token);
+  var ws = new WebSocket("ws://g-pc-4261.intra.gree-office.net:8000/websocket?access_token=" + access_token);
   ws.onopen = function() {
   };
   ws.onmessage = function (evt) {
