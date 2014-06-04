@@ -3,7 +3,7 @@
 {% block header_title %}{{ village.name }}{% endblock %}
 
 {% block container %}
-  <div id="message_area" style="width: 800px;"></div>
+  <div class="col-md-12" id="message_area"></div>
 {% endblock %}
 
 {% block bottom %}
@@ -32,8 +32,26 @@
   };
   ws.onmessage = function (evt) {
     var data = JSON.parse(evt.data);
-    $('#message_area').append($("<p></p>").html(data.sender_name + ": " + nl2br(escapeHtml(data.content))));
+    var message = $("<div>").addClass("col-md-12").append(
+      $("<div>")
+        .addClass("row sender")
+        .css({"color": data.sender_color})
+        .text(data.sender_name)
+    ).append(
+      $("<div>")
+        .addClass("row message")
+        .css({"border-color": data.sender_color})
+        .html(
+          nl2br(escapeHtml(data.content))
+        )
+    );
+    $('#message_area').append(message);
+    scrollToBottom();
   };
+
+  function scrollToBottom() {
+    window.scrollTo(0, document.body.scrollHeight);
+  }
 
   function sendByWebsocket() {
     var msg = $('#input-text').val();

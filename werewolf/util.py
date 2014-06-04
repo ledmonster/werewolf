@@ -3,6 +3,9 @@ import random
 import math
 
 class Util(object):
+    @staticmethod
+    def shuffle(_list):
+        return sorted(_list, key=lambda *args: random.random())
 
     @staticmethod
     def hsv_random_color(saturation=0.7, value=0.7):
