@@ -1,8 +1,9 @@
 """ websocket server """
+import json
 from tornado import websocket, web, ioloop
-from flask import jsonify
 
 from werewolf.models import *
+from message_handler import MessageHandler
 
 clients = {}
 
@@ -20,8 +21,10 @@ class SocketHandler(websocket.WebSocketHandler):
             clients[self.village_id].append(self)
 
     def on_message(self, message):
+        res_msg = MessageHandler.dispatch(self.village_id, self.user, message)
         for client in clients[self.village_id]:
-            client.write_message(self.user.name + u": " + message)
+            if res_msg.is_target_user(client.user.identity):
+                client.write_message(json.dumps(res_msg.to_dict()))
 
     def on_close(self):
         if self in clients[self.village_id]:
