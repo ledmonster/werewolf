@@ -47,7 +47,7 @@
   });
 
   var access_token = localStorage.getItem("access_token");
-  var ws = new WebSocket("ws://g-pc-4261.intra.gree-office.net:8000/websocket?access_token=" + access_token + "&village_id=" + village_id);
+  var ws = new WebSocket("ws://" + location.host + "/websocket?access_token=" + access_token + "&village_id=" + village_id);
   ws.onopen = function() {
   };
   ws.onmessage = function (evt) {
