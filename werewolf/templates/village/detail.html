@@ -51,13 +51,22 @@
   ws.onopen = function() {
   };
   ws.onmessage = function (evt) {
-     $('#message_area').append($("<p></p>").text(evt.data));
+    var data = JSON.parse(evt.data);
+    $('#message_area').append($("<p></p>").html(data.sender_name + ": " + nl2br(escapeHtml(data.content))));
   };
 
   function sendByWebsocket() {
     ws.send($('#input_text').val());
     $('#input_text').val("");
   };
+
+  function nl2br(str) {
+    return str.replace(/(\r\n|\r|\n)/g, '<br />');
+  }
+
+  function escapeHtml(str) {
+    return $('<div>').text(str).html();
+  }
 
   $("#send").click(sendByWebsocket);
 
