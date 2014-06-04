@@ -1,42 +1,22 @@
 {% extends "base.html" %}
 
+{% block header_title %}{{ village.name }}{% endblock %}
+
 {% block container %}
-  <div class="page-header">
-    <h1>{{ village.name }}</h1>
-    <p>
-      この村の定員は3人です。ただの村人（1人）のほかに、狂人（1人）、人狼（1人）が混じっています。<br />
-      みんなで協力して人狼を見つけて吊りましょう。
-    </p>
-    <div class="row">
-    {% for resident in resident_list %}
-      <div class="col-md-3">
-        <strong>{{ resident.user.name }}</strong>
-      </div>
-    {% endfor %}
-    </div>
-  </div>
-  <div id="join">
-    <button type="button" class="btn btn-default" id="joinToVillage">参加する</button>
-  </div>
-  <div id="joined" style="display:none">
-    <strong>参加中</strong>
-  </div>
-  <p id="error" style="display:none"></p>
-  <h3>チャット</h3>
-  <div id="message_area" style="width: 800px;">
-  </div>
+  <div id="message_area" style="width: 800px;"></div>
+{% endblock %}
 
+{% block bottom %}
   <div class="input-group">
-    <form>
-      <input id="input_text" type="text" class="form-control">
+    <input id="input-text" type="text" class="form-control">
+    <span class="input-group-btn">
       <button id="send" class="btn btn-default" type="button">送信</button>
-    </form>
+    </span>
   </div>
-
 {% endblock %}
 
 {% block javascript %}
-  village_id = "{{ village.identity }}";
+  var village_id = "{{ village.identity }}";
 
   function joinToVillage() {
     werewolf.joinToVillage(village_id);
@@ -56,8 +36,12 @@
   };
 
   function sendByWebsocket() {
-    ws.send($('#input_text').val());
-    $('#input_text').val("");
+    var msg = $('#input-text').val();
+    msg = jQuery.trim(msg);
+    if (msg.length > 0) {
+      ws.send(msg);
+    }
+    $('#input-text').val("");
   };
 
   function nl2br(str) {
@@ -67,6 +51,14 @@
   function escapeHtml(str) {
     return $('<div>').text(str).html();
   }
+
+  $("#input-text").focus();
+
+  $("#input-text").keyup(function(event) {
+    if (event.keyCode == 13) {
+      $("#send").click();
+    }
+  });
 
   $("#send").click(sendByWebsocket);
 

@@ -26,8 +26,8 @@ class VillageStatus(object):
     OUT_GAME = 2
 
     LABELS = (
-        (IN_GAME, 'in_game'),
-        (OUT_GAME, 'out_game'),
+        (IN_GAME, u'進行中'),
+        (OUT_GAME, u'募集中'),
     )
 
     def __init__(self, value):

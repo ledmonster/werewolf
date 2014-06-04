@@ -1,27 +1,35 @@
 {% extends "base.html" %}
 
+{% block header_title %}みんなの人狼{% endblock %}
+
 {% block container %}
-  <div class="page-header">
-    <h1>みんなの人狼</h1>
-  </div>
   <p>
     みんなの人狼へようこそ。<a href="/village/list">村のみんなに会いに行きましょう。</a>
   </p>
-  <div id="gConnect">
-    <button class="g-signin"
-        data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.profile openid email"
-        data-requestvisibleactions="http://schemas.google.com/AddActivity"
-        data-clientId="793850702446.apps.googleusercontent.com"
-        data-callback="onSignInCallback"
-        data-theme="dark"
-        data-cookiepolicy="single_host_origin">
-    </button>
-  </div>
-  <div id="result" style="display:none">
-    <h3>認証ログ</h3>
-    <pre id="authResult"></pre>
-    <pre id="werewolfAuthResult"></pre>
-  </div>
+
+  <form id="account-form" class="navbar-form navbar-right">
+    <button id="disconnect"
+            style="display:none"
+            class="btn btn-default navbar-btn">Logout</button>
+    <span id="g-connect" style="display:none">
+      <button class="g-signin"
+              data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.profile openid email"
+              data-requestvisibleactions="http://schemas.google.com/AddActivity"
+              data-clientId="793850702446.apps.googleusercontent.com"
+              data-callback="onSignInCallback"
+              data-theme="dark"
+              data-cookiepolicy="single_host_origin">
+      </button>
+    </span>
+  </form>
+
+  {% if settings.DEBUG %}
+    <div id="result" style="display:none">
+      <h3>認証ログ</h3>
+      <pre id="auth-result"></pre>
+      <pre id="werewolf-auth-result"></pre>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block javascript %}

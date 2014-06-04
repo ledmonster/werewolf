@@ -2,19 +2,19 @@ var werewolf = (function (window, undefined){
   return {
     onSignInCallback: function(authResult) {
       $('#result').show();
-      $('#authResult').html('Auth Result:<br/>');
+      $('#auth-result').html('Auth Result:<br/>');
       for (var field in authResult) {
-        $('#authResult').append(' ' + field + ': ' +
+        $('#auth-result').append(' ' + field + ': ' +
             authResult[field] + '<br/>');
       }
       if (authResult['access_token']) {
-        $('#gConnect').hide();
+        $('#g-connect').hide();
         werewolf.authenticateWerewolf(authResult['id_token']);
         $('#disconnect').show();
       } else if (authResult['error']) {
         console.log('There was an error: ' + authResult['error']);
-        $('#authResult').append('Logged out');
-        $('#gConnect').show();
+        $('#auth-result').append('Logged out');
+        $('#g-connect').show();
       }
       console.log('authResult', authResult);
     },
@@ -34,11 +34,8 @@ var werewolf = (function (window, undefined){
         dataType: 'jsonp',
         success: function(result) {
           console.log('revoke response: ' + result);
-          $('#authOps').hide();
-          $('#profile').empty();
-          $('#visiblePeople').empty();
-          $('#authResult').empty();
-          $('#gConnect').show();
+          $('#auth-result').empty();
+          $('#g-connect').show();
           $('#disconnect').hide();
         },
         error: function(e) {
@@ -59,18 +56,18 @@ var werewolf = (function (window, undefined){
         },
         dataType: 'json',
         success: function(result) {
-          $('#werewolfAuthResult').html('Werewolf Auth Result:<br/>');
+          $('#werewolf-auth-result').html('Werewolf Auth Result:<br/>');
           for (var field in result) {
-            $('#werewolfAuthResult').append(' ' + field + ': ' +
+            $('#werewolf-auth-result').append(' ' + field + ': ' +
                 result[field] + '<br/>');
           };
           localStorage.setItem("access_token", result["access_token"]);
           localStorage.setItem("refresh_token", result["refresh_token"]);
         },
         error: function(error) {
-          $('#werewolfAuthResult').html('Werewolf Auth Result: Error');
+          $('#werewolf-auth-result').html('Werewolf Auth Result: Error');
           console.log(error);
-          $('#gConnect').show();
+          $('#g-connect').show();
           $('#disconnect').hide();
         }
       });
@@ -92,11 +89,6 @@ var werewolf = (function (window, undefined){
                  .append($("<a href='/village/" + item.identity + "'></a>").text(item.name))
                )
                .append($("<td></td>").text(item.status))
-               .append($("<td></td>").text(item.start_at))
-               .append($("<td></td>").text(item.end_at))
-               .append($("<td></td>")
-                 .append($("<button type='button' class='btn btn-default'>参加する</button>"))
-               )
             );
           }
         },
