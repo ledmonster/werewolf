@@ -3,6 +3,7 @@ import datetime
 
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
+from werewolf import settings
 from werewolf.models import *
 from werewolf.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
 from werewolf.exception import *
@@ -16,12 +17,12 @@ GRANT_TYPE_REFRESH_TOKEN = "refresh_token"
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', settings=settings)
 
 
 @app.route('/village/list')
 def village_list():
-    return render_template('village/list.html')
+    return render_template('village/list.html', settings=settings)
 
 
 @app.route('/village/<identity>')
@@ -32,8 +33,8 @@ def village_detail(identity):
         raise NotFoundError('page not found')
 
     resident_list = village.resident_set.all()
-    return render_template('village/detail.html', village=village, resident_list=resident_list)
-
+    return render_template('village/detail.html', village=village,
+                           settings=settings, resident_list=resident_list)
 
 #TODO: OAuth Authorization for this endpoint
 @app.route('/api/v1/village/list')
