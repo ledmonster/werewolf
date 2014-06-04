@@ -69,7 +69,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_help(cls, village_id, user, msg):
-        content = cls.__doc__
+        content = cls.__doc__.strip()
         return Message(content, None, user)
 
 
@@ -96,5 +96,6 @@ class Message(object):
             content = self.content,
             sender_id = self.sender and self.sender.identity or None,
             sender_name = self.sender and self.sender.name or "system",
+            sender_color = self.sender and self.sender.color or "#000000",
             receiver_id = self.receiver and self.receiver.identity or None,
         )

@@ -4,6 +4,7 @@ from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
 
 from werewolf import settings
+from werewolf.util import Util
 from werewolf.models import ClientSession, User, UserCredential
 from werewolf.exception import *
 
@@ -41,6 +42,7 @@ class IdTokenAuthenticator(Authenticator):
             if 'email' in payload.keys():
                 params['email'] = payload['email']
                 params['name'] = payload['email'].split('@')[0]
+                params['color'] = Util.hsv_random_color()
             try:
                 if params.get('email'):
                     user = User.objects.get(email=params['email'])
