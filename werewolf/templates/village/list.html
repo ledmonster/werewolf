@@ -3,10 +3,12 @@
 {% block header_title %}村一覧{% endblock %}
 
 {% block container %}
-  <table id="village_table" class="table table-striped">
-    <tr><th>村の名前</th><th>状態</th></tr>
-  </table>
-  <p id="error" style="display:none"></p>
+  <div class="col-md-12">
+    <table id="village_table" class="table table-striped">
+      <tr><th>村の名前</th><th>状態</th></tr>
+    </table>
+    <p id="error" style="display:none"></p>
+  </div>
 {% endblock %}
 
 {% block javascript %}

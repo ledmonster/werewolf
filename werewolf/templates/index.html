@@ -3,25 +3,30 @@
 {% block header_title %}みんなの人狼{% endblock %}
 
 {% block container %}
-  <p>
-    みんなの人狼へようこそ。<a href="/village/list">村のみんなに会いに行きましょう。</a>
-  </p>
+  <div class="col-md-12">
+    <div class="col-md-12 panel panel-default">
+      みんなの人狼へようこそ。<br />
+      <a href="/village/list">村のみんなに会いに行きましょう。</a>
+    </div>
+  </div>
 
-  <form id="account-form" class="navbar-form navbar-right">
-    <button id="disconnect"
-            style="display:none"
-            class="btn btn-default navbar-btn">Logout</button>
-    <span id="g-connect" style="display:none">
-      <button class="g-signin"
-              data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.profile openid email"
-              data-requestvisibleactions="http://schemas.google.com/AddActivity"
-              data-clientId="793850702446.apps.googleusercontent.com"
-              data-callback="onSignInCallback"
-              data-theme="dark"
-              data-cookiepolicy="single_host_origin">
-      </button>
-    </span>
-  </form>
+  <div class="col-md-12">
+    <form id="account-form" class="navbar-form navbar-right">
+      <button id="disconnect"
+              style="display:none"
+              class="btn btn-default navbar-btn">Logout</button>
+      <span id="g-connect" style="display:none">
+        <button class="g-signin"
+                data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.profile openid email"
+                data-requestvisibleactions="http://schemas.google.com/AddActivity"
+                data-clientId="793850702446.apps.googleusercontent.com"
+                data-callback="onSignInCallback"
+                data-theme="dark"
+                data-cookiepolicy="single_host_origin">
+        </button>
+      </span>
+    </form>
+  </div>
 
   {% if settings.DEBUG %}
     <div id="result" style="display:none">
