@@ -70,6 +70,8 @@ var werewolf = (function (){
         error: function(error) {
           $('#werewolfAuthResult').html('Werewolf Auth Result: Error');
           console.log(error);
+          $('#gConnect').show();
+          $('#disconnect').hide();
         }
       });
     },
