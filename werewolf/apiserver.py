@@ -51,7 +51,7 @@ def api_village_join():
 
     village = Village.objects.get(identity=village_identity)
     # TODO: random role
-    role, created = Resident.objects.get_or_create(village=village, user=user, role=Resident.ROLE_WOLF)
+    role, created = Resident.objects.get_or_create(village=village, user=user, role=Role.WOLF)
 
     return jsonify(dict(result="ok"))
 
