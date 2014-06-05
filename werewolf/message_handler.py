@@ -5,32 +5,35 @@ from werewolf.models import *
 
 class MessageHandler(object):
     u"""
-    @join    ゲームに参加する（未開始時のみ有効）
-    @leave   ゲームから抜ける（未開始時のみ有効）
-    @start:  ゲームを開始する
-    @set:    処刑対象をセット
-    @attack: 襲撃対象をセット
-    @hunt:   道連れ対象をセット（自分が死ぬときに発動）
-    @state:  ゲームの状態確認
-    @help:   ヘルプ表示
+    @join     ゲームに参加する（未開始時のみ有効）
+    @leave    ゲームから抜ける（未開始時のみ有効）
+    @start:   ゲームを開始する
+    @set:     処刑対象をセット
+    @attack:  襲撃対象をセット
+    @hunt:    道連れ対象をセット（自分が死ぬときに発動）
+    @fortune: 占い対象をセット
+    @state:   ゲームの状態確認
+    @help:    ヘルプ表示
     """
 
     @classmethod
     def dispatch(cls, village_id, user, msg):
+        u""" メッセージを各処理に振り分ける """
         msg = msg.strip()
         if msg.startswith("@"):
             cmd_name = msg.split()[0][1:]
+            cmd_args = msg.split()[1:]
             method_name = "do_%s" % cmd_name
             if hasattr(cls, method_name):
                 method = getattr(cls, method_name)
-                return method(village_id, user, msg)
+                return method(village_id, user, msg, cmd_args)
             else:
-                return cls.do_help(village_id, user, msg)
+                return cls.do_help(village_id, user, msg, cmd_args)
         else:
-            return cls.do_message(village_id, user, msg)
+            return cls.do_message(village_id, user, msg, [])
 
     @classmethod
-    def do_message(cls, village_id, user, msg):
+    def do_message(cls, village_id, user, msg, args):
         u"""
         メッセージを送信する。
         ゲーム開始状態でなければ誰でもメッセージを送れるが、
@@ -48,7 +51,7 @@ class MessageHandler(object):
         return Message(u"現在メッセージは送れません。", sender=None, receiver=user)
 
     @classmethod
-    def do_join(cls, village_id, user, msg):
+    def do_join(cls, village_id, user, msg, args):
         game = Game(village_id)
         resident, created = game.add_resident(user)
         if created:
@@ -57,20 +60,20 @@ class MessageHandler(object):
             u"%s さんは既に村に参加しています" % user.name, None, user)
 
     @classmethod
-    def do_leave(cls, village_id, user, msg):
+    def do_leave(cls, village_id, user, msg, args):
         game = Game(village_id)
         village = Village.objects.get(identity=village_id)
-        resident = game.get_resident(user)
-        if not resident:
-            return Message(
-                u"%s さんは村に参加していません" % user.name, None, user)
+        try:
+            resident = game.get_resident(user)
+        except Exception as e:
+            return Message(unicode(e), None, user)
         if village.status == VillageStatus.IN_GAME:
             return Message(u"ゲーム中は村から出られません。", None, user)
         game.remove_resident(resident)
         return Message(u"%s さんが村から出ました" % user.name)
 
     @classmethod
-    def do_start(cls, village_id, user, msg):
+    def do_start(cls, village_id, user, msg, args):
         game = Game(village_id)
         try:
             village = game.start()
@@ -85,27 +88,51 @@ class MessageHandler(object):
         return messages
 
     @classmethod
-    def do_end(cls, village_id, user, msg):
+    def do_night(cls, village_id, user, msg, args):
         return cls.do_message(cls, village_id, user, msg)
 
     @classmethod
-    def do_night(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+    def do_set(cls, village_id, user, msg, args):
+        game = Game(village_id)
+        try:
+            target_name = args and args[0] or ""
+            game.set_execution_target(user, target_name)
+        except Exception as e:
+            return Message(unicode(e), None, user)
+        return Message(u"%s を吊り対象にセットしました" % target_name, None, user)
 
     @classmethod
-    def do_set(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+    def do_attack(cls, village_id, user, msg, args):
+        game = Game(village_id)
+        try:
+            target_name = args and args[0] or ""
+            game.set_attack_target(user, target_name)
+        except Exception as e:
+            return Message(unicode(e), None, user)
+        return Message(u"%s を襲撃対象にセットしました" % target_name, None, user)
 
     @classmethod
-    def do_attack(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+    def do_hunt(cls, village_id, user, msg, args):
+        game = Game(village_id)
+        try:
+            target_name = args and args[0] or ""
+            game.set_hunt_target(user, target_name)
+        except Exception as e:
+            return Message(unicode(e), None, user)
+        return Message(u"%s を道連れ対象にセットしました" % target_name, None, user)
 
     @classmethod
-    def do_hunt(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+    def do_fortune(cls, village_id, user, msg, args):
+        game = Game(village_id)
+        try:
+            target_name = args and args[0] or ""
+            game.set_fortune_target(user, target_name)
+        except Exception as e:
+            return Message(unicode(e), None, user)
+        return Message(u"%s を占い対象にセットしました" % target_name, None, user)
 
     @classmethod
-    def do_state(cls, village_id, user, msg):
+    def do_state(cls, village_id, user, msg, args):
         game = Game(village_id)
         village = Village.objects.get(identity=village_id)
         residents = game.get_residents()
@@ -123,7 +150,7 @@ class MessageHandler(object):
         return Message("\n".join(contents), None, user)
 
     @classmethod
-    def do_help(cls, village_id, user, msg):
+    def do_help(cls, village_id, user, msg, args):
         content = cls.__doc__.strip()
         return Message(content, None, user)
 

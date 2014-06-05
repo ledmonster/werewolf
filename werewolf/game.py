@@ -25,6 +25,9 @@ MEMBER_TYPES = {
 }
 
 class Game(object):
+    u"""
+    ゲームロジックを書くクラス。
+    """
 
     instances = {}
 
@@ -61,7 +64,7 @@ class Game(object):
             return Resident.objects.get(
                 village=self.village, user=user)
         except Resident.DoesNotExist:
-            return None
+            raise Exception(u"さんは村に参加していません" % user.name)
         
     def add_resident(self, user):
         resident, created = Resident.objects.get_or_create(
@@ -82,5 +85,71 @@ class Game(object):
             resident.save()
         return residents
 
-    def announce_roles(self, residents):
-        pass
+    def create_or_update_behavior(self, behavior_type, resident, target_resident):
+        try:
+            behavior = Behavior.objects.get(
+                behavior_type=behavior_type, village=self.village,
+                resident=resident, generation=self.village.generation,
+                day=self.village.day)
+            behavior.target_resident = target_resident
+            behavior.save()
+        except Behavior.DoesNotExist:
+            behavior = Behavior.objects.create(
+                behavior_type=behavior_type, village=self.village,
+                resident=resident, target_resident=target_resident,
+                generation=self.village.generation, day=self.village.day)
+        return behavior
+
+    def set_execution_target(self, user, target_name):
+        resident = self.ensure_alive_resident(user)
+        target_user = self.get_user_by_name(target_name)
+        target_resident = self.ensure_alive_resident(target_user)
+        self.create_or_update_behavior(
+            BehaviorType.EXECUTION, resident, target_resident)
+
+    def set_attack_target(self, user, targert_name):
+        resident = self.ensure_alive_resident(user)
+        if resident.Role != Role.WOLF:
+            raise Exception(u"あなたは狼ではありません")
+        target_user = self.get_user_by_name(target_name)
+        target_resident = self.ensure_alive_resident(target_user)
+        self.create_or_update_behavior(
+            BehaviorType.ATTACK, resident, target_resident)
+
+    def set_hunt_target(self, user, targert_name):
+        resident = self.ensure_alive_resident(user)
+        if resident.Role != Role.HUNTER:
+            raise Exception(u"あなたは狩人ではありません")
+        target_user = self.get_user_by_name(target_name)
+        target_resident = self.ensure_alive_resident(target_user)
+        self.create_or_update_behavior(
+            BehaviorType.HUNT, resident, target_resident)
+
+    def set_fortune_target(self, user, targert_name):
+        resident = self.ensure_alive_resident(user)
+        if resident.Role != Role.TELLER:
+            raise Exception(u"あなたは占い師ではありません")
+        target_user = self.get_user_by_name(target_name)
+        target_resident = self.ensure_alive_resident(target_user)
+        self.create_or_update_behavior(
+            BehaviorType.FORTUNE, resident, target_resident)
+
+    def get_user_by_name(self, name):
+        u""" 名前をもとにユーザを取得(TODO: 同じ名前の人対応) """
+        try:
+            return User.objects.get(name=name)
+        except:
+            raise Exception(u"%s という名前の人はいません" % name)
+
+    def ensure_alive_resident(self, user):
+        u""" user がゲーム中の村の生きた住人であることを保障 """
+        if self.village.status != VillageStatus.IN_GAME:
+            raise Exception(u"まだゲームは始まってません")
+        try:
+            resident = Resident.objects.get(
+                village=self.village, user=user)
+        except Resident.DoesNotExist:
+            raise Exception(u"%s さんは村の住人ではありません" % user.name)
+        if resident.status != ResidentStatus.ALIVE:
+            raise Exception(u"%s さんは既に死んでいます" % user.name)
+        return resident
