@@ -45,7 +45,7 @@ class Game(object):
     def start(self):
         if self.village.status == VillageStatus.IN_GAME:
             raise GameException(u"既にゲームは始まっています")
-        residents = self.assign_roles(self.village.resident_set.all())
+        residents = self.assign_roles(self.get_residents())
         village = self.update_village_status(VillageStatus.IN_GAME)
         return village
 
