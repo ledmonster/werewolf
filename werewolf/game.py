@@ -255,7 +255,7 @@ class Game(object):
         targets['execution'] = self.select_execution_target(residents)
         if targets['execution']:
             residents = self.kill_resident(targets['execution'])
-            if target.role == Role.HUNTER:
+            if targets['execution'].role == Role.HUNTER:
                 targets['hunt'] = self.select_hunt_target(hunter, residents)
                 residents = self.kill_resident(targets['hunt'])
 
@@ -263,7 +263,7 @@ class Game(object):
         targets['attack'] = self.select_attack_target(residents)
         if targets['attack']:
             residents = self.kill_resident(targets['attack'])
-            if target.role == Role.HUNTER:
+            if targets['execution'].role == Role.HUNTER:
                 targets['hunt'] = self.select_hunt_target(hunter, residents)
                 residents = self.kill_resident(targets['hunt'])
 
