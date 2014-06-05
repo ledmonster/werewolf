@@ -12,8 +12,8 @@ class ResidentStatus(object):
     DEAD = 2
 
     LABELS = (
-        (ALIVE, 'alive'),
-        (DEAD, 'dead'),
+        (ALIVE, u'生存'),
+        (DEAD, u'死亡'),
     )
 
     def __init__(self, value):
