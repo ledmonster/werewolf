@@ -26,6 +26,9 @@ class User(EntityModel):
         return "http://www.gravatar.com/avatar/%s?s=%d" % (
             hashlib.md5(self.email.lower()).hexdigest(), size)
 
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         app_label = 'werewolf'
 
