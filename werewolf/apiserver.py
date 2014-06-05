@@ -4,6 +4,7 @@ import datetime
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
 from werewolf import settings
+from werewolf.game import Game
 from werewolf.models import *
 from werewolf.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
 from werewolf.exception import *
@@ -46,15 +47,13 @@ def api_village_list():
 
 @app.route('/api/v1/village/join', methods=['POST'])
 def api_village_join():
-    village_identity = request.form['identity']
     token = request.headers["authorization"].split()[1]
     user = AccessToken.objects.get(token=token).client_session.user
 
-    village = Village.objects.get(identity=village_identity)
-    # TODO: random role
-    role, created = Resident.objects.get_or_create(village=village, user=user, role=Role.WOLF)
+    game = Game.get_instance(request.form['identity'])
+    resident = game.add_resident(user)
 
-    return jsonify(dict(result="ok"))
+    return jsonify(resident.to_dict())
 
 
 @app.route('/api/v1/auth/token', methods=['POST'])
