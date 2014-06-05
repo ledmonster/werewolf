@@ -42,15 +42,15 @@ class MessageHandler(object):
         ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
         (独り言として扱われる)
         """
+        game = Game(village_id)
         village = Village.objects.get(identity=village_id)
         if village.status == VillageStatus.OUT_GAME:
             return Message(msg, sender=user)
-        else:
-            resident = Resident.objects.get(
-                village=village, user=user, generation=village.generation)
-            if resident.status == ResidentStatus.ALIVE:
-                return Message(msg, sender=user)
-        return Message(u"現在メッセージは送れません。", sender=None, receiver=user)
+        try:
+            resident = game.ensure_alive_resident(user)
+        except GameException as e:
+            return Message(unicode(e), None, user)
+        return Message(msg, sender=user)
 
     @classmethod
     def do_join(cls, village_id, user, msg, args):
@@ -81,7 +81,7 @@ class MessageHandler(object):
             village = game.start()
         except GameException as e:
             return Message(unicode(e), None, user)
-        residents = village.resident_set.all()
+        residents = game.get_residents()
         messages = []
         messages.append(Message(u"さあ、第%s回目のゲームの始まりです。" % village.generation))
         for r in residents:

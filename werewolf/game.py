@@ -8,6 +8,14 @@ from werewolf.util import Util
 
 
 MEMBER_TYPES = {
+    1: [
+        [Role.VILLAGER],
+        [Role.WOLF],
+    ],
+    2: [
+        [Role.VILLAGER, Role.VILLAGER],
+        [Role.WOLF, Role.VILLAGER],
+    ],
     3: [
         [Role.WOLF, Role.BERSERKER, Role.VILLAGER],
         [Role.WOLF, Role.HUNTER, Role.VILLAGER],
@@ -65,7 +73,7 @@ class Game(object):
     def update_village_status(self, status):
         self.village.status = status
         self.village.save()
-        return village
+        return self.village
 
     def get_residents(self):
         return Resident.objects.filter(
@@ -76,7 +84,7 @@ class Game(object):
             return Resident.objects.get(
                 village=self.village, user=user, generation=self.village.generation)
         except Resident.DoesNotExist:
-            raise GameException(u"さんは村に参加していません" % user.name)
+            raise GameException(u"%sさんは村に参加していません" % user.name)
         
     def add_resident(self, user):
         resident, created = Resident.objects.get_or_create(
@@ -95,10 +103,10 @@ class Game(object):
 
     def assign_roles(self, residents):
         num_residents = len(residents)
-        if num_residents < 3:
-            raise ValueError("Too few residents")
+        if num_residents < 1:
+            raise GameException(u"住人が少なすぎます")
         elif num_residents > 6:
-            raise ValueError("Too many residents")
+            raise GameException(u"住人が多すぎます")
         roles = Util.shuffle(random.choice(MEMBER_TYPES[num_residents]))
         for i, resident in enumerate(residents):
             resident.role = roles[i]
