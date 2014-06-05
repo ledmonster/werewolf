@@ -9,6 +9,7 @@ class MessageHandler(object):
     @join     ゲームに参加する（未開始時のみ有効）
     @leave    ゲームから抜ける（未開始時のみ有効）
     @start:   ゲームを開始する
+    @reset:   ゲームをリセットする
     @set:     処刑対象をセット
     @attack:  襲撃対象をセット
     @hunt:    道連れ対象をセット（自分が死ぬときに発動）
@@ -82,11 +83,20 @@ class MessageHandler(object):
             return Message(unicode(e), None, user)
         residents = village.resident_set.all()
         messages = []
-        messages.append(Message(u"さあ、新しいゲームの始まりです。"))
+        messages.append(Message(u"さあ、第%s回目のゲームの始まりです。" % village.generation))
         for r in residents:
             messages.append(
                 Message(u"あなたは「%s」です" % r.get_role_display(), None, r.user))
         return messages
+
+    @classmethod
+    def do_reset(cls, village_id, user, msg, args):
+        game = Game(village_id)
+        try:
+            village = game.reset()
+        except GameException as e:
+            return Message(unicode(e), None, user)
+        return Message(u"第%d回のゲームをリセットしました" % village.generation)
 
     @classmethod
     def do_night(cls, village_id, user, msg, args):
@@ -139,20 +149,21 @@ class MessageHandler(object):
         residents = game.get_residents()
         contents = []
 
-        contents.append(u"■%s （%s）" % (village.name, village.get_status_display()))
+        contents.append(u"■%s （第%d回：%s）" % (village.name, village.generation, village.get_status_display()))
 
-        try:
-            resident = game.get_resident(user)
-            contents.append(u"あなたは「%s」です。（%s）" % (resident.get_role_display(), resident.get_status_display()))
-            contents.append("")
-        except GameException as e:
-            pass
+        if village.status == VillageStatus.IN_GAME:
+            try:
+                resident = game.get_resident(user)
+                contents.append(u"あなたは「%s」です。（%s）" % (resident.get_role_display(), resident.get_status_display()))
+            except GameException as e:
+                pass
 
+        contents.append("")
         contents.append(u"■住人")
         contents.append("\n".join([u"- %s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
-        contents.append("")
 
         from werewolf.websocketserver import clients
+        contents.append("")
         contents.append(u"■接続ユーザ")
         contents.append("\n".join(["- %s" % c.user.name for c in clients[village_id]]))
 

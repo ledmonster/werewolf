@@ -49,11 +49,22 @@ class Game(object):
         village = self.update_village_status(VillageStatus.IN_GAME)
         return village
 
+    def reset(self):
+        u""" ゲームをリセットして新しい回をはじめる """
+        if self.village.status != VillageStatus.IN_GAME:
+            raise GameException(u"ゲームは始まっていません")
+        village = self.increment_generation()
+        return village
+
+    def increment_generation(self):
+        self.village.generation = self.village.generation + 1
+        self.village.status = VillageStatus.OUT_GAME
+        self.village.save()
+        return self.village
+
     def update_village_status(self, status):
-        village = Village.objects.get(identity=self.village.identity)
-        village.status = status
-        village.save()
-        self.village = village
+        self.village.status = status
+        self.village.save()
         return village
 
     def get_residents(self):
@@ -63,7 +74,7 @@ class Game(object):
     def get_resident(self, user):
         try:
             return Resident.objects.get(
-                village=self.village, user=user)
+                village=self.village, user=user, generation=self.village.generation)
         except Resident.DoesNotExist:
             raise GameException(u"さんは村に参加していません" % user.name)
         
@@ -156,7 +167,7 @@ class Game(object):
             raise GameException(u"まだゲームは始まってません")
         try:
             resident = Resident.objects.get(
-                village=self.village, user=user)
+                village=self.village, user=user, generation=self.village.generation)
         except Resident.DoesNotExist:
             raise GameException(u"%s さんは村の住人ではありません" % user.name)
         if resident.status != ResidentStatus.ALIVE:
