@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 """ Kind of domain layer in this application. 
 Game class aggregates objects behind this game. """
-
+import random
 from werewolf.models import *
 from werewolf.util import Util
 
@@ -28,8 +28,18 @@ class Game(object):
         self.village = village
 
     def start(self):
-        self.assign_roles(self.residents)
-        self.announce_roles(self.residents)
+        if self.village.status == VillageStatus.IN_GAME:
+            raise Exception(u"既にゲームは始まっています")
+        residents = self.assign_roles(self.village.resident_set.all())
+        village = self.update_village_status(VillageStatus.IN_GAME)
+        return village
+
+    def update_village_status(self, status):
+        village = Village.objects.get(identity=self.village.identity)
+        village.status = status
+        village.save()
+        self.village = village
+        return village
 
     def get_residents(self):
         return Resident.objects.filter(
@@ -57,8 +67,9 @@ class Game(object):
             raise ValueError("Too many residents")
         roles = Util.shuffle(random.choice(MEMBER_TYPES[3]))
         for i, resident in enumerate(residents):
-            resident.role = roles[i].value
+            resident.role = roles[i]
             resident.save()
+        return residents
 
     def announce_roles(self, residents):
         pass

@@ -21,10 +21,13 @@ class SocketHandler(websocket.WebSocketHandler):
             clients[self.village_id].append(self)
 
     def on_message(self, message):
-        res_msg = MessageHandler.dispatch(self.village_id, self.user, message)
-        for client in clients[self.village_id]:
-            if res_msg.is_target_user(client.user):
-                client.write_message(json.dumps(res_msg.to_dict()))
+        msg_list = MessageHandler.dispatch(self.village_id, self.user, message)
+        if not isinstance(msg_list, list):
+            msg_list = [msg_list]
+        for msg in msg_list:
+            for client in clients[self.village_id]:
+                if msg.is_target_user(client.user):
+                    client.write_message(json.dumps(msg.to_dict()))
 
     def on_close(self):
         if self in clients[self.village_id]:
