@@ -162,12 +162,12 @@ class MessageHandler(object):
 
         contents.append("")
         contents.append(u"■住人")
-        contents.append("\n".join([u"- %s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
+        contents.append("\n".join([u"・%s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
 
         from werewolf.websocketserver import clients
         contents.append("")
         contents.append(u"■接続ユーザ")
-        contents.append("\n".join(["- %s" % c.user.name for c in clients[village_id]]))
+        contents.append("\n".join(["・%s" % c.user.name for c in clients[village_id]]))
 
         return Message("\n".join(contents), None, user)
 
