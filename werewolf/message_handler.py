@@ -27,14 +27,21 @@ class MessageHandler(object):
 
     @classmethod
     def do_message(cls, village_id, user, msg):
+        u"""
+        メッセージを送信する。
+        ゲーム開始状態でなければ誰でもメッセージを送れるが、
+        ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
+        (独り言として扱われる)
+        """
         village = Village.objects.get(identity=village_id)
         if village.status == VillageStatus.OUT_GAME:
             return Message(msg, sender=user)
         else:
-            resident = Resident.objects.get(village=village, user=user)
+            resident = Resident.objects.get(
+                village=village, user=user, generation=village.generation)
             if resident.status == ResidentStatus.ALIVE:
                 return Message(msg, sender=user)
-        return Message(msg, sender=user, receiver=user)
+        return Message(u"現在メッセージは送れません。", sender=None, receiver=user)
 
     @classmethod
     def do_set(cls, village_id, user, msg):
@@ -55,7 +62,16 @@ class MessageHandler(object):
 
     @classmethod
     def do_leave(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+        game = Game(village_id)
+        village = Village.objects.get(identity=village_id)
+        resident = game.get_resident(user)
+        if not resident:
+            return Message(
+                u"%s さんは村に参加していません" % user.name, None, user)
+        if village.status == VillageStatus.IN_GAME:
+            return Message(u"ゲーム中は村から出られません。", None, user)
+        game.remove_resident(resident)
+        return Message(u"%s さんが村から出ました" % user.name)
 
     @classmethod
     def do_start(cls, village_id, user, msg):

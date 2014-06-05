@@ -59,6 +59,7 @@ class Resident(EntityModel):
     u""" 村の住民 """
 
     village = models.ForeignKey('Village')
+    generation = models.IntegerField()
     user = models.ForeignKey('User')
     status = models.SmallIntegerField(
         choices=ResidentStatus.LABELS,
@@ -105,6 +106,7 @@ class Village(EntityModel):
     status = models.SmallIntegerField(
         choices=VillageStatus.LABELS,
         default=VillageStatus.OUT_GAME)
+    generation = models.IntegerField(default=1)
     day = models.IntegerField(default=0)
 
     # start_at = models.DateTimeField(null=True)
@@ -148,6 +150,7 @@ class Behavior(EntityModel):
 
     behavior_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     village = models.ForeignKey('Village')
+    generation = models.IntegerField()
     day = models.IntegerField()
     resident = models.ForeignKey('Resident', related_name='behavior_set')
     target_resident = models.ForeignKey('Resident', related_name='targeted_behavior_set')
