@@ -127,9 +127,6 @@ class Village(EntityModel):
             created=self.created,
             modified=self.modified)
 
-    def update_status(self, new_status):
-        self.status = new_status
-
     def increment_day(self):
         if self.status != VillageStatus.IN_GAME:
             raise RuntimeError

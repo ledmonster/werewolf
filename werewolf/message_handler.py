@@ -7,8 +7,10 @@ class MessageHandler(object):
     u"""
     @join    ゲームに参加する（未開始時のみ有効）
     @leave   ゲームから抜ける（未開始時のみ有効）
+    @start:  ゲームを開始する
     @set:    処刑対象をセット
     @attack: 襲撃対象をセット
+    @hunt:   道連れ対象をセット（自分が死ぬときに発動）
     @state:  ゲームの状態確認
     @help:   ヘルプ表示
     """
@@ -46,14 +48,6 @@ class MessageHandler(object):
         return Message(u"現在メッセージは送れません。", sender=None, receiver=user)
 
     @classmethod
-    def do_set(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
-
-    @classmethod
-    def do_attack(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
-
-    @classmethod
     def do_join(cls, village_id, user, msg):
         game = Game(village_id)
         resident, created = game.add_resident(user)
@@ -77,7 +71,18 @@ class MessageHandler(object):
 
     @classmethod
     def do_start(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+        game = Game(village_id)
+        try:
+            village = game.start()
+        except Exception as e:
+            return Message(unicode(e), None, user)
+        residents = village.resident_set.all()
+        messages = []
+        messages.append(Message(u"さあ、新しいゲームの始まりです。"))
+        for r in residents:
+            messages.append(
+                Message(u"あなたは「%s」です" % r.get_role_display(), None, r.user))
+        return messages
 
     @classmethod
     def do_end(cls, village_id, user, msg):
@@ -88,17 +93,34 @@ class MessageHandler(object):
         return cls.do_message(cls, village_id, user, msg)
 
     @classmethod
+    def do_set(cls, village_id, user, msg):
+        return cls.do_message(cls, village_id, user, msg)
+
+    @classmethod
+    def do_attack(cls, village_id, user, msg):
+        return cls.do_message(cls, village_id, user, msg)
+
+    @classmethod
+    def do_hunt(cls, village_id, user, msg):
+        return cls.do_message(cls, village_id, user, msg)
+
+    @classmethod
     def do_state(cls, village_id, user, msg):
         game = Game(village_id)
+        village = Village.objects.get(identity=village_id)
         residents = game.get_residents()
-        content = u"村人一覧: \n"
-        content += "\n".join(["- %s" % r.user.name for r in residents])
+        contents = []
+
+        contents.append(u"■ %s (%s)" % (village.name, village.get_status_display()))
+
+        contents.append(u"村人一覧:")
+        contents.append("\n".join(["- %s" % r.user.name for r in residents]))
 
         from werewolf.websocketserver import clients
-        content += u"\n接続ユーザ: \n"
-        content += "\n".join(["- %s" % c.user.name for c in clients[village_id]])
+        contents.append(u"接続ユーザ:")
+        contents.append("\n".join(["- %s" % c.user.name for c in clients[village_id]]))
 
-        return Message(content, None, user)
+        return Message("\n".join(contents), None, user)
 
     @classmethod
     def do_help(cls, village_id, user, msg):
