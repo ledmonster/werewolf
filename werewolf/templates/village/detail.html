@@ -89,7 +89,7 @@
 
   $("#input-text").focus();
 
-  $("#input-text").keyup(function(event) {
+  $("#input-text").keydown(function(event) {
     if (event.keyCode == 13) {
       $("#send").click();
     }
