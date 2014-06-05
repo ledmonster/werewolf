@@ -3,11 +3,11 @@
 {% block header_title %}{{ village.name }}{% endblock %}
 
 {% block container %}
-  <div class="col-md-12" id="message_area"></div>
+  <div class="col-xs-12" id="message_area"></div>
 {% endblock %}
 
 {% block bottom %}
-  <div class="col-md-12">
+  <div class="col-xs-12">
     <div class="row input-group">
       <input id="input-text" type="text" class="form-control">
       <span class="input-group-btn">
@@ -34,17 +34,32 @@
   };
   ws.onmessage = function (evt) {
     var data = JSON.parse(evt.data);
-    var message = $("<div>").addClass("col-md-12").append(
+    var message = $("<div>").addClass("row").append(
       $("<div>")
-        .addClass("row sender")
-        .css({"color": data.sender_color})
-        .text(data.sender_name)
+        .addClass("col-xs-2")
+        .append(
+          $("<img>")
+            .attr("src", data.sender_avatar)
+        )
     ).append(
       $("<div>")
-        .addClass("row message")
-        .css({"border-color": data.sender_color})
-        .html(
-          nl2br(escapeHtml(data.content))
+        .addClass("col-xs-10")
+        .append(
+          $("<div>")
+            .addClass("row sender")
+            .css({"color": data.sender_color})
+            .text(data.sender_name)
+        ).append(
+          $("<div>")
+            .addClass("row")
+            .append(
+              $("<div>")
+                .addClass("message")
+                .css({"border-color": data.sender_color})
+                .html(
+                  nl2br(escapeHtml(data.content))
+                )
+            )
         )
     );
     $('#message_area').append(message);

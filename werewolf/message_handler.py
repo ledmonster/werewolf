@@ -92,10 +92,12 @@ class Message(object):
         return False
 
     def to_dict(self):
+        default_avatar = "http://www.gravatar.com/avatar/?f=y&s=30"
         return dict(
             content = self.content,
             sender_id = self.sender and self.sender.identity or None,
             sender_name = self.sender and self.sender.name or "system",
             sender_color = self.sender and self.sender.color or "#000000",
+            sender_avatar = self.sender and self.sender.get_avatar_url(30) or default_avatar,
             receiver_id = self.receiver and self.receiver.identity or None,
         )
