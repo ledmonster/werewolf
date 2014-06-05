@@ -86,6 +86,13 @@ class Game(object):
     def remove_resident(self, resident):
         resident.delete()
 
+    def get_role_constitution(self):
+        if self.village.status != VillageStatus.IN_GAME:
+            raise GameException(u"まだゲームは始まっていません")
+        residents = self.get_residents()
+        roles = [r.role for r in residents]
+        return [Role(r) for r in sorted(roles)]
+
     def assign_roles(self, residents):
         num_residents = len(residents)
         if num_residents < 3:

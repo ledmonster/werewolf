@@ -54,7 +54,13 @@ class Role(object):
     )
 
     def __init__(self, value):
+        if value not in dict(self.LABELS):
+            raise ValueError("invalid value: %s" % value)
         self.value = value
+
+    @property
+    def label(self):
+        return dict(self.LABELS)[self.value]
 
     def is_human(self):
         return self.value != self.WOLF

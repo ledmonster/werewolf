@@ -157,6 +157,8 @@ class MessageHandler(object):
                 contents.append(u"あなたは「%s」です。（%s）" % (resident.get_role_display(), resident.get_status_display()))
             except GameException as e:
                 pass
+            roles = game.get_role_constitution()
+            contents.append(u"住人構成：%s" % ", ".join([r.label for r in roles]))
 
         contents.append("")
         contents.append(u"■住人")
