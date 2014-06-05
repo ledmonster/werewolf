@@ -2,15 +2,19 @@
   pk: df58adc2226711e3988db8f6b11aaf33
   fields:
     name: ニシキヘビ村
+    generation: 1
 - model: werewolf.village
   pk: e0938863226711e3add5b8f6b11aaf33
   fields:
     name: マンモス村
+    generation: 1
 - model: werewolf.village
   pk: e0f06d1e226711e39abbb8f6b11aaf33
   fields:
     name: ラクダ村
+    generation: 1
 - model: werewolf.village
   pk: f2394c82226711e3923ab8f6b11aaf33
   fields:
     name: ハチドリ村
+    generation: 1

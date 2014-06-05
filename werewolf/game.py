@@ -30,11 +30,21 @@ class Game(object):
     def start(self):
         self.assign_roles(self.residents)
         self.announce_roles(self.residents)
+
+    def get_resident(self, user):
+        try:
+            return Resident.objects.get(
+                village=self.village, user=user)
+        except Resident.DoesNotExist:
+            return None
         
     def add_resident(self, user):
         resident, created = Resident.objects.get_or_create(
-            village=self.village, user=user, role=None)
+            village=self.village, user=user, generation=self.village.generation, role=None)
         return (resident, created)
+
+    def remove_resident(self, resident):
+        resident.delete()
 
     def assign_roles(self, residents):
         if len(residents) < 3:
