@@ -59,6 +59,25 @@ class Role(object):
     def is_human(self):
         return self.value != self.WOLF
 
+class BehaviorType(object):
+    """ Value Object """
+
+    EXECUTION = "execution"
+    ATTACK = "attack"
+    HUNT = "fortune"
+    FORTUNE = "fortune"
+    MEDIUM = "medium"
+
+    LABELS = (
+        (EXECUTION, u"投票"),
+        (ATTACK, u"襲撃"),
+        (FORTUNE, u"占い"),
+        (HUNT, u"道連れ"),
+        (MEDIUM, u"霊媒"),
+    )
+
+
+
 class Resident(EntityModel):
     u""" 村の住民 """
 
@@ -114,7 +133,7 @@ class Village(EntityModel):
         choices=VillageStatus.LABELS,
         default=VillageStatus.OUT_GAME)
     generation = models.IntegerField(default=1)
-    day = models.IntegerField(default=0)
+    day = models.IntegerField(default=1)
 
     # start_at = models.DateTimeField(null=True)
     # end_at = models.DateTimeField(null=True)
@@ -144,18 +163,9 @@ class Village(EntityModel):
 
 
 class Behavior(EntityModel):
+    u""" 特定の回の村の、特定の日の、住人の行動を記録 """
 
-    TYPE_EXECUTION = "execution"
-    TYPE_ATTACK = "attack"
-    TYPE_FORTUNE_TELLING = "fortune_telling"
-
-    TYPE_CHOICES = (
-        (TYPE_EXECUTION, TYPE_EXECUTION),
-        (TYPE_ATTACK, TYPE_ATTACK),
-        (TYPE_FORTUNE_TELLING, TYPE_FORTUNE_TELLING),
-        )
-
-    behavior_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    behavior_type = models.CharField(max_length=20, choices=BehaviorType.LABELS)
     village = models.ForeignKey('Village')
     generation = models.IntegerField()
     day = models.IntegerField()
