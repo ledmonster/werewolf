@@ -87,9 +87,14 @@ class Game(object):
             raise GameException(u"%sさんは村に参加していません" % user.name)
         
     def add_resident(self, user):
-        resident, created = Resident.objects.get_or_create(
-            village=self.village, user=user, generation=self.village.generation, role=None)
-        return (resident, created)
+        try:
+            resident = Resident.objects.get(
+                village=self.village, user=user, generation=self.village.generation, role=None)
+            raise GameException(u"%s さんは既に村に参加しています" % user.name)
+        except resident.DoesNotExist as e:
+            resident = Redident.objects.create(
+                village=self.village, user=user, generation=self.village.generation, role=None)
+        return resident
 
     def remove_resident(self, resident):
         resident.delete()
