@@ -110,17 +110,17 @@ class MessageHandler(object):
         for k, t in targets.iteritems():
             if t is not None:
                 if k == BehaviorType.EXECUTION:
-                    messages.append(Message(u"%s が吊られました") % t.user.name)
+                    messages.append(Message(u"%s が吊られました" % t.user.name))
                 elif k == BehaviorType.ATTACK:
-                    messages.append(Message(u"%s が襲撃されました") % t.user.name)
+                    messages.append(Message(u"%s が襲撃されました" % t.user.name))
                 elif k == BehaviorType.HUNT:
-                    messages.append(Message(u"%s が道連れになりました") % t.user.name)
+                    messages.append(Message(u"%s が道連れになりました" % t.user.name))
                 elif k == BehaviorType.FORTUNE:
                     # 死んでても知らせる
                     tellers = game.get_residents(role=Role.TELLER)
                     for t in tellers:
                         messages.append(
-                            Message(u"%s は「%s」です") % (t.user.name, t.get_role_display()), None, t.user)
+                            Message(u"%s は「%s」です" % (t.user.name, t.get_role_display()), None, t.user))
 
         # ゲーム終了、または翌日へ
         if game.satisfy_game_end():
