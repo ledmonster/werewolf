@@ -9,6 +9,7 @@ class MessageHandler(object):
     @join     ゲームに参加する（未開始時のみ有効）
     @leave    ゲームから抜ける（未開始時のみ有効）
     @start:   ゲームを開始する
+    @night:   夜を開始する
     @reset:   ゲームをリセットする
     @set:     処刑対象をセット
     @attack:  襲撃対象をセット
