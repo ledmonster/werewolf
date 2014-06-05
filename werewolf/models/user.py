@@ -1,4 +1,6 @@
 """ user """
+import urllib, hashlib
+
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 
@@ -19,6 +21,10 @@ class User(EntityModel):
     email = models.EmailField(blank=True)
     color = models.CharField(max_length=100, default="#000000", blank=True)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
+
+    def get_avatar_url(self, size):
+        return "http://www.gravatar.com/avatar/%s?s=%d" % (
+            hashlib.md5(self.email.lower()).hexdigest(), size)
 
     class Meta:
         app_label = 'werewolf'
