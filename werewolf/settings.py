@@ -66,7 +66,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'werewolf',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'gree',
         'HOST': '',
         'PORT': '',
     }
