@@ -41,12 +41,16 @@ class Role(object):
     VILLAGER = "villager"
     BERSERKER = "berserker"
     HUNTER = "hunter"
+    TELLER = "teller"
+    MEDIUM = "medium"
 
     LABELS = (
         (WOLF, u'人狼'),
         (VILLAGER, u'村人'),
         (BERSERKER, u'狂人'),
         (HUNTER, u'狩人'),
+        (TELLER, u'占師'),
+        (MEDIUM, u'霊媒師'),
     )
 
     def __init__(self, value):
