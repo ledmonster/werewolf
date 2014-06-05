@@ -105,6 +105,8 @@ class Game(object):
         resident = self.ensure_alive_resident(user)
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
+        if resident.user.identity == target_resident.user.identity:
+            raise GameException(u"自分自身を吊り対象にすることはできません")
         self.create_or_update_behavior(
             BehaviorType.EXECUTION, resident, target_resident)
 
@@ -114,6 +116,8 @@ class Game(object):
             raise GameException(u"あなたは狼ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
+        if resident.user.identity == target_resident.user.identity:
+            raise GameException(u"自分自身を襲撃することはできません")
         self.create_or_update_behavior(
             BehaviorType.ATTACK, resident, target_resident)
 
@@ -123,6 +127,8 @@ class Game(object):
             raise GameException(u"あなたは狩人ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
+        if resident.user.identity == target_resident.user.identity:
+            raise GameException(u"自分自身を道連れにすることはできません")
         self.create_or_update_behavior(
             BehaviorType.HUNT, resident, target_resident)
 
@@ -132,6 +138,8 @@ class Game(object):
             raise GameException(u"あなたは占い師ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
+        if resident.user.identity == target_resident.user.identity:
+            raise GameException(u"自分自身を占うことはできません")
         self.create_or_update_behavior(
             BehaviorType.FORTUNE, resident, target_resident)
 
