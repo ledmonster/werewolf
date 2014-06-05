@@ -55,11 +55,11 @@ class MessageHandler(object):
     @classmethod
     def do_join(cls, village_id, user, msg, args):
         game = Game(village_id)
-        resident, created = game.add_resident(user)
-        if created:
-            return Message(u"%s さんが村に参加しました" % user.name)
-        return Message(
-            u"%s さんは既に村に参加しています" % user.name, None, user)
+        try:
+            resident = game.add_resident(user)
+        except GameException as e:
+            return Message(unicode(e), None, user)
+        return Message(u"%s さんが村に参加しました" % user.name)
 
     @classmethod
     def do_leave(cls, village_id, user, msg, args):
