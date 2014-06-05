@@ -87,11 +87,12 @@ class Game(object):
         resident.delete()
 
     def assign_roles(self, residents):
-        if len(residents) < 3:
+        num_residents = len(residents)
+        if num_residents < 3:
             raise ValueError("Too few residents")
-        elif len(residents) > 6:
+        elif num_residents > 6:
             raise ValueError("Too many residents")
-        roles = Util.shuffle(random.choice(MEMBER_TYPES[3]))
+        roles = Util.shuffle(random.choice(MEMBER_TYPES[num_residents]))
         for i, resident in enumerate(residents):
             resident.role = roles[i]
             resident.save()
