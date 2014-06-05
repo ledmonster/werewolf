@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -26,8 +26,6 @@ MANAGERS = ADMINS
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'e#)-8avyb!3hk!vg@kg#=#k0_d#kig75ydmk#s)o9uz+mufxd#'
-
-TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
