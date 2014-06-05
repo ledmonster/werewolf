@@ -93,14 +93,45 @@ class MessageHandler(object):
     def do_reset(cls, village_id, user, msg, args):
         game = Game(village_id)
         try:
-            village = game.reset()
+            village = game.go_to_next_game()
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"第%d回のゲームをリセットしました" % village.generation)
 
     @classmethod
     def do_night(cls, village_id, user, msg, args):
-        return cls.do_message(cls, village_id, user, msg)
+        game = Game(village_id)
+        try:
+            targets = game.execute_night()
+        except GameException as e:
+            return Message(unicode(e), None, user)
+
+        messages = []
+        for k, t in targets.iteritems():
+            if t is not None:
+                if k == BehaviorType.EXECUTION:
+                    messages.append(Message(u"%s が吊られました") % t.user.name)
+                elif k == BehaviorType.ATTACK:
+                    messages.append(Message(u"%s が襲撃されました") % t.user.name)
+                elif k == BehaviorType.HUNT:
+                    messages.append(Message(u"%s が道連れになりました") % t.user.name)
+                elif k == BehaviorType.FORTUNE:
+                    # 死んでても知らせる
+                    tellers = game.get_residents(role=Role.TELLER)
+                    for t in tellers:
+                        messages.append(
+                            Message(u"%s は「%s」です") % (t.user.name, t.get_role_display()), None, t.user)
+
+        # ゲーム終了、または翌日へ
+        if game.satisfy_game_end():
+            winner = game.get_winner()
+            messages.append(Message(u"%sチームの勝ちです" % winner.label))
+            village = game.increment_generation()
+        else:
+            village = game.increment_day()
+            messages.append(Message(u"新しい朝がきました。%d日目です。" % village.day))
+
+        return messages
 
     @classmethod
     def do_set(cls, village_id, user, msg, args):
