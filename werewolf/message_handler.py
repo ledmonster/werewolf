@@ -93,6 +93,11 @@ class MessageHandler(object):
         residents = game.get_residents()
         content = u"村人一覧: \n"
         content += "\n".join(["- %s" % r.user.name for r in residents])
+
+        from werewolf.websocketserver import clients
+        content += u"\n接続ユーザ: \n"
+        content += "\n".join(["- %s" % c.user.name for c in clients[village_id]])
+
         return Message(content, None, user)
 
     @classmethod
