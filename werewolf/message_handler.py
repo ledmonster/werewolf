@@ -167,7 +167,7 @@ class MessageHandler(object):
         from werewolf.websocketserver import clients
         contents.append("")
         contents.append(u"■接続ユーザ")
-        contents.append("\n".join(["・%s" % c.user.name for c in clients[village_id]]))
+        contents.append("\n".join([u"・%s" % c.user.name for c in clients[village_id]]))
 
         return Message("\n".join(contents), None, user)
 
