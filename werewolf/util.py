@@ -15,7 +15,7 @@ class Util(object):
             return None
         cnt = Counter(_list)
         max_val = cnt.most_common(1)[0][1]
-        most_voted = [k for k, c in cnt if c == max_val]
+        most_voted = [k for k, c in cnt.iteritems() if c == max_val]
         random.shuffle(most_voted)
         return most_voted[0]
 
@@ -57,3 +57,4 @@ class Util(object):
 
 if __name__=="__main__":
     print Util.hsv_random_color()
+    print Util.select_most_voted([1, 2, 2, 3, 3])
