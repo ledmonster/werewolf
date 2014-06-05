@@ -62,3 +62,6 @@ class ServerError(APIError):
 
 class GameException(Exception):
     pass
+
+class GameNotFinished(GameException):
+    pass

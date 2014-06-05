@@ -57,16 +57,40 @@ class Game(object):
         village = self.update_village_status(VillageStatus.IN_GAME)
         return village
 
-    def reset(self):
-        u""" ゲームをリセットして新しい回をはじめる """
+    def satisfy_game_end(self):
+        try:
+            self.get_winner()
+            return True
+        except GameNotFinished as e:
+            return False
+
+    def get_winner(self):
+        residents = self.get_alive_residents()
+        wolves = [r for r in residents if r.role == Role.WOLF]
+        humans = [r for r in residents if r.role != Role.WOLF]
+        if len(wolves) == 0:
+            return Winner(Winner.HUMAN)
+        elif len(wolves) >= len(humans):
+            return Winner(Winner.WOLF)
+        raise GameNotFinished(u"まだゲームは終わっていません")
+
+    def go_to_next_game(self):
+        u""" generation を increment して次のゲームを始める """
         if self.village.status != VillageStatus.IN_GAME:
             raise GameException(u"ゲームは始まっていません")
         village = self.increment_generation()
         return village
 
     def increment_generation(self):
+        u""" 次の回に移る """
         self.village.generation = self.village.generation + 1
         self.village.status = VillageStatus.OUT_GAME
+        self.village.save()
+        return self.village
+
+    def increment_day(self):
+        u""" 次の日に移る """
+        self.village.day = self.village.day + 1
         self.village.save()
         return self.village
 
@@ -75,9 +99,22 @@ class Game(object):
         self.village.save()
         return self.village
 
-    def get_residents(self):
+    def get_residents(self, role=None):
+        if role:
+            return Resident.objects.filter(
+                village=self.village, generation=self.village.generation,
+                role=role).all()
         return Resident.objects.filter(
             village=self.village, generation=self.village.generation).all()
+
+    def get_alive_residents(self, role=None):
+        if role:
+            return Resident.objects.filter(
+                village=self.village, generation=self.village.generation,
+                status=ResidentStatus.ALIVE, role=role).all()
+        return Resident.objects.filter(
+            village=self.village, generation=self.village.generation,
+            status=ResidentStatus.ALIVE).all()
 
     def get_resident(self, user):
         try:
@@ -91,8 +128,8 @@ class Game(object):
             resident = Resident.objects.get(
                 village=self.village, user=user, generation=self.village.generation, role=None)
             raise GameException(u"%s さんは既に村に参加しています" % user.name)
-        except resident.DoesNotExist as e:
-            resident = Redident.objects.create(
+        except Resident.DoesNotExist as e:
+            resident = Resident.objects.create(
                 village=self.village, user=user, generation=self.village.generation, role=None)
         return resident
 
@@ -150,6 +187,8 @@ class Game(object):
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を襲撃することはできません")
+        if target_resident.role == Role.WOLF:
+            raise GameException(u"仲間を襲撃することはできません")
         self.create_or_update_behavior(
             BehaviorType.ATTACK, resident, target_resident)
 
@@ -194,3 +233,80 @@ class Game(object):
         if resident.status != ResidentStatus.ALIVE:
             raise GameException(u"%s さんは既に死んでいます" % user.name)
         return resident
+
+    def execute_night(self):
+        u"""
+        - 吊り対象を決めて吊る
+        - 襲撃対象を決めて襲撃する
+        - 道連れ対象を決めて道連れにする
+        - 占い対象を決めて結果を知らせる
+        """
+
+        if self.village.status == VillageStatus.OUT_GAME:
+            raise GameException(u"ゲームは開始されていません")
+
+        targets = {}
+
+        # 占い
+        residents = self.get_alive_residents()
+        targets['fortune'] = self.select_fortune_target(residents)
+
+        # 吊り
+        targets['execution'] = self.select_execution_target(residents)
+        if targets['execution']:
+            residents = self.kill_resident(targets['execution'])
+            if target.role == Role.HUNTER:
+                targets['hunt'] = self.select_hunt_target(hunter, residents)
+                residents = self.kill_resident(targets['hunt'])
+
+        # 襲撃
+        targets['attack'] = self.select_attack_target(residents)
+        if targets['attack']:
+            residents = self.kill_resident(targets['attack'])
+            if target.role == Role.HUNTER:
+                targets['hunt'] = self.select_hunt_target(hunter, residents)
+                residents = self.kill_resident(targets['hunt'])
+
+        return targets
+
+    def kill_resident(self, resident):
+        u""" 住民が死ぬ """
+        resident.status = ResidentStatus.DEAD
+        resident.save()
+        return self.get_alive_residents()
+
+    def select_execution_target(self, residents):
+        u""" 吊り対象を選ぶ """
+        return self.select_action_target(BehaviorType.EXECUTION, residents, residents)
+
+    def select_attack_target(self, residents):
+        humans = [r for r in residents if r.role != Role.WOLF]
+        wolves = [r for r in residents if r.role == Role.WOLF]
+        return self.select_action_target(BehaviorType.ATTACK, wolves, humans)
+
+    def select_hunt_target(self, hunter, residents):
+        target = self.select_action_target(BehaviorType.HUNT, [hunter], residents)
+        self.kill_resident(target)
+
+    def select_fortune_target(self, residents):
+        tellers = [r for r in residents if r.role == Role.TELLER]
+        target = self.select_action_target(BehaviorType.FORTUNE, tellers, residents)
+        return target
+
+    def select_action_target(self, behavior_type, executors, targets):
+        voted = []
+        for r in executors:
+            try:
+                behavior = Behavior.objects.get(
+                    behavior_type=behavior_type,
+                    village=self.village,
+                    generation=self.village.generation,
+                    day=self.village.day,
+                    resident=r)
+                voted.append(behavior.target_resident)
+            except Behavior.DoesNotExist:
+                # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
+                targets = [rr for rr in targets if rr != r]
+                if targets:
+                    voted.append(Util.shuffle(targets)[0])
+        return Util.select_most_voted(voted)

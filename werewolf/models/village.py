@@ -6,7 +6,19 @@ from django_extensions.db.models import TimeStampedModel
 from .base import EntityModel
 
 
-class ResidentStatus(object):
+class ValueObject(object):
+    """ Base class for Value Object """
+    def __init__(self, value):
+        if value not in dict(self.LABELS):
+            raise ValueError("invalid value: %s" % value)
+        self.value = value
+
+    @property
+    def label(self):
+        return dict(self.LABELS)[self.value]
+
+
+class ResidentStatus(ValueObject):
     """ Value Object """
     ALIVE = 1
     DEAD = 2
@@ -16,11 +28,8 @@ class ResidentStatus(object):
         (DEAD, u'死亡'),
     )
 
-    def __init__(self, value):
-        self.value = value
 
-
-class VillageStatus(object):
+class VillageStatus(ValueObject):
     u""" VO: 村の状態 """
     IN_GAME = 1
     OUT_GAME = 2
@@ -30,11 +39,8 @@ class VillageStatus(object):
         (OUT_GAME, u'募集中'),
     )
 
-    def __init__(self, value):
-        self.value = value
 
-
-class Role(object):
+class Role(ValueObject):
     """ Value Object """
 
     WOLF = "wolf"
@@ -53,19 +59,11 @@ class Role(object):
         (MEDIUM, u'霊媒師'),
     )
 
-    def __init__(self, value):
-        if value not in dict(self.LABELS):
-            raise ValueError("invalid value: %s" % value)
-        self.value = value
-
-    @property
-    def label(self):
-        return dict(self.LABELS)[self.value]
-
     def is_human(self):
         return self.value != self.WOLF
 
-class BehaviorType(object):
+
+class BehaviorType(ValueObject):
     """ Value Object """
 
     EXECUTION = "execution"
@@ -82,6 +80,15 @@ class BehaviorType(object):
         (MEDIUM, u"霊媒"),
     )
 
+
+class Winner(ValueObject):
+    WOLF = "wolf"
+    HUMAN = "human"
+
+    LABELS = (
+        (WOLF, u"狼"),
+        (HUMAN, u"人間"),
+    )
 
 
 class Resident(EntityModel):
