@@ -2,6 +2,7 @@
 """ Kind of domain layer in this application. 
 Game class aggregates objects behind this game. """
 import random
+from werewolf.exception import GameException
 from werewolf.models import *
 from werewolf.util import Util
 
@@ -43,7 +44,7 @@ class Game(object):
 
     def start(self):
         if self.village.status == VillageStatus.IN_GAME:
-            raise Exception(u"既にゲームは始まっています")
+            raise GameException(u"既にゲームは始まっています")
         residents = self.assign_roles(self.village.resident_set.all())
         village = self.update_village_status(VillageStatus.IN_GAME)
         return village
@@ -64,7 +65,7 @@ class Game(object):
             return Resident.objects.get(
                 village=self.village, user=user)
         except Resident.DoesNotExist:
-            raise Exception(u"さんは村に参加していません" % user.name)
+            raise GameException(u"さんは村に参加していません" % user.name)
         
     def add_resident(self, user):
         resident, created = Resident.objects.get_or_create(
@@ -110,7 +111,7 @@ class Game(object):
     def set_attack_target(self, user, targert_name):
         resident = self.ensure_alive_resident(user)
         if resident.Role != Role.WOLF:
-            raise Exception(u"あなたは狼ではありません")
+            raise GameException(u"あなたは狼ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
         self.create_or_update_behavior(
@@ -119,7 +120,7 @@ class Game(object):
     def set_hunt_target(self, user, targert_name):
         resident = self.ensure_alive_resident(user)
         if resident.Role != Role.HUNTER:
-            raise Exception(u"あなたは狩人ではありません")
+            raise GameException(u"あなたは狩人ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
         self.create_or_update_behavior(
@@ -128,7 +129,7 @@ class Game(object):
     def set_fortune_target(self, user, targert_name):
         resident = self.ensure_alive_resident(user)
         if resident.Role != Role.TELLER:
-            raise Exception(u"あなたは占い師ではありません")
+            raise GameException(u"あなたは占い師ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
         self.create_or_update_behavior(
@@ -139,17 +140,17 @@ class Game(object):
         try:
             return User.objects.get(name=name)
         except:
-            raise Exception(u"%s という名前の人はいません" % name)
+            raise GameException(u"%s という名前の人はいません" % name)
 
     def ensure_alive_resident(self, user):
         u""" user がゲーム中の村の生きた住人であることを保障 """
         if self.village.status != VillageStatus.IN_GAME:
-            raise Exception(u"まだゲームは始まってません")
+            raise GameException(u"まだゲームは始まってません")
         try:
             resident = Resident.objects.get(
                 village=self.village, user=user)
         except Resident.DoesNotExist:
-            raise Exception(u"%s さんは村の住人ではありません" % user.name)
+            raise GameException(u"%s さんは村の住人ではありません" % user.name)
         if resident.status != ResidentStatus.ALIVE:
-            raise Exception(u"%s さんは既に死んでいます" % user.name)
+            raise GameException(u"%s さんは既に死んでいます" % user.name)
         return resident

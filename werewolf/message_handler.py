@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from werewolf.exception import GameException
 from werewolf.game import Game
 from werewolf.models import *
 
@@ -65,7 +66,7 @@ class MessageHandler(object):
         village = Village.objects.get(identity=village_id)
         try:
             resident = game.get_resident(user)
-        except Exception as e:
+        except GameException as e:
             return Message(unicode(e), None, user)
         if village.status == VillageStatus.IN_GAME:
             return Message(u"ゲーム中は村から出られません。", None, user)
@@ -77,7 +78,7 @@ class MessageHandler(object):
         game = Game(village_id)
         try:
             village = game.start()
-        except Exception as e:
+        except GameException as e:
             return Message(unicode(e), None, user)
         residents = village.resident_set.all()
         messages = []
@@ -97,7 +98,7 @@ class MessageHandler(object):
         try:
             target_name = args and args[0] or ""
             game.set_execution_target(user, target_name)
-        except Exception as e:
+        except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"%s を吊り対象にセットしました" % target_name, None, user)
 
@@ -107,7 +108,7 @@ class MessageHandler(object):
         try:
             target_name = args and args[0] or ""
             game.set_attack_target(user, target_name)
-        except Exception as e:
+        except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"%s を襲撃対象にセットしました" % target_name, None, user)
 
@@ -117,7 +118,7 @@ class MessageHandler(object):
         try:
             target_name = args and args[0] or ""
             game.set_hunt_target(user, target_name)
-        except Exception as e:
+        except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"%s を道連れ対象にセットしました" % target_name, None, user)
 
@@ -127,7 +128,7 @@ class MessageHandler(object):
         try:
             target_name = args and args[0] or ""
             game.set_fortune_target(user, target_name)
-        except Exception as e:
+        except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"%s を占い対象にセットしました" % target_name, None, user)
 
