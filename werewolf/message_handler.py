@@ -5,6 +5,8 @@ from werewolf.models import *
 
 class MessageHandler(object):
     u"""
+    @join    ゲームに参加する（未開始時のみ有効）
+    @leave   ゲームから抜ける（未開始時のみ有効）
     @set:    処刑対象をセット
     @attack: 襲撃対象をセット
     @state:  ゲームの状態確認
@@ -87,7 +89,11 @@ class MessageHandler(object):
 
     @classmethod
     def do_state(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+        game = Game(village_id)
+        residents = game.get_residents()
+        content = u"村人一覧: \n"
+        content += "\n".join(["- %s" % r.user.name for r in residents])
+        return Message(content, None, user)
 
     @classmethod
     def do_help(cls, village_id, user, msg):
