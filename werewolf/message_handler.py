@@ -139,13 +139,21 @@ class MessageHandler(object):
         residents = game.get_residents()
         contents = []
 
-        contents.append(u"■ %s (%s)" % (village.name, village.get_status_display()))
+        contents.append(u"■%s （%s）" % (village.name, village.get_status_display()))
 
-        contents.append(u"村人一覧:")
-        contents.append("\n".join(["- %s" % r.user.name for r in residents]))
+        try:
+            resident = game.get_resident(user)
+            contents.append(u"あなたは「%s」です。（%s）" % (resident.get_role_display(), resident.get_status_display()))
+            contents.append("")
+        except GameException as e:
+            pass
+
+        contents.append(u"■住人")
+        contents.append("\n".join([u"- %s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
+        contents.append("")
 
         from werewolf.websocketserver import clients
-        contents.append(u"接続ユーザ:")
+        contents.append(u"■接続ユーザ")
         contents.append("\n".join(["- %s" % c.user.name for c in clients[village_id]]))
 
         return Message("\n".join(contents), None, user)
