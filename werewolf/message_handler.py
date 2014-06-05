@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from werewolf.game import Game
 from werewolf.models import *
 
 
@@ -45,7 +46,12 @@ class MessageHandler(object):
 
     @classmethod
     def do_join(cls, village_id, user, msg):
-        return cls.do_message(cls, village_id, user, msg)
+        game = Game(village_id)
+        resident, created = game.add_resident(user)
+        if created:
+            return Message(u"%s さんが村に参加しました" % user.name)
+        return Message(
+            u"%s さんは既に村に参加しています" % user.name, None, user)
 
     @classmethod
     def do_leave(cls, village_id, user, msg):

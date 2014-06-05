@@ -76,6 +76,15 @@ class Resident(EntityModel):
             raise AttributeError
         self.status = new_status
 
+    def to_dict(self):
+        return dict(
+            identity=self.identity,
+            village_id=self.village_id,
+            user_id=self.user_id,
+            status=self.get_status_display(),
+            role=self.role,
+        )
+
     class Meta:
         app_label = 'werewolf'
 
