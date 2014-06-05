@@ -86,6 +86,9 @@ class Resident(EntityModel):
             role=self.role,
         )
 
+    def __unicode__(self):
+        return u"%s (%s)" % (self.user.name, self.village.name)
+
     class Meta:
         app_label = 'werewolf'
 
@@ -131,6 +134,9 @@ class Village(EntityModel):
         if self.status != VillageStatus.IN_GAME:
             raise RuntimeError
         self.day = self.day + 1
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         app_label = 'werewolf'
