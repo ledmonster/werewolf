@@ -110,7 +110,7 @@ class Game(object):
 
     def set_attack_target(self, user, targert_name):
         resident = self.ensure_alive_resident(user)
-        if resident.Role != Role.WOLF:
+        if resident.role != Role.WOLF:
             raise GameException(u"あなたは狼ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
@@ -119,7 +119,7 @@ class Game(object):
 
     def set_hunt_target(self, user, targert_name):
         resident = self.ensure_alive_resident(user)
-        if resident.Role != Role.HUNTER:
+        if resident.role != Role.HUNTER:
             raise GameException(u"あなたは狩人ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
@@ -128,7 +128,7 @@ class Game(object):
 
     def set_fortune_target(self, user, targert_name):
         resident = self.ensure_alive_resident(user)
-        if resident.Role != Role.TELLER:
+        if resident.role != Role.TELLER:
             raise GameException(u"あなたは占い師ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
