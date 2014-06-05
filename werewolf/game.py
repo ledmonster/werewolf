@@ -31,6 +31,10 @@ class Game(object):
         self.assign_roles(self.residents)
         self.announce_roles(self.residents)
 
+    def get_residents(self):
+        return Resident.objects.filter(
+            village=self.village, generation=self.village.generation).all()
+
     def get_resident(self, user):
         try:
             return Resident.objects.get(
