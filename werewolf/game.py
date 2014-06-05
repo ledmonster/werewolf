@@ -11,6 +11,17 @@ MEMBER_TYPES = {
         [Role.WOLF, Role.BERSERKER, Role.VILLAGER],
         [Role.WOLF, Role.HUNTER, Role.VILLAGER],
     ],
+    4: [
+        [Role.WOLF, Role.BERSERKER, Role.HUNTER, Role.VILLAGER],
+    ],
+    5: [
+        [Role.WOLF, Role.BERSERKER, Role.TELLER, Role.HUNTER, Role.VILLAGER],
+        [Role.WOLF, Role.BERSERKER, Role.TELLER, Role.VILLAGER, Role.VILLAGER],
+    ],
+    6: [
+        [Role.WOLF, Role.BERSERKER, Role.TELLER, Role.HUNTER, Role.VILLAGER, Role.VILLAGER],
+        [Role.WOLF, Role.BERSERKER, Role.TELLER, Role.VILLAGER, Role.VILLAGER, Role.VILLAGER],
+    ],
 }
 
 class Game(object):
@@ -63,7 +74,7 @@ class Game(object):
     def assign_roles(self, residents):
         if len(residents) < 3:
             raise ValueError("Too few residents")
-        elif len(residents) > 3:
+        elif len(residents) > 6:
             raise ValueError("Too many residents")
         roles = Util.shuffle(random.choice(MEMBER_TYPES[3]))
         for i, resident in enumerate(residents):
