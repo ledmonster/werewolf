@@ -32,6 +32,12 @@
   var ws = new WebSocket("ws://" + location.host + "/websocket?access_token=" + access_token + "&village_id=" + village_id);
   ws.onopen = function() {
   };
+  ws.onclose = function() {
+    alert("Sorry, websocket closed. Please reload the page.");
+  };
+  ws.onerror = function() {
+    alert("Sorry, error occured on websocket. Please reload the page.");
+  };
   ws.onmessage = function (evt) {
     var data = JSON.parse(evt.data);
     var message = $("<div>").addClass("row").append(
