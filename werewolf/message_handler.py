@@ -42,10 +42,10 @@ class MessageHandler(object):
     def do_message(cls, village_id, user, msg, args):
         game = Game.get_instance(village_id)
         try:
-            message = game.store_message(user, msg)
+            msg_event = game.store_message(user, msg)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(msg, user)
+        return Message(msg_event.message, user)
 
     @classmethod
     def do_join(cls, village_id, user, msg, args):
