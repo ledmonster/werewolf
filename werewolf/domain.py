@@ -131,7 +131,7 @@ class Game(object):
         except Resident.DoesNotExist:
             raise GameException(u"%sさんは村に参加していません" % user.name)
 
-    def add_resident(self, user):
+    def join(self, user):
         if self.in_game():
             raise GameException(u"ゲームの開催中は参加できません")
         try:
@@ -141,10 +141,15 @@ class Game(object):
         except Resident.DoesNotExist as e:
             resident = Resident.objects.create(
                 village=self.village, user=user, generation=self.village.generation, role=None)
+            self.record_event(JoinEvent(resident))
         return resident
 
-    def remove_resident(self, resident):
+    def leave(self, user):
+        resident = self.get_resident(user)
+        if self.in_game():
+            raise GameException(u"ゲーム中は村から出られません。")
         resident.delete()
+        self.record_event(LeaveEvent(resident))
 
     def get_role_constitution(self):
         if not self.in_game():
@@ -337,11 +342,29 @@ class Game(object):
 
 
 class Event(object):
+    u""" イベントのベースクラス """
+    pass
+
+
+class EternalEvent(Event):
+    u""" 永続化するイベント """
     def to_model(self):
         raise NotImplementedError
 
 
-class MessageEvent(Event):
+# class EphemeralEvent(Event):
+#     u""" 永続化しないイベント """
+#     pass
+
+
+# class GameErrorEvent(EphemeralEvent):
+#     u""" ユーザの誤った操作をたしなめるイベント """
+#     def __init__(self, message):
+#         self.message = message
+
+
+class MessageEvent(EternalEvent):
+    u""" メッセージ送信イベント """
     def __init__(self, village, user, message):
         self.village = village
         self.user = user
@@ -357,4 +380,40 @@ class MessageEvent(Event):
             user=self.user,
             village=self.village,
             generation=self.village.generation,
+            content=self.content);
+
+
+class JoinEvent(EternalEvent):
+    u""" 参加イベント """
+    def __init__(self, resident):
+        self.resident = resident
+
+    @property
+    def content(self):
+        return {"resident": self.resident.identity}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.JOIN,
+            user=self.resident.user,
+            village=self.resident.village,
+            generation=self.resident.generation,
+            content=self.content);
+
+
+class LeaveEvent(EternalEvent):
+    u""" 離脱イベント """
+    def __init__(self, resident):
+        self.resident = resident
+
+    @property
+    def content(self):
+        return {"resident": self.resident.identity}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.LEAVE,
+            user=self.resident.user,
+            village=self.resident.village,
+            generation=self.resident.generation,
             content=self.content);
