@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 u""" メッセージの処理を行うモジュール。この中でモデルの操作はしない。 """
+import collections
 
 from werewolf.exception import GameException, GameNotFinished
 from werewolf.domain import Game
@@ -204,9 +205,10 @@ class MessageHandler(object):
             contents.append("\n".join([u"・%s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
 
         from werewolf.websocketserver import clients
+        users = collections.Counter([c.user for c in clients[village_id]])
         contents.append("")
         contents.append(u"■接続ユーザ")
-        contents.append("\n".join([u"・%s" % c.user.name for c in clients[village_id]]))
+        contents.append("\n".join([u"・%s （%d接続）" % (u, n) for u, n in users.iteritems()]))
 
         return Message("\n".join(contents), None, user)
 
