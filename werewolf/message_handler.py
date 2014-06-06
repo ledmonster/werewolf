@@ -40,20 +40,12 @@ class MessageHandler(object):
 
     @classmethod
     def do_message(cls, village_id, user, msg, args):
-        u"""
-        メッセージを送信する。
-        ゲーム開始状態でなければ誰でもメッセージを送れるが、
-        ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
-        (独り言として扱われる)
-        """
         game = Game.get_instance(village_id)
-        if not game.in_game():
-            return Message(msg, sender=user)
         try:
-            resident = game.ensure_alive_resident(user)
+            message = game.send_message(user, msg)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(msg, sender=user)
+        return Message(msg, user)
 
     @classmethod
     def do_join(cls, village_id, user, msg, args):

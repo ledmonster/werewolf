@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 """ Kind of domain layer in this application.
 Game class aggregates objects behind this game. """
+
 import random
 from werewolf.exception import GameException, GameNotFinished
 from werewolf.models import *
@@ -319,3 +320,12 @@ class Game(object):
                 if targets:
                     voted.append(Util.shuffle(targets)[0])
         return Util.select_most_voted(voted)
+
+    def send_message(self, user, message):
+        u"""
+        ゲーム開始状態でなければ誰でもメッセージを送れるが、
+        ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
+        """
+        if self.in_game():
+            self.ensure_alive_resident(user)
+        return message
