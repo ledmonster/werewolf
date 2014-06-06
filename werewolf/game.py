@@ -2,7 +2,7 @@
 """ Kind of domain layer in this application. 
 Game class aggregates objects behind this game. """
 import random
-from werewolf.exception import GameException
+from werewolf.exception import GameException, GameNotFinished
 from werewolf.models import *
 from werewolf.util import Util
 
@@ -124,6 +124,8 @@ class Game(object):
             raise GameException(u"%sさんは村に参加していません" % user.name)
         
     def add_resident(self, user):
+        if self.village.status != VillageStatus.IN_GAME:
+            raise GameException(u"ゲームの開催中は参加できません")
         try:
             resident = Resident.objects.get(
                 village=self.village, user=user, generation=self.village.generation, role=None)
