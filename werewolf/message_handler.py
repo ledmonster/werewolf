@@ -126,7 +126,13 @@ class MessageHandler(object):
         # ゲーム終了、または翌日へ
         if game.satisfy_game_end():
             winner = game.get_winner()
-            messages.append(Message(u"%sチームの勝ちです" % winner.label))
+            residents = game.get_residents()
+
+            messages.append(
+                Message(
+                    u"%sチームの勝ちです\n" % winner.label +
+                    "\n".join([u"・%s ： %s（%s）" %
+                               (r.user.name, r.get_role_display(), r.get_status_display()) for r in residents])))
             village = game.increment_generation()
         else:
             village = game.increment_day()
@@ -181,20 +187,21 @@ class MessageHandler(object):
         residents = game.get_residents()
         contents = []
 
-        contents.append(u"■%s （第%d回：%s）" % (village.name, village.generation, village.get_status_display()))
+        contents.append(u"【第%d回 %s】 （%s）" % (village.generation, village.name, village.get_status_display()))
 
         if village.status == VillageStatus.IN_GAME:
+            roles = game.get_role_constitution()
+            contents.append(u"住人構成：%s" % ", ".join([r.label for r in roles]))
             try:
                 resident = game.get_resident(user)
                 contents.append(u"あなたは「%s」です。（%s）" % (resident.get_role_display(), resident.get_status_display()))
             except GameException as e:
                 pass
-            roles = game.get_role_constitution()
-            contents.append(u"住人構成：%s" % ", ".join([r.label for r in roles]))
 
-        contents.append("")
-        contents.append(u"■住人")
-        contents.append("\n".join([u"・%s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
+        if residents:
+            contents.append("")
+            contents.append(u"■住人")
+            contents.append("\n".join([u"・%s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
 
         from werewolf.websocketserver import clients
         contents.append("")
@@ -232,7 +239,7 @@ class Message(object):
         return dict(
             content = self.content,
             sender_id = self.sender and self.sender.identity or None,
-            sender_name = self.sender and self.sender.name or "system",
+            sender_name = self.sender and self.sender.name or u"★Game Master★",
             sender_color = self.sender and self.sender.color or "#000000",
             sender_avatar = self.sender and self.sender.get_avatar_url(30) or default_avatar,
             receiver_id = self.receiver and self.receiver.identity or None,
