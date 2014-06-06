@@ -6,7 +6,7 @@ from oauth2client.crypt import AppIdentityError
 
 from werewolf import settings
 from werewolf.util import Util
-from werewolf.models import ClientSession, User, UserCredential
+from werewolf.models import *
 from werewolf.exception import *
 
 
@@ -35,7 +35,7 @@ class IdTokenAuthenticator(Authenticator):
 
         try:
             credential = UserCredential.objects.get(
-                credential_type=UserCredential.CREDENTIAL_TYPE_GOOGLE,
+                credential_type=CredentialType.GOOGLE,
                 key=payload['sub'])
             user = credential.user
         except UserCredential.DoesNotExist:
@@ -52,7 +52,7 @@ class IdTokenAuthenticator(Authenticator):
 
             UserCredential.objects.create(
                 user=user,
-                credential_type=UserCredential.CREDENTIAL_TYPE_GOOGLE,
+                credential_type=CredentialType.GOOGLE,
                 key=payload['sub'])
 
         return ClientSession.objects.create(user=user)
