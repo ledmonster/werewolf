@@ -3,6 +3,9 @@
 Game class aggregates objects behind this game. """
 
 import random
+
+from django.db.models import F
+
 from werewolf.exception import GameException, GameNotFinished
 from werewolf.domain.event import *
 from werewolf.models import *
@@ -35,6 +38,101 @@ MEMBER_TYPES = {
     ],
 }
 
+
+class VillageRepository(object):
+    u""" 村に関する処理を行う Repository  """
+    def __init__(self, village_id, generation):
+        self.village_id = village_id
+        self.generation = generation
+
+    def update_status(self, status):
+        village = VillageModel.objects.get(identity=self.village_id)
+        village.status = status
+        village.save()
+        return village
+
+    def increment_generation(self):
+        u""" 次の回に移る """
+        village = VillageModel.objects.get(identity=self.village_id)
+        village.generation = F('generation') + 1
+        village.status = VillageStatus.OUT_GAME
+        village.save()
+
+        # entity updated by F method should be reloaded
+        new_village = VillageModel.objects.get(identity=self.village_id)
+        self.generation = new_village.generation
+        return new_village
+
+    def increment_day(self):
+        u""" 次の日に移る """
+        village = VillageModel.objects.get(identity=self.village_id)
+        village.day = F('day') + 1
+        village.save()
+
+        # entity updated by F method should be reloaded
+        new_village = VillageModel.objects.get(identity=self.village_id)
+
+        return new_village
+
+    def get_residents(self, role=None):
+        if role:
+            return ResidentModel.objects.filter(
+                village=self.village_id, generation=self.generation,
+                role=role).all()
+        return ResidentModel.objects.filter(
+            village=self.village_id, generation=self.generation).all()
+
+    def get_alive_residents(self, role=None):
+        if role:
+            return ResidentModel.objects.filter(
+                village=self.village_id, generation=self.generation,
+                status=ResidentStatus.ALIVE, role=role).all()
+        return ResidentModel.objects.filter(
+            village=self.village_id, generation=self.generation,
+            status=ResidentStatus.ALIVE).all()
+
+    def get_resident(self, user):
+        return ResidentModel.objects.get(
+            village=self.village_id, user=user, generation=self.generation)
+
+
+class BehaviorRepository(object):
+    u""" ユーザ操作に関する処理を行う Repository  """
+    def __init__(self, village_id):
+        self.village_id = village_id
+
+    def create_or_update(self, behavior_type, resident, target_resident):
+        village = VillageModel.objects.get(identity=self.village_id)
+        try:
+            behavior = BehaviorModel.objects.get(
+                behavior_type=behavior_type, village=village,
+                resident=resident, generation=village.generation,
+                day=village.day)
+            behavior.target_resident = target_resident
+            behavior.save()
+        except BehaviorModel.DoesNotExist:
+            behavior = BehaviorModel.objects.create(
+                behavior_type=behavior_type, village=village,
+                resident=resident, target_resident=target_resident,
+                generation=village.generation, day=village.day)
+        return behavior
+
+    def get_by_type_and_resident(self, behavior_type, resident):
+        village = VillageModel.objects.get(identity=self.village_id)
+        return BehaviorModel.objects.get(
+            behavior_type=behavior_type,
+            village=village,
+            generation=village.generation,
+            day=village.day,
+            resident=resident)
+
+
+class EventRepository(object):
+    u""" イベントに関する処理を行う Repository """
+    def __init__(self, village_id):
+        self.village_id = village_id
+
+
 class Game(object):
     u"""
     ゲームロジックを書くクラス。
@@ -50,11 +148,10 @@ class Game(object):
 
     def __init__(self, village_id):
         self.village_id = village_id
-        village = VillageModel.objects.get(identity=village_id)
-        self.village = village
-
-    def get_village(self):
-        return self.village
+        self.village = VillageModel.objects.get(identity=village_id)
+        self.village_repository = VillageRepository(village_id, self.village.generation)
+        self.event_repository = EventRepository(village_id)
+        self.behavior_repository = BehaviorRepository(village_id)
 
     def in_game(self):
         return self.village.status == VillageStatus.IN_GAME
@@ -63,8 +160,8 @@ class Game(object):
         if self.in_game():
             raise GameException(u"既にゲームは始まっています")
         residents = self.assign_roles(self.get_residents())
-        village = self.update_village_status(VillageStatus.IN_GAME)
-        return village
+        self.village = self.village_repository.update_status(VillageStatus.IN_GAME)
+        return self.village
 
     def satisfy_game_end(self):
         try:
@@ -87,48 +184,25 @@ class Game(object):
         u""" generation を increment して次のゲームを始める """
         if not self.in_game():
             raise GameException(u"ゲームは始まっていません")
-        village = self.increment_generation()
-        return village
-
-    def increment_generation(self):
-        u""" 次の回に移る """
-        self.village.generation = self.village.generation + 1
-        self.village.status = VillageStatus.OUT_GAME
-        self.village.save()
+        self.village = self.village_repository.increment_generation()
         return self.village
 
-    def increment_day(self):
+    def go_to_next_day(self):
         u""" 次の日に移る """
-        self.village.day = self.village.day + 1
-        self.village.save()
-        return self.village
-
-    def update_village_status(self, status):
-        self.village.status = status
-        self.village.save()
+        if not self.in_game():
+            raise GameException(u"ゲームは始まっていません")
+        self.village = self.village_repository.increment_day()
         return self.village
 
     def get_residents(self, role=None):
-        if role:
-            return ResidentModel.objects.filter(
-                village=self.village, generation=self.village.generation,
-                role=role).all()
-        return ResidentModel.objects.filter(
-            village=self.village, generation=self.village.generation).all()
+        return self.village_repository.get_residents(role)
 
     def get_alive_residents(self, role=None):
-        if role:
-            return ResidentModel.objects.filter(
-                village=self.village, generation=self.village.generation,
-                status=ResidentStatus.ALIVE, role=role).all()
-        return ResidentModel.objects.filter(
-            village=self.village, generation=self.village.generation,
-            status=ResidentStatus.ALIVE).all()
+        return self.village_repository.get_alive_residents(role)
 
     def get_resident(self, user):
         try:
-            return ResidentModel.objects.get(
-                village=self.village, user=user, generation=self.village.generation)
+            return self.village_repository.get_resident(user)
         except ResidentModel.DoesNotExist:
             raise GameException(u"%sさんは村に参加していません" % user.name)
 
@@ -171,28 +245,13 @@ class Game(object):
             resident.save()
         return residents
 
-    def create_or_update_behavior(self, behavior_type, resident, target_resident):
-        try:
-            behavior = BehaviorModel.objects.get(
-                behavior_type=behavior_type, village=self.village,
-                resident=resident, generation=self.village.generation,
-                day=self.village.day)
-            behavior.target_resident = target_resident
-            behavior.save()
-        except BehaviorModel.DoesNotExist:
-            behavior = BehaviorModel.objects.create(
-                behavior_type=behavior_type, village=self.village,
-                resident=resident, target_resident=target_resident,
-                generation=self.village.generation, day=self.village.day)
-        return behavior
-
     def set_execution_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を吊り対象にすることはできません")
-        self.create_or_update_behavior(
+        self.behavior_repository.create_or_update(
             BehaviorType.EXECUTION, resident, target_resident)
 
     def set_attack_target(self, user, target_name):
@@ -205,7 +264,7 @@ class Game(object):
             raise GameException(u"自分自身を襲撃することはできません")
         if target_resident.role == Role.WOLF:
             raise GameException(u"仲間を襲撃することはできません")
-        self.create_or_update_behavior(
+        self.behavior_repository.create_or_update(
             BehaviorType.ATTACK, resident, target_resident)
 
     def set_hunt_target(self, user, target_name):
@@ -216,7 +275,7 @@ class Game(object):
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を道連れにすることはできません")
-        self.create_or_update_behavior(
+        self.behavior_repository.create_or_update(
             BehaviorType.HUNT, resident, target_resident)
 
     def set_fortune_target(self, user, target_name):
@@ -227,7 +286,7 @@ class Game(object):
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を占うことはできません")
-        self.create_or_update_behavior(
+        self.behavior_repository.create_or_update(
             BehaviorType.FORTUNE, resident, target_resident)
 
     def get_user_by_name(self, name):
@@ -313,12 +372,8 @@ class Game(object):
         voted = []
         for r in executors:
             try:
-                behavior = BehaviorModel.objects.get(
-                    behavior_type=behavior_type,
-                    village=self.village,
-                    generation=self.village.generation,
-                    day=self.village.day,
-                    resident=r)
+                behavior = self.behavior_repository.\
+                           get_by_type_and_resident(behavior_type, r)
                 voted.append(behavior.target_resident)
             except BehaviorModel.DoesNotExist:
                 # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
