@@ -98,7 +98,7 @@ class GameResetEvent(EternalEvent):
         return EventModel(
             event_type=EventType.RESET,
             user=None,
-            village=self.new_village.identity,
+            village_id=self.new_village.identity,
             generation=self.new_village.generation-1,  # record previous generation
             content=self.content);
 
