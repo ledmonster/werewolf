@@ -4,7 +4,7 @@ import json
 from tornado import websocket, web, ioloop
 
 from werewolf.models import *
-from message_handler import MessageHandler, Message
+from message_handler import MessageHandler
 
 clients = {}
 
@@ -17,18 +17,25 @@ class SocketHandler(websocket.WebSocketHandler):
         token = self.get_argument('access_token')
         self.village_id = self.get_argument('village_id')
         if not token or not self.village_id:
-            self.write_message(json.dumps(Message(u"認証に失敗しました").to_dict()))
+            msg = MessageHandler.get_auth_error_message()
+            self.write_message(json.dumps(msg.to_dict()))
             self.close()
             return
         try:
             self.user = AccessToken.objects.get(token=token).client_session.user
         except AccessToken.DoesNotExist:
-            self.write_message(json.dumps(Message(u"認証に失敗しました").to_dict()))
+            msg = MessageHandler.get_auth_error_message()
+            self.write_message(json.dumps(msg.to_dict()))
             self.close()
             return
         village_clients = clients.setdefault(self.village_id, [])
         if self not in village_clients:
             clients[self.village_id].append(self)
+
+        # send comming message
+        for client in clients[self.village_id]:
+            msg = MessageHandler.get_comming_message(self.user)
+            client.write_message(json.dumps(msg.to_dict()))
 
     def on_message(self, message):
         msg_list = MessageHandler.dispatch(self.village_id, self.user, message)
@@ -43,6 +50,10 @@ class SocketHandler(websocket.WebSocketHandler):
         if self in clients[self.village_id]:
             clients[self.village_id].remove(self)
 
+        # send leaving message
+        for client in clients[self.village_id]:
+            msg = MessageHandler.get_leaving_message(self.user)
+            client.write_message(json.dumps(msg.to_dict()))
 
 if __name__ == '__main__':
     app = web.Application([
