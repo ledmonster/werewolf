@@ -122,14 +122,6 @@ class VillageModel(EntityModel):
     """ village, which is a unit of games """
     DAYTIME_LENGTH = 10  # 10 sec
 
-    WINNER_VILLAGER = 1
-    WINNER_WOLF = 2
-
-    WINNER_CHOICES = (
-        (WINNER_VILLAGER, u'村人の勝利'),
-        (WINNER_WOLF, u'人狼の勝利'),
-    )
-
     name = models.CharField(max_length=100)
     status = models.SmallIntegerField(
         choices=VillageStatus.LABELS,
@@ -139,7 +131,7 @@ class VillageModel(EntityModel):
 
     # start_at = models.DateTimeField(null=True)
     # end_at = models.DateTimeField(null=True)
-    # winner = models.CharField(max_length=20, choices=WINNER_CHOICES)
+    # winner = models.CharField(max_length=20, choices=Winner.LABELS)
 
     def to_dict(self):
         return dict(
