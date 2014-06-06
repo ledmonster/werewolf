@@ -23,6 +23,18 @@ class MessageHandler(object):
     """
 
     @classmethod
+    def get_auth_error_message(cls):
+        return Message(u"認証に失敗しました")
+
+    @classmethod
+    def get_comming_message(cls, user):
+        return Message(u"%s さんが村にやってきました" % user.name)
+
+    @classmethod
+    def get_leaving_message(cls, user):
+        return Message(u"%s さんが村を立ち去りました" % user.name)
+
+    @classmethod
     def dispatch(cls, village_id, user, msg):
         u""" メッセージを各処理に振り分ける """
         msg = msg.strip()
