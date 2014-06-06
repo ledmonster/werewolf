@@ -124,7 +124,7 @@ class Game(object):
             raise GameException(u"%sさんは村に参加していません" % user.name)
         
     def add_resident(self, user):
-        if self.village.status != VillageStatus.IN_GAME:
+        if self.village.status == VillageStatus.IN_GAME:
             raise GameException(u"ゲームの開催中は参加できません")
         try:
             resident = Resident.objects.get(
