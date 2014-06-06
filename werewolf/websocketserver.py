@@ -32,6 +32,12 @@ class SocketHandler(websocket.WebSocketHandler):
         if self not in village_clients:
             clients[self.village_id].append(self)
 
+        # send initial messages
+        msg_list = MessageHandler.get_initial_messages(self.village_id, self.user)
+        for msg in msg_list:
+            if msg.is_target_user(self.user):
+                self.write_message(json.dumps(msg.to_dict()))
+
         # send comming message
         for client in clients[self.village_id]:
             msg = MessageHandler.get_comming_message(self.user)

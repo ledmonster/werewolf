@@ -35,6 +35,40 @@ class MessageHandler(object):
         return Message(u"%s さんが村を立ち去りました" % user.name)
 
     @classmethod
+    def get_initial_messages(cls, village_id, user):
+        u"""
+        接続時に過去メッセージを取得する
+        TODO: user を使う
+        """
+        game = Game.get_instance(village_id)
+        events = game.get_current_events()
+
+        messages = []
+        for e in events:
+            if e.event_type == EventType.MESSAGE:
+                message = Message(e.content["message"], e.user)
+            elif e.event_type == EventType.JOIN:
+                message = Message(u"%s さんが村に参加しました" % e.user.name)
+            elif e.event_type == EventType.LEAVE:
+                message = Message(u"%s さんが村から出ました" % e.user.name)
+            elif e.event_type == EventType.START:
+                message = Message(u"さあ、第%s回目のゲームの始まりです。" % e.generation)
+                # TODO: logic
+            elif e.event_type == EventType.END:
+                # skip, because game is ended
+                continue
+            elif e.event_type == EventType.RESET:
+                # skip, because game is ended
+                continue
+            elif e.event_type == EventType.NIGHT:
+                # TODO: logic
+                message = Message(u"夜になりました（履歴未実装 ...）")
+            elif e.event_type == EventType.MORNING:
+                message = Message(u"新しい朝がきました。%d日目です。" % e.content["day"])
+            messages.append(message)
+        return messages
+
+    @classmethod
     def dispatch(cls, village_id, user, msg):
         u""" メッセージを各処理に振り分ける """
         msg = msg.strip()

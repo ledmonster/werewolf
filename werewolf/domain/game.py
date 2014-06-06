@@ -141,6 +141,14 @@ class EventRepository(object):
     u""" イベントに関する処理を行う Repository """
     def __init__(self, village_id):
         self.village_id = village_id
+        self.village_repository = VillageRepository(village_id)
+
+    def get_current_events(self):
+        village = self.village_repository.get_entity()
+        generation = village.generation
+        return EventModel.objects.filter(
+            village_id=self.village_id,
+            generation=generation).order_by('created').all()
 
 
 class Game(object):
@@ -426,3 +434,6 @@ class Game(object):
 
     def record_event(self, event):
         event.to_model().save()
+
+    def get_current_events(self):
+        return self.event_repository.get_current_events()
