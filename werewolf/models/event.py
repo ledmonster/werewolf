@@ -11,16 +11,18 @@ class EventType(ValueObject):
     JOIN = "join"
     LEAVE = "leave"
     EXECUTION = "execution"
-    SET_EXECUTION = "set_execution"
-    GAME_START = "game_start"
+    START = "start"
+    RESET = "reset"
+    NIGHT = "night"
 
     LABELS = (
         (MESSAGE, u'メッセージ'),
         (JOIN, u'参加'),
         (LEAVE, u'離脱'),
         (EXECUTION, 'execution'),
-        (SET_EXECUTION, 'set execution'),
-        (GAME_START, 'game_start'),
+        (START, u'ゲーム開始'),
+        (RESET, u'ゲームリセット'),
+        (NIGHT, u'夜のターン'),
     )
 
 

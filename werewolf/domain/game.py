@@ -175,6 +175,11 @@ class Game(object):
         self.village = self.village_repository.update_status(VillageStatus.IN_GAME)
         return self.village
 
+    def reset(self):
+        village = self.go_to_next_game()
+        self.record_event(ResetEvent(village))
+        return village
+
     def satisfy_game_end(self):
         try:
             self.get_winner()

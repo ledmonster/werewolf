@@ -78,3 +78,31 @@ class LeaveEvent(EternalEvent):
             village=self.resident.village,
             generation=self.resident.generation,
             content=self.content);
+
+
+class GameStartEvent(EternalEvent):
+    u""" ゲーム開始イベント """
+    pass
+
+
+class GameResetEvent(EternalEvent):
+    u""" ゲームリセットイベント """
+    def __init__(self, new_village):
+        self.new_village = new_village
+
+    @property
+    def content(self):
+        return {}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.RESET,
+            user=None,
+            village=self.new_village.identity,
+            generation=self.new_village.generation-1,  # record previous generation
+            content=self.content);
+
+
+class NightEvent(EternalEvent):
+    u""" 夜イベント """
+    pass
