@@ -54,7 +54,7 @@
         .append(
           $("<div>")
             .addClass("row sender")
-            .css({"color": data.sender_color})
+            .css({"color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
             .text(data.sender_name)
         ).append(
           $("<div>")
@@ -62,7 +62,7 @@
             .append(
               $("<div>")
                 .addClass("message")
-                .css({"border-color": data.sender_color})
+                .css({"border-color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
                 .html(
                   nl2br(escapeHtml(data.content))
                 )

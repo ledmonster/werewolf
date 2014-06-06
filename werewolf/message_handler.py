@@ -240,7 +240,7 @@ class Message(object):
             content = self.content,
             sender_id = self.sender and self.sender.identity or None,
             sender_name = self.sender and self.sender.name or u"★Game Master★",
-            sender_color = self.sender and self.sender.color or "#000000",
+            sender_hue = self.sender and self.sender.hue or 0,
             sender_avatar = self.sender and self.sender.get_avatar_url(30) or default_avatar,
             receiver_id = self.receiver and self.receiver.identity or None,
         )

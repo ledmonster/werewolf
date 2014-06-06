@@ -1,4 +1,5 @@
 """ auth (using Google Backend) """
+import random
 
 from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
@@ -42,7 +43,7 @@ class IdTokenAuthenticator(Authenticator):
             if 'email' in payload.keys():
                 params['email'] = payload['email']
                 params['name'] = payload['email'].split('@')[0]
-                params['color'] = Util.hsv_random_color()
+                params['hue'] = int(random.random() * 360)
             try:
                 if params.get('email'):
                     user = User.objects.get(email=params['email'])
