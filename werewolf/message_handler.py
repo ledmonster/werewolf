@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from werewolf.exception import GameException
+from werewolf.exception import GameException, GameNotFinished
 from werewolf.game import Game
 from werewolf.models import *
 
