@@ -3,7 +3,7 @@ u""" メッセージの処理を行うモジュール。この中でモデルの
 import collections
 
 from werewolf.exception import GameException, GameNotFinished
-from werewolf.domain import Game
+from werewolf.domain import *
 from werewolf.models import *
 
 
@@ -51,7 +51,7 @@ class MessageHandler(object):
     def do_join(cls, village_id, user, msg, args):
         game = Game.get_instance(village_id)
         try:
-            resident = game.add_resident(user)
+            resident = game.join(user)
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"%s さんが村に参加しました" % user.name)
@@ -60,12 +60,9 @@ class MessageHandler(object):
     def do_leave(cls, village_id, user, msg, args):
         game = Game.get_instance(village_id)
         try:
-            resident = game.get_resident(user)
+            game.leave(user)
         except GameException as e:
             return Message(unicode(e), None, user)
-        if game.in_game():
-            return Message(u"ゲーム中は村から出られません。", None, user)
-        game.remove_resident(resident)
         return Message(u"%s さんが村から出ました" % user.name)
 
     @classmethod

@@ -51,7 +51,7 @@ def api_village_join():
     user = AccessToken.objects.get(token=token).client_session.user
 
     game = Game.get_instance(request.form['identity'])
-    resident = game.add_resident(user)
+    resident = game.join(user)
 
     return jsonify(resident.to_dict())
 

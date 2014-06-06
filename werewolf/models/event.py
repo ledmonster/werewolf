@@ -8,12 +8,16 @@ from .base import EntityModel, ValueObject
 
 class EventType(ValueObject):
     MESSAGE = "message"
+    JOIN = "join"
+    LEAVE = "leave"
     EXECUTION = "execution"
     SET_EXECUTION = "set_execution"
     GAME_START = "game_start"
 
     LABELS = (
-        (MESSAGE, 'message'),
+        (MESSAGE, u'メッセージ'),
+        (JOIN, u'参加'),
+        (LEAVE, u'離脱'),
         (EXECUTION, 'execution'),
         (SET_EXECUTION, 'set execution'),
         (GAME_START, 'game_start'),
