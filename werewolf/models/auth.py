@@ -1,8 +1,9 @@
+# -*- encoding: utf-8 -*-
 """ client session """
 import datetime
 from django.db import models
 
-from .base import EntityModel
+from .base import EntityModel, ValueObject
 
 
 def generate_token():
