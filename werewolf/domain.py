@@ -321,7 +321,7 @@ class Game(object):
                     voted.append(Util.shuffle(targets)[0])
         return Util.select_most_voted(voted)
 
-    def send_message(self, user, message):
+    def store_message(self, user, message):
         u"""
         ゲーム開始状態でなければ誰でもメッセージを送れるが、
         ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
