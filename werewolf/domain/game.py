@@ -83,23 +83,23 @@ class VillageRepository(object):
     def get_residents(self, role=None):
         if role:
             return ResidentModel.objects.filter(
-                village=self.village_id, generation=self.generation,
+                village_id=self.village_id, generation=self.generation,
                 role=role).all()
         return ResidentModel.objects.filter(
-            village=self.village_id, generation=self.generation).all()
+            village_id=self.village_id, generation=self.generation).all()
 
     def get_alive_residents(self, role=None):
         if role:
             return ResidentModel.objects.filter(
-                village=self.village_id, generation=self.generation,
+                village_id=self.village_id, generation=self.generation,
                 status=ResidentStatus.ALIVE, role=role).all()
         return ResidentModel.objects.filter(
-            village=self.village_id, generation=self.generation,
+            village_id=self.village_id, generation=self.generation,
             status=ResidentStatus.ALIVE).all()
 
     def get_resident(self, user):
         return ResidentModel.objects.get(
-            village=self.village_id, user=user, generation=self.generation)
+            village_id=self.village_id, user=user, generation=self.generation)
 
 
 class BehaviorRepository(object):
@@ -177,7 +177,7 @@ class Game(object):
 
     def reset(self):
         village = self.go_to_next_game()
-        self.record_event(ResetEvent(village))
+        self.record_event(GameResetEvent(village))
         return village
 
     def satisfy_game_end(self):
