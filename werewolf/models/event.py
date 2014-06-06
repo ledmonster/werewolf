@@ -10,19 +10,21 @@ class EventType(ValueObject):
     MESSAGE = "message"
     JOIN = "join"
     LEAVE = "leave"
-    EXECUTION = "execution"
     START = "start"
+    END = "end"
     RESET = "reset"
     NIGHT = "night"
+    MORNING = "morning"
 
     LABELS = (
         (MESSAGE, u'メッセージ'),
         (JOIN, u'参加'),
         (LEAVE, u'離脱'),
-        (EXECUTION, 'execution'),
         (START, u'ゲーム開始'),
+        (END, u'ゲーム終了'),
         (RESET, u'ゲームリセット'),
         (NIGHT, u'夜のターン'),
+        (MORNING, u'朝のターン'),
     )
 
 
