@@ -3,19 +3,7 @@
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 
-from .base import EntityModel
-
-
-class ValueObject(object):
-    """ Base class for Value Object """
-    def __init__(self, value):
-        if value not in dict(self.LABELS):
-            raise ValueError("invalid value: %s" % value)
-        self.value = value
-
-    @property
-    def label(self):
-        return dict(self.LABELS)[self.value]
+from .base import EntityModel, ValueObject
 
 
 class ResidentStatus(ValueObject):

@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 """ base entity model """
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
@@ -15,3 +16,15 @@ class EntityModel(TimeStampedModel):
 
     class Meta:
         abstract = True
+
+
+class ValueObject(object):
+    """ Base class for Value Object """
+    def __init__(self, value):
+        if value not in dict(self.LABELS):
+            raise ValueError("invalid value: %s" % value)
+        self.value = value
+
+    @property
+    def label(self):
+        return dict(self.LABELS)[self.value]

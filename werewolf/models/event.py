@@ -1,25 +1,29 @@
+# -*- encoding: utf-8 -*-
 """ event """
 from django.db import models
 from django_extensions.db.fields.json import JSONField
 
-from .base import EntityModel
+from .base import EntityModel, ValueObject
+
+
+class EventType(ValueObject):
+    MESSAGE = "message"
+    EXECUTION = "execution"
+    SET_EXECUTION = "set_execution"
+    GAME_START = "game_start"
+
+    LABELS = (
+        (MESSAGE, 'message'),
+        (EXECUTION, 'execution'),
+        (SET_EXECUTION, 'set execution'),
+        (GAME_START, 'game_start'),
+    )
 
 
 class Event(EntityModel):
     """ event """
-    TYPE_MESSAGE = "message"
-    TYPE_EXECUTION = "execution"
-    TYPE_SET_EXECUTION = "set_execution"
-    TYPE_GAME_START = "game_start"
 
-    EVENT_TYPE_CHOICES = (
-        (TYPE_MESSAGE, 'message'),
-        (TYPE_EXECUTION, 'execution'),
-        (TYPE_SET_EXECUTION, 'set execution'),
-        (TYPE_GAME_START, 'game_start'),
-    )
-
-    event_type = models.CharField(max_length=32, choices=EVENT_TYPE_CHOICES, default=TYPE_MESSAGE)
+    event_type = models.CharField(max_length=32, choices=EventType.LABELS, default=EventType.MESSAGE)
     user = models.ForeignKey('User', null=True)
     resident = models.ForeignKey('Resident', null=True)
     village = models.ForeignKey('Village')
