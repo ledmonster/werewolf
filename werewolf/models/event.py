@@ -25,9 +25,9 @@ class Event(EntityModel):
 
     event_type = models.CharField(max_length=32, choices=EventType.LABELS, default=EventType.MESSAGE)
     user = models.ForeignKey('User', null=True)
-    resident = models.ForeignKey('Resident', null=True)
     village = models.ForeignKey('Village')
-    value = JSONField()
+    generation = models.IntegerField()
+    content = JSONField(null=True)
 
     class Meta:
         app_label = 'werewolf'

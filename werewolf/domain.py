@@ -328,4 +328,13 @@ class Game(object):
         """
         if self.in_game():
             self.ensure_alive_resident(user)
+        self.save_event(EventType.MESSAGE, user, {"message": message})
         return message
+
+    def save_event(self, event_type, user, content):
+        return Event.objects.create(
+            event_type=event_type,
+            user=user,
+            village=self.village,
+            generation=self.village.generation,
+            content=content);
