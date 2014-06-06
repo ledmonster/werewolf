@@ -43,9 +43,8 @@ class MessageHandler(object):
         ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
         (独り言として扱われる)
         """
-        game = Game(village_id)
-        village = Village.objects.get(identity=village_id)
-        if village.status == VillageStatus.OUT_GAME:
+        game = Game.get_instance(village_id)
+        if not game.in_game():
             return Message(msg, sender=user)
         try:
             resident = game.ensure_alive_resident(user)
@@ -55,7 +54,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_join(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             resident = game.add_resident(user)
         except GameException as e:
@@ -64,20 +63,19 @@ class MessageHandler(object):
 
     @classmethod
     def do_leave(cls, village_id, user, msg, args):
-        game = Game(village_id)
-        village = Village.objects.get(identity=village_id)
+        game = Game.get_instance(village_id)
         try:
             resident = game.get_resident(user)
         except GameException as e:
             return Message(unicode(e), None, user)
-        if village.status == VillageStatus.IN_GAME:
+        if game.in_game():
             return Message(u"ゲーム中は村から出られません。", None, user)
         game.remove_resident(resident)
         return Message(u"%s さんが村から出ました" % user.name)
 
     @classmethod
     def do_start(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             village = game.start()
         except GameException as e:
@@ -92,7 +90,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_reset(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             village = game.go_to_next_game()
         except GameException as e:
@@ -101,7 +99,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_night(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             targets = game.execute_night()
         except GameException as e:
@@ -142,7 +140,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_set(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             target_name = args and args[0] or ""
             game.set_execution_target(user, target_name)
@@ -152,7 +150,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_attack(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             target_name = args and args[0] or ""
             game.set_attack_target(user, target_name)
@@ -162,7 +160,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_hunt(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             target_name = args and args[0] or ""
             game.set_hunt_target(user, target_name)
@@ -172,7 +170,7 @@ class MessageHandler(object):
 
     @classmethod
     def do_fortune(cls, village_id, user, msg, args):
-        game = Game(village_id)
+        game = Game.get_instance(village_id)
         try:
             target_name = args and args[0] or ""
             game.set_fortune_target(user, target_name)
@@ -182,14 +180,14 @@ class MessageHandler(object):
 
     @classmethod
     def do_state(cls, village_id, user, msg, args):
-        game = Game(village_id)
-        village = Village.objects.get(identity=village_id)
+        game = Game.get_instance(village_id)
+        village = game.village
         residents = game.get_residents()
         contents = []
 
         contents.append(u"【第%d回 %s】 （%s）" % (village.generation, village.name, village.get_status_display()))
 
-        if village.status == VillageStatus.IN_GAME:
+        if game.in_game():
             roles = game.get_role_constitution()
             contents.append(u"住人構成：%s" % ", ".join([r.label for r in roles]))
             try:

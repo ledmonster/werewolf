@@ -40,6 +40,7 @@ class Game(object):
 
     instances = {}
 
+    @classmethod
     def get_instance(cls, village_id):
         if village_id not in cls.instances:
             cls.instances[village_id] = cls(village_id)
@@ -50,8 +51,14 @@ class Game(object):
         village = Village.objects.get(identity=village_id)
         self.village = village
 
+    def get_village(self):
+        return self.village
+
+    def in_game(self):
+        return self.village.status == VillageStatus.IN_GAME
+
     def start(self):
-        if self.village.status == VillageStatus.IN_GAME:
+        if self.in_game():
             raise GameException(u"既にゲームは始まっています")
         residents = self.assign_roles(self.get_residents())
         village = self.update_village_status(VillageStatus.IN_GAME)
@@ -76,7 +83,7 @@ class Game(object):
 
     def go_to_next_game(self):
         u""" generation を increment して次のゲームを始める """
-        if self.village.status != VillageStatus.IN_GAME:
+        if not self.in_game():
             raise GameException(u"ゲームは始まっていません")
         village = self.increment_generation()
         return village
@@ -124,7 +131,7 @@ class Game(object):
             raise GameException(u"%sさんは村に参加していません" % user.name)
         
     def add_resident(self, user):
-        if self.village.status == VillageStatus.IN_GAME:
+        if self.in_game():
             raise GameException(u"ゲームの開催中は参加できません")
         try:
             resident = Resident.objects.get(
@@ -139,7 +146,7 @@ class Game(object):
         resident.delete()
 
     def get_role_constitution(self):
-        if self.village.status != VillageStatus.IN_GAME:
+        if not self.in_game():
             raise GameException(u"まだゲームは始まっていません")
         residents = self.get_residents()
         roles = [r.role for r in residents]
@@ -225,7 +232,7 @@ class Game(object):
 
     def ensure_alive_resident(self, user):
         u""" user がゲーム中の村の生きた住人であることを保障 """
-        if self.village.status != VillageStatus.IN_GAME:
+        if not self.in_game():
             raise GameException(u"まだゲームは始まってません")
         try:
             resident = Resident.objects.get(
@@ -244,7 +251,7 @@ class Game(object):
         - 占い対象を決めて結果を知らせる
         """
 
-        if self.village.status == VillageStatus.OUT_GAME:
+        if not self.in_game():
             raise GameException(u"ゲームは開始されていません")
 
         targets = {}
