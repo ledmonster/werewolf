@@ -328,13 +328,33 @@ class Game(object):
         """
         if self.in_game():
             self.ensure_alive_resident(user)
-        self.save_event(EventType.MESSAGE, user, {"message": message})
-        return message
+        event = MessageEvent(self.village, user, message)
+        self.record_event(event)
+        return event
 
-    def save_event(self, event_type, user, content):
-        return EventRepository.objects.create(
-            event_type=event_type,
-            user=user,
+    def record_event(self, event):
+        event.to_model().save()
+
+
+class Event(object):
+    def to_model(self):
+        raise NotImplementedError
+
+
+class MessageEvent(Event):
+    def __init__(self, village, user, message):
+        self.village = village
+        self.user = user
+        self.message = message
+
+    @property
+    def content(self):
+        return {"message": self.message}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.MESSAGE,
+            user=self.user,
             village=self.village,
             generation=self.village.generation,
-            content=content);
+            content=self.content);

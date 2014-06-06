@@ -20,7 +20,7 @@ class EventType(ValueObject):
     )
 
 
-class EventRepository(EntityModel):
+class EventModel(EntityModel):
     """ event """
 
     event_type = models.CharField(max_length=32, choices=EventType.LABELS, default=EventType.MESSAGE)
