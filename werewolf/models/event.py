@@ -20,7 +20,7 @@ class EventType(ValueObject):
     )
 
 
-class Event(EntityModel):
+class EventRepository(EntityModel):
     """ event """
 
     event_type = models.CharField(max_length=32, choices=EventType.LABELS, default=EventType.MESSAGE)
@@ -31,3 +31,4 @@ class Event(EntityModel):
 
     class Meta:
         app_label = 'werewolf'
+        db_table = 'werewolf_event'
