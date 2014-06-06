@@ -173,11 +173,18 @@ class Game(object):
             raise GameException(u"既にゲームは始まっています")
         residents = self.assign_roles(self.get_residents())
         self.village = self.village_repository.update_status(VillageStatus.IN_GAME)
+        self.record_event(GameStartEvent(self.village))
         return self.village
 
     def reset(self):
         village = self.go_to_next_game()
         self.record_event(GameResetEvent(village))
+        return village
+
+    def end(self):
+        winner = self.get_winner()
+        self.record_event(GameEndEvent(self.village, winner))
+        village = self.go_to_next_game()
         return village
 
     def satisfy_game_end(self):
@@ -326,6 +333,11 @@ class Game(object):
             raise GameException(u"%s さんは既に死んでいます" % user.name)
         return resident
 
+    def execute_morning(self):
+        village = self.go_to_next_day()
+        self.record_event(MorningEvent(village))
+        return village
+
     def execute_night(self):
         u"""
         - 吊り対象を決めて吊る
@@ -358,6 +370,8 @@ class Game(object):
             if targets['execution'].role == Role.HUNTER:
                 targets['hunt'] = self.select_hunt_target(hunter, residents)
                 residents = self.kill_resident(targets['hunt'])
+
+        self.record_event(NightEvent(self.village, targets))
 
         return targets
 

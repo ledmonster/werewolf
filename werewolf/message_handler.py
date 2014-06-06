@@ -123,9 +123,9 @@ class MessageHandler(object):
                     u"%sチームの勝ちです\n" % winner.label +
                     "\n".join([u"・%s ： %s（%s）" %
                                (r.user.name, r.get_role_display(), r.get_status_display()) for r in residents])))
-            village = game.go_to_next_game()
+            village = game.end()
         else:
-            village = game.go_to_next_day()
+            village = game.execute_morning()
             messages.append(Message(u"新しい朝がきました。%d日目です。" % village.day))
 
         return messages

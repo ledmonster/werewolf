@@ -25,6 +25,12 @@ class ValueObject(object):
             raise ValueError("invalid value: %s" % value)
         self.value = value
 
+    def __str__(self, other):
+        return self.value
+
+    def __unicode__(self, other):
+        return self.value
+
     @property
     def label(self):
         return dict(self.LABELS)[self.value]

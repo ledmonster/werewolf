@@ -82,7 +82,39 @@ class LeaveEvent(EternalEvent):
 
 class GameStartEvent(EternalEvent):
     u""" ゲーム開始イベント """
-    pass
+    def __init__(self, village):
+        self.village = village
+
+    @property
+    def content(self):
+        return {}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.START,
+            user=None,
+            village_id=self.village.identity,
+            generation=self.village.generation,
+            content=self.content);
+
+
+class GameEndEvent(EternalEvent):
+    u""" ゲーム終了イベント """
+    def __init__(self, village, winner):
+        self.village = village
+        self.winner = winner
+
+    @property
+    def content(self):
+        return {"winner": self.winner.value}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.END,
+            user=None,
+            village_id=self.village.identity,
+            generation=self.village.generation,
+            content=self.content);
 
 
 class GameResetEvent(EternalEvent):
@@ -105,4 +137,36 @@ class GameResetEvent(EternalEvent):
 
 class NightEvent(EternalEvent):
     u""" 夜イベント """
-    pass
+    def __init__(self, village, targets):
+        self.village = village
+        self.targets = targets
+
+    @property
+    def content(self):
+        return dict([(k, v.identity) for k, v in self.targets.iteritems() if v])
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.NIGHT,
+            user=None,
+            village_id=self.village.identity,
+            generation=self.village.generation,
+            content=self.content);
+
+
+class MorningEvent(EternalEvent):
+    u""" 夜イベント """
+    def __init__(self, village):
+        self.village = village
+
+    @property
+    def content(self):
+        return {}
+
+    def to_model(self):
+        return EventModel(
+            event_type=EventType.MORNING,
+            user=None,
+            village_id=self.village.identity,
+            generation=self.village.generation,
+            content=self.content);
