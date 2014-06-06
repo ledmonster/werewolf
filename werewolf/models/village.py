@@ -93,8 +93,6 @@ class ResidentModel(EntityModel):
         choices=Role.LABELS,
         null=True)
     # is_winner = models.NullBooleanField(null=True)
-    # execution_target = models.ForeignKey('ResidentModel', null=True)
-    # hunt_target = models.ForeignKey('ResidentModel', null=True)
 
     def update_status(self, new_status):
         if self.status != ResidentStatus.ALIVE:
@@ -128,10 +126,6 @@ class VillageModel(EntityModel):
         default=VillageStatus.OUT_GAME)
     generation = models.IntegerField(default=1)
     day = models.IntegerField(default=1)
-
-    # start_at = models.DateTimeField(null=True)
-    # end_at = models.DateTimeField(null=True)
-    # winner = models.CharField(max_length=20, choices=Winner.LABELS)
 
     def to_dict(self):
         return dict(
