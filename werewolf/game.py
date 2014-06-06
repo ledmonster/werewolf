@@ -179,7 +179,7 @@ class Game(object):
         self.create_or_update_behavior(
             BehaviorType.EXECUTION, resident, target_resident)
 
-    def set_attack_target(self, user, targert_name):
+    def set_attack_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
         if resident.role != Role.WOLF:
             raise GameException(u"あなたは狼ではありません")
@@ -192,7 +192,7 @@ class Game(object):
         self.create_or_update_behavior(
             BehaviorType.ATTACK, resident, target_resident)
 
-    def set_hunt_target(self, user, targert_name):
+    def set_hunt_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
         if resident.role != Role.HUNTER:
             raise GameException(u"あなたは狩人ではありません")
@@ -203,7 +203,7 @@ class Game(object):
         self.create_or_update_behavior(
             BehaviorType.HUNT, resident, target_resident)
 
-    def set_fortune_target(self, user, targert_name):
+    def set_fortune_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
         if resident.role != Role.TELLER:
             raise GameException(u"あなたは占い師ではありません")
