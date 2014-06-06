@@ -84,7 +84,7 @@ class MessageHandler(object):
     def do_reset(cls, village_id, user, msg, args):
         game = Game.get_instance(village_id)
         try:
-            village = game.go_to_next_game()
+            village = game.reset()
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"第%d回のゲームをリセットしました" % village.generation)
