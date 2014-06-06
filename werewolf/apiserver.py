@@ -29,19 +29,18 @@ def village_list():
 @app.route('/village/<identity>')
 def village_detail(identity):
     try:
-        village = Village.objects.get(identity=identity)
-    except Village.DoesNotExist:
+        village = VillageModel.objects.get(identity=identity)
+    except VillageModel.DoesNotExist:
         raise NotFoundError('page not found')
 
-    resident_list = village.resident_set.all()
     return render_template('village/detail.html', village=village,
-                           settings=settings, resident_list=resident_list)
+                           settings=settings)
 
 #TODO: OAuth Authorization for this endpoint
 @app.route('/api/v1/village/list')
 def api_village_list():
     village_list = dict([(entity.identity, entity.to_dict())
-                         for entity in Village.objects.all()])
+                         for entity in VillageModel.objects.all()])
     return jsonify(village_list)
 
 
