@@ -155,13 +155,13 @@ class NightEvent(EternalEvent):
 
 
 class MorningEvent(EternalEvent):
-    u""" 夜イベント """
+    u""" 朝イベント """
     def __init__(self, village):
         self.village = village
 
     @property
     def content(self):
-        return {}
+        return {"day": self.village.day}
 
     def to_model(self):
         return EventModel(
