@@ -79,10 +79,10 @@ class Winner(ValueObject):
     )
 
 
-class Resident(EntityModel):
+class ResidentModel(EntityModel):
     u""" 村の住民 """
 
-    village = models.ForeignKey('Village')
+    village = models.ForeignKey('VillageModel')
     generation = models.IntegerField()
     user = models.ForeignKey('User')
     status = models.SmallIntegerField(
@@ -93,8 +93,8 @@ class Resident(EntityModel):
         choices=Role.LABELS,
         null=True)
     # is_winner = models.NullBooleanField(null=True)
-    # execution_target = models.ForeignKey('Resident', null=True)
-    # hunt_target = models.ForeignKey('Resident', null=True)
+    # execution_target = models.ForeignKey('ResidentModel', null=True)
+    # hunt_target = models.ForeignKey('ResidentModel', null=True)
 
     def update_status(self, new_status):
         if self.status != ResidentStatus.ALIVE:
@@ -115,9 +115,10 @@ class Resident(EntityModel):
 
     class Meta:
         app_label = 'werewolf'
+        db_table = 'werewolf_resident'
 
 
-class Village(EntityModel):
+class VillageModel(EntityModel):
     """ village, which is a unit of games """
     DAYTIME_LENGTH = 10  # 10 sec
 
@@ -161,17 +162,19 @@ class Village(EntityModel):
 
     class Meta:
         app_label = 'werewolf'
+        db_table = 'werewolf_village'
 
 
-class Behavior(EntityModel):
+class BehaviorModel(EntityModel):
     u""" 特定の回の村の、特定の日の、住人の行動を記録 """
 
     behavior_type = models.CharField(max_length=20, choices=BehaviorType.LABELS)
-    village = models.ForeignKey('Village')
+    village = models.ForeignKey('VillageModel')
     generation = models.IntegerField()
     day = models.IntegerField()
-    resident = models.ForeignKey('Resident', related_name='behavior_set')
-    target_resident = models.ForeignKey('Resident', related_name='targeted_behavior_set')
+    resident = models.ForeignKey('ResidentModel', related_name='behavior_set')
+    target_resident = models.ForeignKey('ResidentModel', related_name='targeted_behavior_set')
 
     class Meta:
         app_label = 'werewolf'
+        db_table = 'werewolf_behavior'

@@ -27,7 +27,7 @@ class ResidentManager(object):
         self.listeners[event_type].remove(listener)
 
     def add_resident(self, village, user):
-        resident, created = Resident.objects.get_or_create(village=village, user=user)
+        resident, created = ResidentModel.objects.get_or_create(village=village, user=user)
         if created:
             for listener in self.listeners[self.EVENT_RESIDENT_ADDED]:
                 listener(village, resident)
@@ -51,14 +51,14 @@ class GameMaster(object):
         """ callback method for resident added """
         logger.info("on resident added")
         num_roles = len(village.ROLES)
-        num_residents = village.resident_set.count()
+        num_residents = village.residentmodel_set.count()
         if num_residents == num_roles:
             self.start_game(village)
 
     def start_prologue(self, village):
         """ Start prologue """
         logger.info("start prologue")
-        village.update_status(Village.STATUS_PROLOGUE)
+        village.update_status(VillageModel.STATUS_PROLOGUE)
         village.save()
         self.messenger.send_gm_message(village, u"おはよう。今日も良い一日になるといいな。")
 
@@ -66,7 +66,7 @@ class GameMaster(object):
         """ Start game with residents. Assign a role to each resident here. """
         logger.info("start game")
         self._assign_roles(village)
-        village.update_status(Village.STATUS_IN_GAME)
+        village.update_status(VillageModel.STATUS_IN_GAME)
         village.save()
 
         # TODO: 各 Resident に Role を送信
@@ -97,7 +97,7 @@ class GameMaster(object):
 
         # execution
         execution_target = self._select_execution_target(village)
-        execution_target.update_status(Resident.STATUS_EXECUTED)
+        execution_target.update_status(ResidentModel.STATUS_EXECUTED)
         execution_target.save()
         messages.append(u"%s が吊られました。" % execution_target.user.name)
 
@@ -107,18 +107,18 @@ class GameMaster(object):
         # attack from werewolf
         attack_target = self._select_attack_target(village)
         if attack_target:
-            attack_target.update_status(Resident.STATUS_ATTACKED)
+            attack_target.update_status(ResidentModel.STATUS_ATTACKED)
             attack_target.save()
             messages.append(u"%s が狼に襲撃されました。" % attack_target.user.name)
         else:
             messages.append(u"誰も狼に襲撃されませんでした。")
 
         # TODO: check game end status
-        num_residents = Resident.objects.filter(
-            village=village, status=Resident.STATUS_ALIVE).count()
-        num_wolves = Resident.objects.filter(
-            village=village, status=Resident.STATUS_ALIVE,
-            role=Resident.ROLE_WOLF).count()
+        num_residents = ResidentModel.objects.filter(
+            village=village, status=ResidentModel.STATUS_ALIVE).count()
+        num_wolves = ResidentModel.objects.filter(
+            village=village, status=ResidentModel.STATUS_ALIVE,
+            role=ResidentModel.ROLE_WOLF).count()
         if num_wolves == 0:
             game_finished = True
         elif num_wolves * 2 >= num_residents:
@@ -132,27 +132,27 @@ class GameMaster(object):
             self.start_daytime(village, messages)
 
     def _select_fortune_telling_target(self, village):
-        behaviors = Behavior.objects.filter(
-            village=village, day=village.day, behavior_type=Behavior.TYPE_FORTUNE_TELLING)
+        behaviors = BehaviorModel.objects.filter(
+            village=village, day=village.day, behavior_type=BehaviorModel.TYPE_FORTUNE_TELLING)
         if behaviors:
             return behaviors.pop()
 
     def _select_execution_target(self, village):
-        behaviors = Behavior.objects.filter(
-            village=village, day=village.day, behavior_type=Behavior.TYPE_EXECUTION)
+        behaviors = BehaviorModel.objects.filter(
+            village=village, day=village.day, behavior_type=BehaviorModel.TYPE_EXECUTION)
         target_residents = [behavior.target_resident for behavior in behaviors]
         if not target_residents:
-            target_residents = village.resident_set.filter(status=Resident.STATUS_ALIVE)
+            target_residents = village.residentmodel_set.filter(status=ResidentModel.STATUS_ALIVE)
         return self._select_by_election(target_residents)
 
     def _select_attack_target(self, village):
-        behaviors = Behavior.objects.filter(
-            village=village, day=village.day, behavior_type=Behavior.TYPE_ATTACK)
+        behaviors = BehaviorModel.objects.filter(
+            village=village, day=village.day, behavior_type=BehaviorModel.TYPE_ATTACK)
         target_residents = [behavior.target_resident for behavior in behaviors]
         if not target_residents:
-            target_residents = village.resident_set.\
-                filter(status=Resident.STATUS_ALIVE).\
-                exclude(role=Resident.ROLE_WOLF)
+            target_residents = village.residentmodel_set.\
+                filter(status=ResidentModel.STATUS_ALIVE).\
+                exclude(role=ResidentModel.ROLE_WOLF)
         return self._select_by_election(target_residents)
 
     def _select_by_election(self, items):
@@ -167,7 +167,7 @@ class GameMaster(object):
     def start_epilogue(self, village, morning_messages=None):
         """ Start epilogue for reviewing a game """
         logger.info("start epilogue")
-        village.update_status(Village.STATUS_EPILOGUE)
+        village.update_status(VillageModel.STATUS_EPILOGUE)
         village.save()
 
         timer = threading.Timer(village.DAYTIME_LENGTH, self.end_epilogue, [village])
@@ -181,12 +181,12 @@ class GameMaster(object):
         """ End epilogue, finish reviewing """
         logger.info("end epilogue")
         # TODO: MVP を決めてメッセージを流すなど
-        village.update_status(Village.STATUS_CLOSED)
+        village.update_status(VillageModel.STATUS_CLOSED)
         village.save()
 
     def _assign_roles(self, village):
         roles = random.sample(village.ROLES, len(village.ROLES))
-        residents = village.resident_set.all()
+        residents = village.residentmodel_set.all()
         if len(residents) != len(roles):
             raise RuntimeError
         for resident in residents:

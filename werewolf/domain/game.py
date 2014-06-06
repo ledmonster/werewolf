@@ -50,7 +50,7 @@ class Game(object):
 
     def __init__(self, village_id):
         self.village_id = village_id
-        village = Village.objects.get(identity=village_id)
+        village = VillageModel.objects.get(identity=village_id)
         self.village = village
 
     def get_village(self):
@@ -110,37 +110,37 @@ class Game(object):
 
     def get_residents(self, role=None):
         if role:
-            return Resident.objects.filter(
+            return ResidentModel.objects.filter(
                 village=self.village, generation=self.village.generation,
                 role=role).all()
-        return Resident.objects.filter(
+        return ResidentModel.objects.filter(
             village=self.village, generation=self.village.generation).all()
 
     def get_alive_residents(self, role=None):
         if role:
-            return Resident.objects.filter(
+            return ResidentModel.objects.filter(
                 village=self.village, generation=self.village.generation,
                 status=ResidentStatus.ALIVE, role=role).all()
-        return Resident.objects.filter(
+        return ResidentModel.objects.filter(
             village=self.village, generation=self.village.generation,
             status=ResidentStatus.ALIVE).all()
 
     def get_resident(self, user):
         try:
-            return Resident.objects.get(
+            return ResidentModel.objects.get(
                 village=self.village, user=user, generation=self.village.generation)
-        except Resident.DoesNotExist:
+        except ResidentModel.DoesNotExist:
             raise GameException(u"%sさんは村に参加していません" % user.name)
 
     def join(self, user):
         if self.in_game():
             raise GameException(u"ゲームの開催中は参加できません")
         try:
-            resident = Resident.objects.get(
+            resident = ResidentModel.objects.get(
                 village=self.village, user=user, generation=self.village.generation, role=None)
             raise GameException(u"%s さんは既に村に参加しています" % user.name)
-        except Resident.DoesNotExist as e:
-            resident = Resident.objects.create(
+        except ResidentModel.DoesNotExist as e:
+            resident = ResidentModel.objects.create(
                 village=self.village, user=user, generation=self.village.generation, role=None)
             self.record_event(JoinEvent(resident))
         return resident
@@ -173,14 +173,14 @@ class Game(object):
 
     def create_or_update_behavior(self, behavior_type, resident, target_resident):
         try:
-            behavior = Behavior.objects.get(
+            behavior = BehaviorModel.objects.get(
                 behavior_type=behavior_type, village=self.village,
                 resident=resident, generation=self.village.generation,
                 day=self.village.day)
             behavior.target_resident = target_resident
             behavior.save()
-        except Behavior.DoesNotExist:
-            behavior = Behavior.objects.create(
+        except BehaviorModel.DoesNotExist:
+            behavior = BehaviorModel.objects.create(
                 behavior_type=behavior_type, village=self.village,
                 resident=resident, target_resident=target_resident,
                 generation=self.village.generation, day=self.village.day)
@@ -242,9 +242,9 @@ class Game(object):
         if not self.in_game():
             raise GameException(u"まだゲームは始まってません")
         try:
-            resident = Resident.objects.get(
+            resident = ResidentModel.objects.get(
                 village=self.village, user=user, generation=self.village.generation)
-        except Resident.DoesNotExist:
+        except ResidentModel.DoesNotExist:
             raise GameException(u"%s さんは村の住人ではありません" % user.name)
         if resident.status != ResidentStatus.ALIVE:
             raise GameException(u"%s さんは既に死んでいます" % user.name)
@@ -313,14 +313,14 @@ class Game(object):
         voted = []
         for r in executors:
             try:
-                behavior = Behavior.objects.get(
+                behavior = BehaviorModel.objects.get(
                     behavior_type=behavior_type,
                     village=self.village,
                     generation=self.village.generation,
                     day=self.village.day,
                     resident=r)
                 voted.append(behavior.target_resident)
-            except Behavior.DoesNotExist:
+            except BehaviorModel.DoesNotExist:
                 # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
                 targets = [rr for rr in targets if rr != r]
                 if targets:

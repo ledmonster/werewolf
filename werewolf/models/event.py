@@ -29,7 +29,7 @@ class EventModel(EntityModel):
 
     event_type = models.CharField(max_length=32, choices=EventType.LABELS, default=EventType.MESSAGE)
     user = models.ForeignKey('User', null=True)
-    village = models.ForeignKey('Village')
+    village = models.ForeignKey('VillageModel')
     generation = models.IntegerField()
     content = JSONField(null=True)
 
