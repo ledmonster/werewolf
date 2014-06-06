@@ -332,7 +332,7 @@ class Game(object):
         return message
 
     def save_event(self, event_type, user, content):
-        return Event.objects.create(
+        return EventRepository.objects.create(
             event_type=event_type,
             user=user,
             village=self.village,

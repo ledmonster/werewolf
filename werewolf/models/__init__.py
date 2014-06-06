@@ -4,4 +4,4 @@ from .auth import ClientSession, AccessToken, RefreshToken
 from .user import User, UserCredential, UserStatus, CredentialType
 from .village import Village, Resident, Behavior,\
     Role, VillageStatus, ResidentStatus, BehaviorType, Winner
-from .event import Event, EventType
+from .event import EventRepository, EventType
