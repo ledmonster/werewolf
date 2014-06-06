@@ -40,37 +40,43 @@ MEMBER_TYPES = {
 
 
 class VillageRepository(object):
-    u""" 村に関する処理を行う Repository  """
-    def __init__(self, village_id, generation):
+    u"""
+    村に関する処理を行う Repository
+    Note: Repository なら村単体に紐付けるべきでないかも。
+    """
+    def __init__(self, village_id):
         self.village_id = village_id
-        self.generation = generation
+        self.generation = self.get_entity().generation
+
+    def get_entity(self):
+        return VillageModel.objects.get(identity=self.village_id)
 
     def update_status(self, status):
-        village = VillageModel.objects.get(identity=self.village_id)
+        village = self.get_entity()
         village.status = status
         village.save()
         return village
 
     def increment_generation(self):
         u""" 次の回に移る """
-        village = VillageModel.objects.get(identity=self.village_id)
+        village = self.get_entity()
         village.generation = F('generation') + 1
         village.status = VillageStatus.OUT_GAME
         village.save()
 
         # entity updated by F method should be reloaded
-        new_village = VillageModel.objects.get(identity=self.village_id)
+        new_village = self.get_entity()
         self.generation = new_village.generation
         return new_village
 
     def increment_day(self):
         u""" 次の日に移る """
-        village = VillageModel.objects.get(identity=self.village_id)
+        village = self.get_entity()
         village.day = F('day') + 1
         village.save()
 
         # entity updated by F method should be reloaded
-        new_village = VillageModel.objects.get(identity=self.village_id)
+        new_village = self.get_entity()
 
         return new_village
 
@@ -97,12 +103,16 @@ class VillageRepository(object):
 
 
 class BehaviorRepository(object):
-    u""" ユーザ操作に関する処理を行う Repository  """
+    u"""
+    ユーザ操作に関する処理を行う Repository
+    Note: Repository なら村単体に紐付けるべきでないかも
+    """
     def __init__(self, village_id):
         self.village_id = village_id
+        self.village_repository = VillageRepository(village_id)
 
     def create_or_update(self, behavior_type, resident, target_resident):
-        village = VillageModel.objects.get(identity=self.village_id)
+        village = self.village_repository.get_entity()
         try:
             behavior = BehaviorModel.objects.get(
                 behavior_type=behavior_type, village=village,
@@ -118,7 +128,7 @@ class BehaviorRepository(object):
         return behavior
 
     def get_by_type_and_resident(self, behavior_type, resident):
-        village = VillageModel.objects.get(identity=self.village_id)
+        village = self.village_repository.get_entity()
         return BehaviorModel.objects.get(
             behavior_type=behavior_type,
             village=village,
@@ -148,10 +158,12 @@ class Game(object):
 
     def __init__(self, village_id):
         self.village_id = village_id
-        self.village = VillageModel.objects.get(identity=village_id)
-        self.village_repository = VillageRepository(village_id, self.village.generation)
+
+        self.village_repository = VillageRepository(village_id)
         self.event_repository = EventRepository(village_id)
         self.behavior_repository = BehaviorRepository(village_id)
+
+        self.village = self.village_repository.get_entity()
 
     def in_game(self):
         return self.village.status == VillageStatus.IN_GAME
