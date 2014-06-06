@@ -19,7 +19,7 @@ class User(EntityModel):
 
     name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(blank=True)
-    color = models.CharField(max_length=100, default="#000000", blank=True)
+    hue = models.SmallIntegerField(default=0)
     status = models.SmallIntegerField(choices=STATUS_CHOICES, default=STATUS_ENABLED)
 
     def get_avatar_url(self, size):
