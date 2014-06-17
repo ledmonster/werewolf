@@ -22,7 +22,7 @@ class ValueObject(object):
     """ Base class for Value Object """
     def __init__(self, value):
         if value not in dict(self.LABELS):
-            raise ValueError("invalid value: %s" % value)
+            raise ValueError("invalid value: {}".format(value))
         self.value = value
 
     def __str__(self, other):

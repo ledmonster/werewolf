@@ -28,11 +28,11 @@ class MessageHandler(object):
 
     @classmethod
     def get_comming_message(cls, user):
-        return Message(u"%s さんが村にやってきました" % user.name)
+        return Message(u"{} さんが村にやってきました".format(user.name))
 
     @classmethod
     def get_leaving_message(cls, user):
-        return Message(u"%s さんが村を立ち去りました" % user.name)
+        return Message(u"{} さんが村を立ち去りました".format(user.name))
 
     @classmethod
     def get_initial_messages(cls, village_id, user):
@@ -48,11 +48,11 @@ class MessageHandler(object):
             if e.event_type == EventType.MESSAGE:
                 message = Message(e.content["message"], e.user)
             elif e.event_type == EventType.JOIN:
-                message = Message(u"%s さんが村に参加しました" % e.user.name)
+                message = Message(u"{} さんが村に参加しました".format(e.user.name))
             elif e.event_type == EventType.LEAVE:
-                message = Message(u"%s さんが村から出ました" % e.user.name)
+                message = Message(u"{} さんが村から出ました".format(e.user.name))
             elif e.event_type == EventType.START:
-                message = Message(u"さあ、第%s回目のゲームの始まりです。" % e.generation)
+                message = Message(u"さあ、第{}回目のゲームの始まりです。".format(e.generation))
                 # TODO: logic
             elif e.event_type == EventType.END:
                 # skip, because game is ended
@@ -64,7 +64,7 @@ class MessageHandler(object):
                 # TODO: logic
                 message = Message(u"夜になりました（履歴未実装 ...）")
             elif e.event_type == EventType.MORNING:
-                message = Message(u"新しい朝がきました。%d日目です。" % e.content["day"])
+                message = Message(u"新しい朝がきました。{:d}日目です。".format(e.content["day"]))
             messages.append(message)
         return messages
 
@@ -75,7 +75,7 @@ class MessageHandler(object):
         if msg.startswith("@"):
             cmd_name = msg.split()[0][1:]
             cmd_args = msg.split()[1:]
-            method_name = "do_%s" % cmd_name
+            method_name = "do_" + cmd_name
             if hasattr(cls, method_name):
                 method = getattr(cls, method_name)
                 return method(village_id, user, msg, cmd_args)
@@ -100,7 +100,7 @@ class MessageHandler(object):
             resident = game.join(user)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"%s さんが村に参加しました" % user.name)
+        return Message(u"{} さんが村に参加しました".format(user.name))
 
     @classmethod
     def do_leave(cls, village_id, user, msg, args):
@@ -109,7 +109,7 @@ class MessageHandler(object):
             game.leave(user)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"%s さんが村から出ました" % user.name)
+        return Message(u"{} さんが村から出ました".format(user.name))
 
     @classmethod
     def do_start(cls, village_id, user, msg, args):
@@ -120,10 +120,10 @@ class MessageHandler(object):
             return Message(unicode(e), None, user)
         residents = game.get_residents()
         messages = []
-        messages.append(Message(u"さあ、第%s回目のゲームの始まりです。" % village.generation))
+        messages.append(Message(u"さあ、第{}回目のゲームの始まりです。".format(village.generation)))
         for r in residents:
             messages.append(
-                Message(u"あなたは「%s」です" % r.get_role_display(), None, r.user))
+                Message(u"あなたは「{}」です".format(r.get_role_display()), None, r.user))
         return messages
 
     @classmethod
@@ -133,7 +133,7 @@ class MessageHandler(object):
             village = game.reset()
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"第%d回のゲームをリセットしました" % village.generation)
+        return Message(u"第{:d}回のゲームをリセットしました".format(village.generation))
 
     @classmethod
     def do_night(cls, village_id, user, msg, args):
@@ -147,17 +147,17 @@ class MessageHandler(object):
         for k, t in targets.iteritems():
             if t is not None:
                 if k == BehaviorType.EXECUTION:
-                    messages.append(Message(u"%s が吊られました" % t.user.name))
+                    messages.append(Message(u"{} が吊られました".format(t.user.name)))
                 elif k == BehaviorType.ATTACK:
-                    messages.append(Message(u"%s が襲撃されました" % t.user.name))
+                    messages.append(Message(u"{} が襲撃されました".format(t.user.name)))
                 elif k == BehaviorType.HUNT:
-                    messages.append(Message(u"%s が道連れになりました" % t.user.name))
+                    messages.append(Message(u"{} が道連れになりました".format(t.user.name)))
                 elif k == BehaviorType.FORTUNE:
                     # 死んでても知らせる
                     tellers = game.get_residents(role=Role.TELLER)
-                    for t in tellers:
+                    for teller in tellers:
                         messages.append(
-                            Message(u"%s は「%s」です" % (t.user.name, t.get_role_display()), None, t.user))
+                            Message(u"{} は「{}」です".format(t.user.name, t.get_role_display()), None, teller.user))
 
         # ゲーム終了、または翌日へ
         if game.satisfy_game_end():
@@ -166,13 +166,13 @@ class MessageHandler(object):
 
             messages.append(
                 Message(
-                    u"%sチームの勝ちです\n" % winner.label +
-                    "\n".join([u"・%s ： %s（%s）" %
-                               (r.user.name, r.get_role_display(), r.get_status_display()) for r in residents])))
+                    u"{}チームの勝ちです\n".format(winner.label) +
+                    "\n".join([u"・{} ： {}（{}）".format(r.user.name, r.get_role_display(), r.get_status_display())
+                               for r in residents])))
             village = game.end()
         else:
             village = game.execute_morning()
-            messages.append(Message(u"新しい朝がきました。%d日目です。" % village.day))
+            messages.append(Message(u"新しい朝がきました。{:d}日目です。".format(village.day)))
 
         return messages
 
@@ -184,7 +184,7 @@ class MessageHandler(object):
             game.set_execution_target(user, target_name)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"%s を吊り対象にセットしました" % target_name, None, user)
+        return Message(u"{} を吊り対象にセットしました".format(target_name), None, user)
 
     @classmethod
     def do_attack(cls, village_id, user, msg, args):
@@ -194,7 +194,7 @@ class MessageHandler(object):
             game.set_attack_target(user, target_name)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"%s を襲撃対象にセットしました" % target_name, None, user)
+        return Message(u"{} を襲撃対象にセットしました".format(target_name), None, user)
 
     @classmethod
     def do_hunt(cls, village_id, user, msg, args):
@@ -204,7 +204,7 @@ class MessageHandler(object):
             game.set_hunt_target(user, target_name)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"%s を道連れ対象にセットしました" % target_name, None, user)
+        return Message(u"{} を道連れ対象にセットしました".format(target_name), None, user)
 
     @classmethod
     def do_fortune(cls, village_id, user, msg, args):
@@ -214,7 +214,7 @@ class MessageHandler(object):
             game.set_fortune_target(user, target_name)
         except GameException as e:
             return Message(unicode(e), None, user)
-        return Message(u"%s を占い対象にセットしました" % target_name, None, user)
+        return Message(u"{} を占い対象にセットしました".format(target_name), None, user)
 
     @classmethod
     def do_state(cls, village_id, user, msg, args):
@@ -223,27 +223,27 @@ class MessageHandler(object):
         residents = game.get_residents()
         contents = []
 
-        contents.append(u"【第%d回 %s】 （%s）" % (village.generation, village.name, village.get_status_display()))
+        contents.append(u"【第{:d}回 {}】 （{}）".format(village.generation, village.name, village.get_status_display()))
 
         if game.in_game():
             roles = game.get_role_constitution()
-            contents.append(u"住人構成：%s" % ", ".join([r.label for r in roles]))
+            contents.append(u"住人構成：{}".format(", ".join([r.label for r in roles])))
             try:
                 resident = game.get_resident(user)
-                contents.append(u"あなたは「%s」です。（%s）" % (resident.get_role_display(), resident.get_status_display()))
+                contents.append(u"あなたは「{}」です。（{}）".format(resident.get_role_display(), resident.get_status_display()))
             except GameException as e:
                 pass
 
         if residents:
             contents.append("")
             contents.append(u"■住人")
-            contents.append("\n".join([u"・%s （%s）" % (r.user.name, r.get_status_display()) for r in residents]))
+            contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.get_status_display()) for r in residents]))
 
         from werewolf.websocketserver import clients
         users = collections.Counter([c.user for c in clients[village_id]])
         contents.append("")
         contents.append(u"■接続ユーザ")
-        contents.append("\n".join([u"・%s （%d接続）" % (u, n) for u, n in users.iteritems()]))
+        contents.append("\n".join([u"・{} （{:d}接続）".format(u, n) for u, n in users.iteritems()]))
 
         return Message("\n".join(contents), None, user)
 

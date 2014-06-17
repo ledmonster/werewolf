@@ -80,7 +80,7 @@ def api_auth_token():
         authenticator = RefreshTokenAuthenticator(client_id)
         session = authenticator.validate(refresh_token)
     else:
-        raise UnsupportedGrantTypeError('unsupported grant type: %s' % grant_type)
+        raise UnsupportedGrantTypeError('unsupported grant type: {}'.format(grant_type))
 
     # TODO: use old refresh_token for grant_type=refresh_token
     access_token = session.generate_access_token()
