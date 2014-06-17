@@ -109,7 +109,7 @@ class ResidentModel(EntityModel):
         )
 
     def __unicode__(self):
-        return u"%s (%s)" % (self.user.name, self.village.name)
+        return u"{} ({})".format(self.user.name, self.village.name)
 
     class Meta:
         app_label = 'werewolf'

@@ -35,7 +35,7 @@ class User(EntityModel):
     status = models.SmallIntegerField(choices=UserStatus.LABELS, default=UserStatus.ENABLED)
 
     def get_avatar_url(self, size):
-        return "http://www.gravatar.com/avatar/%s?s=%d" % (
+        return "http://www.gravatar.com/avatar/{}?s={:d}".format(
             hashlib.md5(self.email.lower()).hexdigest(), size)
 
     def __unicode__(self):

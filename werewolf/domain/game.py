@@ -236,7 +236,7 @@ class Game(object):
         try:
             return self.village_repository.get_resident(user)
         except ResidentModel.DoesNotExist:
-            raise GameException(u"%sさんは村に参加していません" % user.name)
+            raise GameException(u"{}さんは村に参加していません".format(user.name))
 
     def join(self, user):
         if self.in_game():
@@ -244,7 +244,7 @@ class Game(object):
         try:
             resident = ResidentModel.objects.get(
                 village=self.village, user=user, generation=self.village.generation, role=None)
-            raise GameException(u"%s さんは既に村に参加しています" % user.name)
+            raise GameException(u"{} さんは既に村に参加しています".format(user.name))
         except ResidentModel.DoesNotExist as e:
             resident = ResidentModel.objects.create(
                 village=self.village, user=user, generation=self.village.generation, role=None)
@@ -326,7 +326,7 @@ class Game(object):
         try:
             return User.objects.get(name=name)
         except:
-            raise GameException(u"%s という名前の人はいません" % name)
+            raise GameException(u"{} という名前の人はいません".format(name))
 
     def ensure_alive_resident(self, user):
         u""" user がゲーム中の村の生きた住人であることを保障 """
@@ -336,9 +336,9 @@ class Game(object):
             resident = ResidentModel.objects.get(
                 village=self.village, user=user, generation=self.village.generation)
         except ResidentModel.DoesNotExist:
-            raise GameException(u"%s さんは村の住人ではありません" % user.name)
+            raise GameException(u"{} さんは村の住人ではありません".format(user.name))
         if resident.status != ResidentStatus.ALIVE:
-            raise GameException(u"%s さんは既に死んでいます" % user.name)
+            raise GameException(u"{} さんは既に死んでいます".format(user.name))
         return resident
 
     def execute_morning(self):

@@ -99,7 +99,7 @@ class GameMaster(object):
         execution_target = self._select_execution_target(village)
         execution_target.update_status(ResidentModel.STATUS_EXECUTED)
         execution_target.save()
-        messages.append(u"%s が吊られました。" % execution_target.user.name)
+        messages.append(u"{} が吊られました。".format(execution_target.user.name))
 
         # TODO: fortne telling
         fortune_telling_target = self._select_fortune_telling_target(village)
@@ -109,7 +109,7 @@ class GameMaster(object):
         if attack_target:
             attack_target.update_status(ResidentModel.STATUS_ATTACKED)
             attack_target.save()
-            messages.append(u"%s が狼に襲撃されました。" % attack_target.user.name)
+            messages.append(u"{} が狼に襲撃されました。".format(attack_target.user.name))
         else:
             messages.append(u"誰も狼に襲撃されませんでした。")
 

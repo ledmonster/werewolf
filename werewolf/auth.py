@@ -16,7 +16,7 @@ class Authenticator(object):
 
     def __init__(self, client_id):
         if settings.OAUTH2["CLIENT_ID"] != client_id:
-            raise InvalidClientError('Invalid client_id: %s' % client_id)
+            raise InvalidClientError('Invalid client_id: {}'.format(client_id))
 
 
 class IdTokenAuthenticator(Authenticator):
@@ -31,7 +31,7 @@ class IdTokenAuthenticator(Authenticator):
             audience = settings.OAUTH2["CLIENT_ID"]
             payload = verify_id_token(assertion, audience)
         except AppIdentityError:
-            raise InvalidGrantError('Invalid id_token: %s' % assertion)
+            raise InvalidGrantError('Invalid id_token: {}'.format(assertion))
 
         try:
             credential = UserCredential.objects.get(
