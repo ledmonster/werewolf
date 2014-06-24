@@ -123,7 +123,7 @@ class MessageHandler(object):
         messages.append(Message(u"さあ、第{}回目のゲームの始まりです。".format(village.generation)))
         for r in residents:
             messages.append(
-                Message(u"あなたは「{}」です".format(r.get_role_display()), None, r.user))
+                Message(u"あなたは「{role.label}」です".format(role = r.role), None, r.user))
         return messages
 
     @classmethod
@@ -157,7 +157,7 @@ class MessageHandler(object):
                     tellers = game.get_residents(role=Role.TELLER)
                     for teller in tellers:
                         messages.append(
-                            Message(u"{} は「{}」です".format(t.user.name, t.get_role_display()), None, teller.user))
+                            Message(u"{user.name} は「{role.label}」です".format(user=t.user, role=t.role), None, teller.user))
 
         # ゲーム終了、または翌日へ
         if game.satisfy_game_end():
@@ -167,7 +167,7 @@ class MessageHandler(object):
             messages.append(
                 Message(
                     u"{}チームの勝ちです\n".format(winner.label) +
-                    "\n".join([u"・{} ： {}（{}）".format(r.user.name, r.get_role_display(), r.get_status_display())
+                    "\n".join([u"・{user.name} ： {role.label}（{status.label}）".format(user=r.user, role=r.role, status=r.status)
                                for r in residents])))
             village = game.end()
         else:
@@ -223,21 +223,21 @@ class MessageHandler(object):
         residents = game.get_residents()
         contents = []
 
-        contents.append(u"【第{:d}回 {}】 （{}）".format(village.generation, village.name, village.get_status_display()))
+        contents.append(u"【第{:d}回 {}】 （{}）".format(village.generation, village.name, village.status.label))
 
         if game.in_game():
             roles = game.get_role_constitution()
             contents.append(u"住人構成：{}".format(", ".join([r.label for r in roles])))
             try:
                 resident = game.get_resident(user)
-                contents.append(u"あなたは「{}」です。（{}）".format(resident.get_role_display(), resident.get_status_display()))
+                contents.append(u"あなたは「{resident.role.label}」です。（{resident.status.label}）".format(resident=resident))
             except GameException as e:
                 pass
 
         if residents:
             contents.append("")
             contents.append(u"■住人")
-            contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.get_status_display()) for r in residents]))
+            contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.status.label) for r in residents]))
 
         from werewolf.websocketserver import clients
         users = collections.Counter([c.user for c in clients[village_id]])
