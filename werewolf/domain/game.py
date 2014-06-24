@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ Kind of domain layer in this application.
 Game class aggregates objects behind this game. """
 

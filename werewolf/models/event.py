@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ event """
 from django.db import models
 from django_extensions.db.fields.json import JSONField
