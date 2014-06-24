@@ -174,7 +174,7 @@ class Game(object):
         self.village = self.village_repository.get_entity()
 
     def in_game(self):
-        return self.village.status == VillageStatus.IN_GAME
+        return self.village.status is VillageStatus.IN_GAME
 
     def start(self):
         if self.in_game():
@@ -204,12 +204,12 @@ class Game(object):
 
     def get_winner(self):
         residents = self.get_alive_residents()
-        wolves = [r for r in residents if r.role == Role.WOLF]
-        humans = [r for r in residents if r.role != Role.WOLF]
+        wolves = [r for r in residents if r.role is Role.WOLF]
+        humans = [r for r in residents if r.role is not Role.WOLF]
         if len(wolves) == 0:
-            return Winner(Winner.HUMAN)
+            return Winner.HUMAN
         elif len(wolves) >= len(humans):
-            return Winner(Winner.WOLF)
+            return Winner.WOLF
         raise GameNotFinished(u"まだゲームは終わっていません")
 
     def go_to_next_game(self):
@@ -263,7 +263,7 @@ class Game(object):
             raise GameException(u"まだゲームは始まっていません")
         residents = self.get_residents()
         roles = [r.role for r in residents]
-        return [Role(r) for r in sorted(roles)]
+        return sorted(roles)
 
     def assign_roles(self, residents):
         num_residents = len(residents)
@@ -288,20 +288,20 @@ class Game(object):
 
     def set_attack_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
-        if resident.role != Role.WOLF:
+        if resident.role is not Role.WOLF:
             raise GameException(u"あなたは狼ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を襲撃することはできません")
-        if target_resident.role == Role.WOLF:
+        if target_resident.role is Role.WOLF:
             raise GameException(u"仲間を襲撃することはできません")
         self.behavior_repository.create_or_update(
             BehaviorType.ATTACK, resident, target_resident)
 
     def set_hunt_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
-        if resident.role != Role.HUNTER:
+        if resident.role is not Role.HUNTER:
             raise GameException(u"あなたは狩人ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
@@ -312,7 +312,7 @@ class Game(object):
 
     def set_fortune_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
-        if resident.role != Role.TELLER:
+        if resident.role is not Role.TELLER:
             raise GameException(u"あなたは占い師ではありません")
         target_user = self.get_user_by_name(target_name)
         target_resident = self.ensure_alive_resident(target_user)
@@ -337,7 +337,7 @@ class Game(object):
                 village=self.village, user=user, generation=self.village.generation)
         except ResidentModel.DoesNotExist:
             raise GameException(u"{} さんは村の住人ではありません".format(user.name))
-        if resident.status != ResidentStatus.ALIVE:
+        if resident.status is not ResidentStatus.ALIVE:
             raise GameException(u"{} さんは既に死んでいます".format(user.name))
         return resident
 
@@ -367,7 +367,7 @@ class Game(object):
         targets['execution'] = self.select_execution_target(residents)
         if targets['execution']:
             residents = self.kill_resident(targets['execution'])
-            if targets['execution'].role == Role.HUNTER:
+            if targets['execution'].role is Role.HUNTER:
                 targets['hunt'] = self.select_hunt_target(hunter, residents)
                 residents = self.kill_resident(targets['hunt'])
 
@@ -375,7 +375,7 @@ class Game(object):
         targets['attack'] = self.select_attack_target(residents)
         if targets['attack']:
             residents = self.kill_resident(targets['attack'])
-            if targets['execution'].role == Role.HUNTER:
+            if targets['execution'].role is Role.HUNTER:
                 targets['hunt'] = self.select_hunt_target(hunter, residents)
                 residents = self.kill_resident(targets['hunt'])
 
@@ -394,8 +394,8 @@ class Game(object):
         return self.select_action_target(BehaviorType.EXECUTION, residents, residents)
 
     def select_attack_target(self, residents):
-        humans = [r for r in residents if r.role != Role.WOLF]
-        wolves = [r for r in residents if r.role == Role.WOLF]
+        humans = [r for r in residents if r.role is not Role.WOLF]
+        wolves = [r for r in residents if r.role is Role.WOLF]
         return self.select_action_target(BehaviorType.ATTACK, wolves, humans)
 
     def select_hunt_target(self, hunter, residents):
@@ -403,7 +403,7 @@ class Game(object):
         self.kill_resident(target)
 
     def select_fortune_target(self, residents):
-        tellers = [r for r in residents if r.role == Role.TELLER]
+        tellers = [r for r in residents if r.role is Role.TELLER]
         target = self.select_action_target(BehaviorType.FORTUNE, tellers, residents)
         return target
 

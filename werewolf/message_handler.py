@@ -45,25 +45,25 @@ class MessageHandler(object):
 
         messages = []
         for e in events:
-            if e.event_type == EventType.MESSAGE:
+            if e.event_type is EventType.MESSAGE:
                 message = Message(e.content["message"], e.user)
-            elif e.event_type == EventType.JOIN:
+            elif e.event_type is EventType.JOIN:
                 message = Message(u"{} さんが村に参加しました".format(e.user.name))
-            elif e.event_type == EventType.LEAVE:
+            elif e.event_type is EventType.LEAVE:
                 message = Message(u"{} さんが村から出ました".format(e.user.name))
-            elif e.event_type == EventType.START:
+            elif e.event_type is EventType.START:
                 message = Message(u"さあ、第{}回目のゲームの始まりです。".format(e.generation))
                 # TODO: logic
-            elif e.event_type == EventType.END:
+            elif e.event_type is EventType.END:
                 # skip, because game is ended
                 continue
-            elif e.event_type == EventType.RESET:
+            elif e.event_type is EventType.RESET:
                 # skip, because game is ended
                 continue
-            elif e.event_type == EventType.NIGHT:
+            elif e.event_type is EventType.NIGHT:
                 # TODO: logic
                 message = Message(u"夜になりました（履歴未実装 ...）")
-            elif e.event_type == EventType.MORNING:
+            elif e.event_type is EventType.MORNING:
                 message = Message(u"新しい朝がきました。{:d}日目です。".format(e.content["day"]))
             messages.append(message)
         return messages
@@ -146,13 +146,13 @@ class MessageHandler(object):
         messages = []
         for k, t in targets.iteritems():
             if t is not None:
-                if k == BehaviorType.EXECUTION:
+                if k is BehaviorType.EXECUTION:
                     messages.append(Message(u"{} が吊られました".format(t.user.name)))
-                elif k == BehaviorType.ATTACK:
+                elif k is BehaviorType.ATTACK:
                     messages.append(Message(u"{} が襲撃されました".format(t.user.name)))
-                elif k == BehaviorType.HUNT:
+                elif k is BehaviorType.HUNT:
                     messages.append(Message(u"{} が道連れになりました".format(t.user.name)))
-                elif k == BehaviorType.FORTUNE:
+                elif k is BehaviorType.FORTUNE:
                     # 死んでても知らせる
                     tellers = game.get_residents(role=Role.TELLER)
                     for teller in tellers:

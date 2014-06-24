@@ -2,6 +2,7 @@
 """ event """
 from django.db import models
 from django_extensions.db.fields.json import JSONField
+from enumfields import EnumField
 
 from .base import EntityModel, ValueObject
 
@@ -16,22 +17,21 @@ class EventType(ValueObject):
     NIGHT = "night"
     MORNING = "morning"
 
-    LABELS = (
-        (MESSAGE, u'メッセージ'),
-        (JOIN, u'参加'),
-        (LEAVE, u'離脱'),
-        (START, u'ゲーム開始'),
-        (END, u'ゲーム終了'),
-        (RESET, u'ゲームリセット'),
-        (NIGHT, u'夜のターン'),
-        (MORNING, u'朝のターン'),
-    )
+    class Labels:
+        MESSAGE = u'メッセージ'
+        JOIN = u'参加'
+        LEAVE = u'離脱'
+        START = u'ゲーム開始'
+        END = u'ゲーム終了'
+        RESET = u'ゲームリセット'
+        NIGHT = u'夜のターン'
+        MORNING = u'朝のターン'
 
 
 class EventModel(EntityModel):
     """ event """
 
-    event_type = models.CharField(max_length=32, choices=EventType.LABELS, default=EventType.MESSAGE)
+    event_type = EnumField(EventType, max_length=32, default=EventType.MESSAGE)
     user = models.ForeignKey('User', null=True)
     village = models.ForeignKey('VillageModel')
     generation = models.IntegerField()
