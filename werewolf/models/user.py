@@ -4,6 +4,7 @@ import urllib, hashlib
 
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
+from enumfields import EnumIntegerField
 
 from .base import EntityModel, ValueObject
 
@@ -12,18 +13,16 @@ class UserStatus(ValueObject):
     ENABLED = 1
     DISABLED = 2
 
-    LABELS = (
-        (ENABLED, u'有効'),
-        (DISABLED, u'無効'),
-    )
+    class Labels:
+        ENABLED = u'有効'
+        DISABLED = u'無効'
 
 
 class CredentialType(ValueObject):
     GOOGLE = 1
 
-    LABELS = (
-        (GOOGLE, 'google'),
-    )
+    class Labels:
+        GOOGLE = 'google'
 
 
 class User(EntityModel):
@@ -32,7 +31,7 @@ class User(EntityModel):
     name = models.CharField(max_length=100, blank=True)
     email = models.EmailField(blank=True)
     hue = models.SmallIntegerField(default=0)
-    status = models.SmallIntegerField(choices=UserStatus.LABELS, default=UserStatus.ENABLED)
+    status = EnumIntegerField(UserStatus, default=UserStatus.ENABLED)
 
     def get_avatar_url(self, size):
         return "http://www.gravatar.com/avatar/{}?s={:d}".format(
@@ -51,7 +50,7 @@ class UserCredential(TimeStampedModel):
     # django doesn't support multiple primary key
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey('User')
-    credential_type = models.SmallIntegerField(choices=CredentialType.LABELS)
+    credential_type = EnumIntegerField(CredentialType)
     key = models.CharField(max_length=128)
     secret = models.CharField(max_length=128, blank=True)
 
