@@ -9,6 +9,7 @@ from django.db.models import F
 from werewolf.exception import GameException, GameNotFinished
 from werewolf.domain.event import *
 from werewolf.models import *
+from werewolf.repository import *
 from werewolf.util import Util
 
 
@@ -37,118 +38,6 @@ MEMBER_TYPES = {
         [Role.WOLF, Role.BERSERKER, Role.TELLER, Role.VILLAGER, Role.VILLAGER, Role.VILLAGER],
     ],
 }
-
-
-class VillageRepository(object):
-    u"""
-    村に関する処理を行う Repository
-    Note: Repository なら村単体に紐付けるべきでないかも。
-    """
-    def __init__(self, village_id):
-        self.village_id = village_id
-        self.generation = self.get_entity().generation
-
-    def get_entity(self):
-        return VillageModel.objects.get(identity=self.village_id)
-
-    def update_status(self, status):
-        village = self.get_entity()
-        village.status = status
-        village.save()
-        return village
-
-    def increment_generation(self):
-        u""" 次の回に移る """
-        village = self.get_entity()
-        village.generation = F('generation') + 1
-        village.status = VillageStatus.OUT_GAME
-        village.save()
-
-        # entity updated by F method should be reloaded
-        new_village = self.get_entity()
-        self.generation = new_village.generation
-        return new_village
-
-    def increment_day(self):
-        u""" 次の日に移る """
-        village = self.get_entity()
-        village.day = F('day') + 1
-        village.save()
-
-        # entity updated by F method should be reloaded
-        new_village = self.get_entity()
-
-        return new_village
-
-    def get_residents(self, role=None):
-        if role:
-            return ResidentModel.objects.filter(
-                village_id=self.village_id, generation=self.generation,
-                role=role).all()
-        return ResidentModel.objects.filter(
-            village_id=self.village_id, generation=self.generation).all()
-
-    def get_alive_residents(self, role=None):
-        if role:
-            return ResidentModel.objects.filter(
-                village_id=self.village_id, generation=self.generation,
-                status=ResidentStatus.ALIVE, role=role).all()
-        return ResidentModel.objects.filter(
-            village_id=self.village_id, generation=self.generation,
-            status=ResidentStatus.ALIVE).all()
-
-    def get_resident(self, user):
-        return ResidentModel.objects.get(
-            village_id=self.village_id, user=user, generation=self.generation)
-
-
-class BehaviorRepository(object):
-    u"""
-    ユーザ操作に関する処理を行う Repository
-    Note: Repository なら村単体に紐付けるべきでないかも
-    """
-    def __init__(self, village_id):
-        self.village_id = village_id
-        self.village_repository = VillageRepository(village_id)
-
-    def create_or_update(self, behavior_type, resident, target_resident):
-        village = self.village_repository.get_entity()
-        try:
-            behavior = BehaviorModel.objects.get(
-                behavior_type=behavior_type, village=village,
-                resident=resident, generation=village.generation,
-                day=village.day)
-            behavior.target_resident = target_resident
-            behavior.save()
-        except BehaviorModel.DoesNotExist:
-            behavior = BehaviorModel.objects.create(
-                behavior_type=behavior_type, village=village,
-                resident=resident, target_resident=target_resident,
-                generation=village.generation, day=village.day)
-        return behavior
-
-    def get_by_type_and_resident(self, behavior_type, resident):
-        village = self.village_repository.get_entity()
-        return BehaviorModel.objects.get(
-            behavior_type=behavior_type,
-            village=village,
-            generation=village.generation,
-            day=village.day,
-            resident=resident)
-
-
-class EventRepository(object):
-    u""" イベントに関する処理を行う Repository """
-    def __init__(self, village_id):
-        self.village_id = village_id
-        self.village_repository = VillageRepository(village_id)
-
-    def get_current_events(self):
-        village = self.village_repository.get_entity()
-        generation = village.generation
-        return EventModel.objects.filter(
-            village_id=self.village_id,
-            generation=generation).order_by('created').all()
 
 
 class Game(object):
@@ -433,7 +322,7 @@ class Game(object):
         return event
 
     def record_event(self, event):
-        event.to_model().save()
+        return self.event_repository.add(event)
 
     def get_current_events(self):
         return self.event_repository.get_current_events()
