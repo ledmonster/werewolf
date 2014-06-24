@@ -62,6 +62,10 @@ class VillageRepository(object):
             village_id=self.village_id, generation=self.generation,
             status=ResidentStatus.ALIVE).all()
 
+    def add_resident(self, user):
+        return ResidentModel.objects.create(
+            village_id=self.village_id, user=user, generation=self.generation, role=None)
+
     def get_resident(self, user):
         return ResidentModel.objects.get(
             village_id=self.village_id, user=user, generation=self.generation)

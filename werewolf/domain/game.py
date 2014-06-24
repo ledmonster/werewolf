@@ -42,7 +42,7 @@ MEMBER_TYPES = {
 
 class Game(object):
     u"""
-    ゲームロジックを書くクラス。
+    ゲームロジックを書くクラス。Game Service と呼んだ方がいいかも。（状態持つけど）
     """
 
     instances = {}
@@ -56,6 +56,7 @@ class Game(object):
     def __init__(self, village_id):
         self.village_id = village_id
 
+        self.user_repository = UserRepository()
         self.village_repository = VillageRepository(village_id)
         self.event_repository = EventRepository(village_id)
         self.behavior_repository = BehaviorRepository(village_id)
@@ -127,17 +128,20 @@ class Game(object):
         except ResidentModel.DoesNotExist:
             raise GameException(u"{}さんは村に参加していません".format(user.name))
 
+    def is_resident(self, user):
+        try:
+            self.get_resident(user)
+            return True
+        except GameException:
+            return False
+
     def join(self, user):
         if self.in_game():
             raise GameException(u"ゲームの開催中は参加できません")
-        try:
-            resident = ResidentModel.objects.get(
-                village=self.village, user=user, generation=self.village.generation, role=None)
+        if self.is_resident(user):
             raise GameException(u"{} さんは既に村に参加しています".format(user.name))
-        except ResidentModel.DoesNotExist as e:
-            resident = ResidentModel.objects.create(
-                village=self.village, user=user, generation=self.village.generation, role=None)
-            self.record_event(JoinEvent(resident))
+        resident = self.village_repository.add_resident(user)
+        self.record_event(JoinEvent(resident))
         return resident
 
     def leave(self, user):
@@ -213,19 +217,15 @@ class Game(object):
     def get_user_by_name(self, name):
         u""" 名前をもとにユーザを取得(TODO: 同じ名前の人対応) """
         try:
-            return User.objects.get(name=name)
-        except:
+            return self.user_repository.get_by_name(name)
+        except User.DoesNotExist:
             raise GameException(u"{} という名前の人はいません".format(name))
 
     def ensure_alive_resident(self, user):
         u""" user がゲーム中の村の生きた住人であることを保障 """
         if not self.in_game():
             raise GameException(u"まだゲームは始まってません")
-        try:
-            resident = ResidentModel.objects.get(
-                village=self.village, user=user, generation=self.village.generation)
-        except ResidentModel.DoesNotExist:
-            raise GameException(u"{} さんは村の住人ではありません".format(user.name))
+        resident = self.get_resident(user)
         if resident.status is not ResidentStatus.ALIVE:
             raise GameException(u"{} さんは既に死んでいます".format(user.name))
         return resident
