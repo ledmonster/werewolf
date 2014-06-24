@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ base entity model """
 from django.db import models
 from django_extensions.db.models import TimeStampedModel

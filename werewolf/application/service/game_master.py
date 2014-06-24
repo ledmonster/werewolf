@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ game master service on application layer, which manages games'
  time scheduling or so on. """
 

@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """ websocket server """
 import json
 from tornado import websocket, web, ioloop
