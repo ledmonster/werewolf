@@ -10,7 +10,7 @@ from werewolf.user.models import *
 from werewolf.exception import *
 
 
-app = Flask(__name__)
+app = Flask('werewolf')
 app.debug = True
 
 GRANT_TYPE_JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer"

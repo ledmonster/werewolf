@@ -5,7 +5,7 @@ from tornado import websocket, web, ioloop
 
 from werewolf.models import *
 from werewolf.user.models import *
-from message_handler import MessageHandler
+from werewolf.app.message_handler import MessageHandler
 
 clients = {}
 
