@@ -6,11 +6,11 @@ import random
 
 from django.db.models import F
 
-from werewolf.exception import GameException, GameNotFinished
-from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
 from werewolf.domain.user.repository import *
+from werewolf.domain.game.models import *
 from werewolf.domain.game.repository import *
+from werewolf.domain.game.exception import GameException, GameNotFinished
 from werewolf.util import Util
 
 

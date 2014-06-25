@@ -2,7 +2,7 @@
 u""" メッセージの処理を行うモジュール。この中でモデルの操作はしない。 """
 import collections
 
-from werewolf.exception import GameException, GameNotFinished
+from werewolf.domain.game.exception import GameException, GameNotFinished
 from werewolf.domain.game.models import *
 
 
