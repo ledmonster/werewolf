@@ -6,7 +6,7 @@ from flask import Flask, render_template, g, abort, jsonify, request, Response
 from werewolf import settings
 from werewolf.domain import Game
 from werewolf.models import *
-from werewolf.auth import IdTokenAuthenticator, RefreshTokenAuthenticator
+from werewolf.user.models import *
 from werewolf.exception import *
 
 
