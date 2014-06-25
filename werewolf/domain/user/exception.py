@@ -58,10 +58,3 @@ class NotFoundError(APIError):
 class ServerError(APIError):
     status_code = 500
     error = "server_error"
-
-
-class GameException(Exception):
-    pass
-
-class GameNotFinished(GameException):
-    pass
