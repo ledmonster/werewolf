@@ -6,7 +6,8 @@ import logging
 import random
 import threading
 
-from werewolf.models import *
+from werewolf.user.models import *
+from werewolf.game.models import *
 
 logger = logging.getLogger()
 

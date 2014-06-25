@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from werewolf.domain.event import *
-from werewolf.models import *
+from werewolf.game.models import *
 from .village import VillageRepository
 
 
