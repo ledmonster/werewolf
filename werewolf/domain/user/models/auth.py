@@ -3,13 +3,18 @@
 import datetime
 from django.db import models
 
-from werewolf.domain.base import EntityModel
+from werewolf.domain.base import EntityModel, ValueObject
 
 
 def generate_token():
     import random, string
     return ''.join(random.SystemRandom('werewolf').choice(
         string.ascii_letters + string.digits) for x in range(32))
+
+
+class GrantType(ValueObject):
+    JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer"
+    REFRESH_TOKEN = "refresh_token"
 
 
 class ClientSession(EntityModel):
