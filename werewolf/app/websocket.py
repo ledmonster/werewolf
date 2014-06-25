@@ -3,8 +3,8 @@
 import json
 from tornado import websocket, web, ioloop
 
-from werewolf.game.models import *
-from werewolf.user.models import *
+from werewolf.domain.game.models import *
+from werewolf.domain.user.models import *
 from werewolf.app.message_handler import MessageHandler
 
 clients = {}

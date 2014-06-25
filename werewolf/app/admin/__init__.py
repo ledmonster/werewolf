@@ -1,5 +1,5 @@
-from werewolf.user.models import *
-from werewolf.game.models import *
+from werewolf.domain.user.models import *
+from werewolf.domain.game.models import *
 from django.contrib import admin
 
 admin.site.register(User)

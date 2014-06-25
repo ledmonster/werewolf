@@ -6,7 +6,7 @@ from django.db import models
 from django_extensions.db.models import TimeStampedModel
 from enumfields import EnumIntegerField
 
-from werewolf.models.base import EntityModel, ValueObject
+from werewolf.domain.base import EntityModel, ValueObject
 
 
 class UserStatus(ValueObject):

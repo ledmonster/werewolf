@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from werewolf.user.models import *
+from werewolf.domain.user.models import *
 
 
 class UserRepository(object):
