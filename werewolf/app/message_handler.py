@@ -3,8 +3,7 @@ u""" メッセージの処理を行うモジュール。この中でモデルの
 import collections
 
 from werewolf.exception import GameException, GameNotFinished
-from werewolf.domain import *
-from werewolf.models import *
+from werewolf.game.models import *
 
 
 class MessageHandler(object):
@@ -239,7 +238,7 @@ class MessageHandler(object):
             contents.append(u"■住人")
             contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.status.label) for r in residents]))
 
-        from werewolf.websocketserver import clients
+        from werewolf.app.websocket import clients
         users = collections.Counter([c.user for c in clients[village_id]])
         contents.append("")
         contents.append(u"■接続ユーザ")

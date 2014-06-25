@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db.models import F
 
-from werewolf.models import *
+from werewolf.game.models import *
 
 
 class VillageRepository(object):

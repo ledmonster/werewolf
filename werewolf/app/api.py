@@ -4,8 +4,7 @@ import datetime
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
 from werewolf import settings
-from werewolf.domain import Game
-from werewolf.models import *
+from werewolf.game.models import *
 from werewolf.user.models import *
 from werewolf.exception import *
 
