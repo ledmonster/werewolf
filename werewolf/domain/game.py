@@ -9,6 +9,8 @@ from django.db.models import F
 from werewolf.exception import GameException, GameNotFinished
 from werewolf.domain.event import *
 from werewolf.models import *
+from werewolf.user.models import *
+from werewolf.user.repository import *
 from werewolf.repository import *
 from werewolf.util import Util
 

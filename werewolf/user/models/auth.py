@@ -3,7 +3,7 @@
 import datetime
 from django.db import models
 
-from .base import EntityModel
+from werewolf.models.base import EntityModel
 
 
 def generate_token():

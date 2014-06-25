@@ -1,4 +1,5 @@
 from werewolf.models import *
+from werewolf.user.models import *
 from django.contrib import admin
 
 admin.site.register(User)
