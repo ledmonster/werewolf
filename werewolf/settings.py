@@ -52,9 +52,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'werewolf.admin.urls'
+ROOT_URLCONF = 'werewolf.app.admin.urls'
 
-WSGI_APPLICATION = 'werewolf.admin.wsgi.application'
+WSGI_APPLICATION = 'werewolf.app.admin.wsgi.application'
 
 
 # Database

@@ -1,7 +1,5 @@
 import logging
 
-from werewolf.application.service import GameMaster, ResidentManager, Messenger
-
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
