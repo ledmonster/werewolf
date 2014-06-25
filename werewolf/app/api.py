@@ -12,9 +12,6 @@ from werewolf.domain.user.exception import *
 app = Flask('werewolf')
 app.debug = True
 
-GRANT_TYPE_JWT_BEARER = "urn:ietf:params:oauth:grant-type:jwt-bearer"
-GRANT_TYPE_REFRESH_TOKEN = "refresh_token"
-
 @app.route('/')
 def index():
     return render_template('index.html', settings=settings)
@@ -62,7 +59,7 @@ def api_auth_token():
     except KeyError:
         raise InvalidRequestError('invalid request')
 
-    if grant_type == GRANT_TYPE_JWT_BEARER:
+    if grant_type == GrantType.JWT_BEARER.value:
         try:
             assertion = request.form['assertion']
         except KeyError:
@@ -70,7 +67,7 @@ def api_auth_token():
 
         authenticator = IdTokenAuthenticator(client_id)
         session = authenticator.validate(assertion)
-    elif grant_type == GRANT_TYPE_REFRESH_TOKEN:
+    elif grant_type == GrantType.REFRESH_TOKEN.value:
         try:
             refresh_token = request.form['refresh_token']
         except KeyError:

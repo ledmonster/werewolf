@@ -7,7 +7,7 @@ from oauth2client.crypt import AppIdentityError
 from werewolf import settings
 from werewolf.util import Util
 from werewolf.domain.user.models import *
-from werewolf.exception import *
+from werewolf.domain.user.exception import *
 
 
 
