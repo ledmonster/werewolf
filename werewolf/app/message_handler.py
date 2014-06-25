@@ -3,7 +3,7 @@ u""" メッセージの処理を行うモジュール。この中でモデルの
 import collections
 
 from werewolf.exception import GameException, GameNotFinished
-from werewolf.game.models import *
+from werewolf.domain.game.models import *
 
 
 class MessageHandler(object):

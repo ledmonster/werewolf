@@ -4,7 +4,7 @@ from django.db import models
 from django_extensions.db.fields.json import JSONField
 from enumfields import EnumField
 
-from werewolf.models.base import EntityModel, ValueObject
+from werewolf.domain.base import EntityModel, ValueObject
 
 
 class EventType(ValueObject):
