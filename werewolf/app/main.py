@@ -4,12 +4,12 @@ import os
 # initialize django
 os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
 
+from django.conf import settings
 from tornado.web import Application, FallbackHandler
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado.httpserver import HTTPServer
 
-from werewolf import settings
 from werewolf.app.api import app as flask_app
 from werewolf.app.admin.wsgi import application as django_admin_app
 from werewolf.app.websocket import SocketHandler
