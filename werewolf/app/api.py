@@ -1,16 +1,16 @@
 """ api server """
 import datetime
 
+from django.conf import settings
 from flask import Flask, render_template, g, abort, jsonify, request, Response
 
-from werewolf import settings
 from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
 app = Flask('werewolf')
-app.debug = True
+app.debug = settings.DEBUG
 
 @app.route('/')
 def index():
