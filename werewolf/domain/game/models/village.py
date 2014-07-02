@@ -85,7 +85,7 @@ class ResidentModel(EntityModel):
     role = EnumField(Role, max_length=20, null=True)
 
     def update_status(self, new_status):
-        if self.status != ResidentStatus.ALIVE:
+        if self.status is not ResidentStatus.ALIVE:
             raise AttributeError
         self.status = new_status
 
