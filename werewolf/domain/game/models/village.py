@@ -94,7 +94,7 @@ class ResidentModel(EntityModel):
             identity=self.identity,
             village_id=self.village_id,
             user_id=self.user_id,
-            status=self.status.label,
+            status=self.status.name,
             role=self.role,
         )
 
@@ -119,7 +119,7 @@ class VillageModel(EntityModel):
         return dict(
             identity=self.identity,
             name=self.name,
-            status=self.status.label,
+            status=self.status.name,
             day=self.day,
             # start_at=self.start_at,
             # end_at=self.end_at,
