@@ -22,7 +22,7 @@ def main():
         ('.*', FallbackHandler, dict(fallback=WSGIContainer(flask_app))),
     ], debug=settings.DEBUG)
     http_server = HTTPServer(app)
-    http_server.listen(5000)
+    http_server.listen(80)
     IOLoop.instance().start()
 
 if __name__ == "__main__":
