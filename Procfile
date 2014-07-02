@@ -1,1 +1,1 @@
-web: python werewolf/app/main.py
+web: python werewolf/app/main.py --port=$PORT
