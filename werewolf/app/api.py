@@ -50,6 +50,24 @@ def api_village_join():
 
     return jsonify(resident.to_dict())
 
+@app.route('/api/v1/user', methods=['GET'])
+def api_user_info():
+    token = request.headers["authorization"].split()[1]
+    user = AccessToken.objects.get(token=token).client_session.user
+    return jsonify(user.to_dict())
+
+@app.route('/api/v1/user/update_name', methods=['POST'])
+def api_user_update_name():
+    token = request.headers["authorization"].split()[1]
+    user_id = AccessToken.objects.get(token=token).client_session.user_id
+    try:
+        name = request.form['name']
+        name = NameValidator().validate(name)
+    except KeyError:
+        raise InvalidRequestError('invalid request')
+    user_repository = UserRepository()
+    user = user_repository.update_name(user_id, name)
+    return jsonify(user.to_dict())
 
 @app.route('/api/v1/auth/token', methods=['POST'])
 def api_auth_token():

@@ -37,6 +37,14 @@ class User(EntityModel):
         return "http://www.gravatar.com/avatar/{}?s={:d}".format(
             hashlib.md5(self.email.lower()).hexdigest(), size)
 
+    def to_dict(self):
+        return dict(
+            identity=self.identity,
+            email=self.email,
+            hue=self.hue,
+            status=self.status.name
+        )
+
     def __unicode__(self):
         return self.name
 
