@@ -27,5 +27,4 @@ pyOpenSSL==0.14
 pycparser==2.10
 six==1.6.1
 tornado==3.2.2
--e git+git@github.com:ledmonster/werewolf.git@d4c6ddf7d9b3b76b9101dcea51478ac92083423b#egg=werewolf-master
 wsgiref==0.1.2
