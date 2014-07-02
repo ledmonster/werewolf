@@ -29,6 +29,9 @@ setup(name='werewolf',
           "PyYAML",
           "enum34",
       ],
+      extras_require={
+          "dev": ["gunicorn"],
+      },
       tests_require=["pytest"],
       cmdclass = {'test': PyTest},
 )
