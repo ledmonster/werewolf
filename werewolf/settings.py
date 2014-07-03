@@ -33,8 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    'werewolf.domain.user',
-    'werewolf.domain.game',
+    'werewolf',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
