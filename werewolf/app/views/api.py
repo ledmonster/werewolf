@@ -17,6 +17,17 @@ def api_village_list(request):
         }
 
 
+@view_config(route_name='api_village_detail', renderer='json')
+def api_village_detail(request):
+    identity = request.matchdict.get('identity')
+    try:
+        village = VillageModel.objects.get(identity=identity)
+    except VillageModel.DoesNotExist:
+        raise NotFound('page not found')
+
+    return {"village": village.to_dict()}
+
+
 @view_config(route_name='api_village_join', renderer='json',
              request_method='POST')
 def api_village_join(request):

@@ -39,14 +39,13 @@ def main(global_config, **settings):
 
     add_static_view(config, 'bower_components')
     add_static_view(config, 'css')
-    add_static_view(config, 'js')
     add_static_view(config, 'scripts')
     add_static_view(config, 'static', '')
 
     config.add_route('layout', '/')
-    config.add_route('village_detail', '/village/{identity}')
 
     config.add_route('api_village_list', '/api/v1/village/list')
+    config.add_route('api_village_detail', '/api/v1/village/{identity}')
     config.add_route('api_village_join', '/api/v1/village/join')
     config.add_route('api_auth_token', '/api/v1/auth/token')
 

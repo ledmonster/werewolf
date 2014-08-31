@@ -6,7 +6,8 @@ $(document).ready(function() {
 
         routes: {
             '/': 'top',
-            '/village/list': 'village_list'
+            '/village/list': 'village_list',
+            '/village/:identity': 'village_detail'
         },
 
         defaultView: 'top'
