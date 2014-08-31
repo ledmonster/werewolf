@@ -9,11 +9,6 @@ def index(request):
     return {}
 
 
-@view_config(route_name='village_list', renderer='village/list.html')
-def village_list(request):
-    return {}
-
-
 @view_config(route_name='village_detail', renderer='village/detail.html')
 def village_detail(request):
     identity = request.matchdict.get('identity')

@@ -12,8 +12,9 @@ from werewolf.domain.user.exception import *
 #TODO: OAuth Authorization for this endpoint
 @view_config(route_name='api_village_list', renderer='json')
 def api_village_list(request):
-    return dict([(entity.identity, entity.to_dict())
-                 for entity in VillageModel.objects.all()])
+    return {
+        "villages": [entity.to_dict() for entity in VillageModel.objects.all()]
+        }
 
 
 @view_config(route_name='api_village_join', renderer='json',

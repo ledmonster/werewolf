@@ -5,7 +5,8 @@ $(document).ready(function() {
         link: '.app-link',
 
         routes: {
-            '/': 'top'
+            '/': 'top',
+            '/village/list': 'village_list'
         },
 
         defaultView: 'top'

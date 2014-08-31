@@ -1,0 +1,12 @@
+<div class="col-md-12">
+  <table id="village_table" class="table table-striped">
+    <tr><th>村の名前</th><th>状態</th></tr>
+    {{#each villages }}
+      <tr>
+        <td><a href='/village/{{ identity }}'>{{ name }}</a></td>
+        <td>{{ status }}</td>
+      </tr>
+    {{/each}}
+  </table>
+  <p id="error" style="display:none"></p>
+</div>
