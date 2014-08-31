@@ -9,26 +9,6 @@ from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
-@view_config(route_name='home', renderer='layout.html')
-def index(request):
-    return {}
-
-
-@view_config(route_name='village_list', renderer='village/list.html')
-def village_list(request):
-    return {}
-
-
-@view_config(route_name='village_detail', renderer='village/detail.html')
-def village_detail(request):
-    identity = request.matchdict.get('identity')
-    try:
-        village = VillageModel.objects.get(identity=identity)
-    except VillageModel.DoesNotExist:
-        raise NotFound('page not found')
-
-    return dict(village=village)
-
 #TODO: OAuth Authorization for this endpoint
 @view_config(route_name='api_village_list', renderer='json')
 def api_village_list(request):

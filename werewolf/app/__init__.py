@@ -43,7 +43,7 @@ def main(global_config, **settings):
     add_static_view(config, 'scripts')
     add_static_view(config, 'static', '')
 
-    config.add_route('home', '/')
+    config.add_route('layout', '/')
     config.add_route('village_list', '/village/list')
     config.add_route('village_detail', '/village/{identity}')
 
