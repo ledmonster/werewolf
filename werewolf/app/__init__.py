@@ -36,5 +36,7 @@ def main(global_config, **settings):
     config.add_route('api_village_join', '/api/v1/village/join')
     config.add_route('api_auth_token', '/api/v1/auth/token')
 
+    config.add_route('socketio', '/socket.io/*remaining')
+
     config.scan()
     return config.make_wsgi_app()

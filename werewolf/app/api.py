@@ -3,7 +3,6 @@
 import datetime
 
 from pyramid.view import view_config
-import pyramid.httpexceptions as exc
 
 from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
