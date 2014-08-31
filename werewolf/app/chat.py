@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from gevent import monkey
 from pyramid.response import Response
 from pyramid.view import view_config
 from socketio.namespace import BaseNamespace
@@ -9,7 +8,6 @@ from socketio import socketio_manage
 from socketio.mixins import BroadcastMixin, RoomsMixin
 
 logger = logging.getLogger(__name__)
-monkey.patch_all()
 
 
 class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):

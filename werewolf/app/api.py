@@ -9,7 +9,7 @@ from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
-@view_config(route_name='home', renderer='index.html')
+@view_config(route_name='home', renderer='layout.html')
 def index(request):
     return {}
 

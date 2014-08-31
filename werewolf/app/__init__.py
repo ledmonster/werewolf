@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from gevent import monkey
+monkey.patch_all()
+
+
 import datetime
 import os
 
@@ -8,6 +12,13 @@ from pyramid.renderers import JSON
 # initialize django
 os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
 
+
+def add_static_view(config, dir_name, view_root=None, cache_max_age=3600):
+    config.add_static_view(
+        dir_name,
+        os.path.join('static', view_root if view_root is not None else dir_name),
+        cache_max_age=cache_max_age,
+    )
 
 
 def datetime_adapter(obj, request):
@@ -26,7 +37,11 @@ def main(global_config, **settings):
     config.add_renderer(".html", "pyramid_jinja2.renderer_factory")
     config.add_renderer('json', json_renderer)
 
-    config.add_static_view('static', 'static', cache_max_age=3600)
+    add_static_view(config, 'bower_components')
+    add_static_view(config, 'css')
+    add_static_view(config, 'js')
+    add_static_view(config, 'scripts')
+    add_static_view(config, 'static', '')
 
     config.add_route('home', '/')
     config.add_route('village_list', '/village/list')

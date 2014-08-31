@@ -1,0 +1,21 @@
+{
+    "name": "werewolf",
+    "version": "0.0.1",
+    "description": "Jinro client",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ledmonster/werewolf.git"
+    },
+    "devDependencies": {
+        "coffee-script": "^1.7.1",
+        "gulp": "^3.6.0",
+        "gulp-concat": "^2.3.4",
+        "gulp-declare": "^0.2.0",
+        "gulp-define-module": "^0.1.1",
+        "gulp-handlebars": "^2.1.0",
+        "gulp-load-plugins": "^0.5.3"
+    }
+}

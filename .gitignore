@@ -34,3 +34,7 @@ nosetests.xml
 .project
 .pydevproject
 .python-version
+
+node_modules
+bower_components
+werewolf/app/static/scripts/templates.js
