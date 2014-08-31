@@ -1,67 +1,68 @@
+# -*- coding: utf-8 -*-
 """ api server """
 import datetime
 
 from django.conf import settings
-from flask import Flask, render_template, g, abort, jsonify, request, Response
+from pyramid.view import view_config
+import pyramid.httpexceptions as exc
 
 from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
-app = Flask('werewolf')
-app.debug = settings.DEBUG
-
-@app.route('/')
-def index():
-    return render_template('index.html', settings=settings)
+@view_config(route_name='home', renderer='index.html')
+def index(request):
+    return {}
 
 
-@app.route('/village/list')
-def village_list():
-    return render_template('village/list.html', settings=settings)
+@view_config(route_name='village_list', renderer='village/list.html')
+def village_list(request):
+    return dict(settings=settings)
 
 
-@app.route('/village/<identity>')
-def village_detail(identity):
+@view_config(route_name='village_detail', renderer='village/detail.html')
+def village_detail(request):
+    identity = request.matchdict.get('identity')
     try:
         village = VillageModel.objects.get(identity=identity)
     except VillageModel.DoesNotExist:
-        raise NotFoundError('page not found')
+        raise NotFound('page not found')
 
-    return render_template('village/detail.html', village=village,
-                           settings=settings)
+    return dict(village=village, settings=settings)
 
 #TODO: OAuth Authorization for this endpoint
-@app.route('/api/v1/village/list')
-def api_village_list():
-    village_list = dict([(entity.identity, entity.to_dict())
-                         for entity in VillageModel.objects.all()])
-    return jsonify(village_list)
+@view_config(route_name='api_village_list', renderer='json')
+def api_village_list(request):
+    return dict([(entity.identity, entity.to_dict())
+                 for entity in VillageModel.objects.all()])
 
 
-@app.route('/api/v1/village/join', methods=['POST'])
-def api_village_join():
+@view_config(route_name='api_village_join', renderer='json',
+             request_method='POST')
+def api_village_join(request):
+    # TODO: pyramid でも動くようにする
     token = request.headers["authorization"].split()[1]
     user = AccessToken.objects.get(token=token).client_session.user
 
-    game = Game.get_instance(request.form['identity'])
+    game = Game.get_instance(request.POST['identity'])
     resident = game.join(user)
 
-    return jsonify(resident.to_dict())
+    return resident.to_dict()
 
 
-@app.route('/api/v1/auth/token', methods=['POST'])
-def api_auth_token():
+@view_config(route_name='api_auth_token', renderer='json',
+             request_method='POST')
+def api_auth_token(request):
     try:
-        client_id = request.form['client_id']
-        grant_type = request.form['grant_type']
+        client_id = request.POST['client_id']
+        grant_type = request.POST['grant_type']
     except KeyError:
         raise InvalidRequestError('invalid request')
 
     if grant_type == GrantType.JWT_BEARER.value:
         try:
-            assertion = request.form['assertion']
+            assertion = request.POST['assertion']
         except KeyError:
             raise InvalidRequestError('invalid request')
 
@@ -69,7 +70,7 @@ def api_auth_token():
         session = authenticator.validate(assertion)
     elif grant_type == GrantType.REFRESH_TOKEN.value:
         try:
-            refresh_token = request.form['refresh_token']
+            refresh_token = request.POST['refresh_token']
         except KeyError:
             raise InvalidRequestError('invalid request')
 
@@ -82,29 +83,16 @@ def api_auth_token():
     access_token = session.generate_access_token()
     refresh_token = session.generate_refresh_token()
 
-    res = dict(
+    return dict(
         access_token = access_token.token,
         token_type = 'bearer',
         expires_in = (access_token.expires_at - datetime.datetime.now()).seconds,
         refresh_token = refresh_token.token)
 
-    return jsonify(res)
 
-@app.errorhandler(Exception)
-def handle_exception(error):
-    if not isinstance(error, APIError):
-        error = ServerError(str(error))
-    response = jsonify(error.to_dict())
-    response.status_code = error.status_code
-    return response
-
-
-if __name__ == "__main__":
-    from tornado.wsgi import WSGIContainer
-    from tornado.httpserver import HTTPServer
-    from tornado.ioloop import IOLoop
-
-    wsgi_app = WSGIContainer(app)
-    http_server = HTTPServer(wsgi_app)
-    http_server.listen(8000)
-    IOLoop.instance().start()
+@view_config(context=Exception, renderer='json')
+def handle_exception(exc, request):
+    if not isinstance(exc, APIError):
+        exc = ServerError(str(exc))
+    request.response.status_int = exc.status_code
+    return exc.to_dict()

@@ -17,11 +17,14 @@ setup(name='werewolf',
       license='MIT',
       author='Junya Hayashi',
       install_requires=[
+          "pyramid",
+          "pyramid_jinja2",
+          "pyramid_debugtoolbar",
+          "gevent-socketio",
           "tornado",
           "Django>=1.6",
           "django-extensions",
           "django-enumfields",
-          "Flask",
           "google-api-python-client",
           "pyOpenSSL",
           "mysql-python",
@@ -34,4 +37,8 @@ setup(name='werewolf',
       },
       tests_require=["pytest"],
       cmdclass = {'test': PyTest},
+      entry_points="""\
+      [paste.app_factory]
+      main = werewolf.app:main
+      """,
 )
