@@ -2,7 +2,6 @@
 """ api server """
 import datetime
 
-from django.conf import settings
 from pyramid.view import view_config
 import pyramid.httpexceptions as exc
 
@@ -18,7 +17,7 @@ def index(request):
 
 @view_config(route_name='village_list', renderer='village/list.html')
 def village_list(request):
-    return dict(settings=settings)
+    return {}
 
 
 @view_config(route_name='village_detail', renderer='village/detail.html')
@@ -29,7 +28,7 @@ def village_detail(request):
     except VillageModel.DoesNotExist:
         raise NotFound('page not found')
 
-    return dict(village=village, settings=settings)
+    return dict(village=village)
 
 #TODO: OAuth Authorization for this endpoint
 @view_config(route_name='api_village_list', renderer='json')
