@@ -1,10 +1,10 @@
-namespace('werewolf.presenter.village', function(ns) {
+namespace('werewolf.view.village', function(ns) {
 
     'use strict';
 
     werewolf.$.on('ready', function(router) {
 
-        new werewolf.Presenter(router, {
+        new werewolf.View(router, {
 
             view: 'village_list',
 
@@ -46,7 +46,7 @@ namespace('werewolf.presenter.village', function(ns) {
             }
         });
 
-        new werewolf.Presenter(router, {
+        new werewolf.View(router, {
 
             view: 'village_detail',
 

@@ -1,10 +1,10 @@
-namespace('werewolf.presenter.header', function(ns) {
+namespace('werewolf.view.header', function(ns) {
 
     'use strict';
 
     werewolf.$.on('ready', function(router) {
 
-        new werewolf.Presenter(router, {
+        new werewolf.View(router, {
 
             view: 'header',
 

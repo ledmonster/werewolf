@@ -1,10 +1,10 @@
-namespace('werewolf.presenter.top', function(ns) {
+namespace('werewolf.view.top', function(ns) {
 
     'use strict';
 
     werewolf.$.on('ready', function(router) {
 
-        new werewolf.Presenter(router, {
+        new werewolf.View(router, {
 
             view: 'top',
 

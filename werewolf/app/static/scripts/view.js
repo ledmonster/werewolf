@@ -2,9 +2,9 @@ namespace('werewolf', function(ns) {
 
     'use strict';
 
-    ns.Presenter = Presenter;
+    ns.View = View;
 
-    function Presenter(router, settings) {
+    function View(router, settings) {
 
         settings = settings || {};
         this.router = router;
@@ -26,11 +26,11 @@ namespace('werewolf', function(ns) {
         }
     }
 
-    Presenter.prototype.renderHTML = function(html) {
+    View.prototype.renderHTML = function(html) {
         this.$el.html(html);
     };
 
-    Presenter.prototype.renderTemplate = function(viewName, data) {
+    View.prototype.renderTemplate = function(viewName, data) {
         this.renderHTML(ns.template[viewName](data));
     };
 });
