@@ -26,7 +26,7 @@ class MessageHandler(object):
         return Message(u"認証に失敗しました")
 
     @classmethod
-    def get_comming_message(cls, user):
+    def get_coming_message(cls, user):
         return Message(u"{} さんが村にやってきました".format(user.name))
 
     @classmethod
@@ -238,8 +238,14 @@ class MessageHandler(object):
             contents.append(u"■住人")
             contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.status.label) for r in residents]))
 
-        from werewolf.app.websocket import clients
-        users = collections.Counter([c.user for c in clients[village_id]])
+        from pyramid.threadlocal import get_current_request
+        current_socket = get_current_request().environ["socketio"]
+        users = collections.Counter([
+            s.session["user"]
+            for s in current_socket.server.sockets.values()
+            if "user" in s.session
+        ])
+
         contents.append("")
         contents.append(u"■接続ユーザ")
         contents.append("\n".join([u"・{} （{:d}接続）".format(u, n) for u, n in users.iteritems()]))

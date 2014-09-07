@@ -105,24 +105,68 @@ namespace('werewolf.view.village', function(ns) {
                     .onValue(function(village) {
 
                         var access_token = localStorage.getItem("access_token"),
-                            socket = io.connect("/chat?" + $.param({access_token: access_token}));
+                            socket = io.connect("/chat?" + $.param({access_token: access_token})),
+                            $inputText = $('#input-text'),
+                            sendButtonEvent = $("#send").clickE(),
+                            pressReturnEvent = $inputText.keyupE().filter(function(event){return event.keyCode == 13;});
 
-                        socket.on('connect', function() {
-                            console.log('socket: connected');
-                        });
+                        if (socket.connected) {
+                            socket.emit('join', village.identity);
+                        } else {
+                            socket.on('connect', function() {
+                                console.log('socket: connected');
+
+                                // 村に参加する
+                                socket.emit('join', village.identity);
+                            });
+                        }
 
                         socket.on('error', function(error) {
                             console.log('socket: got error from server');
                             console.log(error);
-                            alert('接続に失敗しました。');
                             socket.disconnect();
+                            alert("Sorry, error occured on websocket. Please reload the page.");
                         });
 
                         socket.on('disconnect', function() {
                             console.log('socket: disconnected');
+                            alert("Sorry, socket.io closed. Please reload the page.");
                         });
 
+                        socket.on('message', function(data) {
+                            console.log(data);
 
+                            var message = $("<div>").addClass("row").append(
+                                $("<div>")
+                                    .addClass("col-xs-2")
+                                    .append(
+                                        $("<img>")
+                                            .attr("src", data.sender_avatar)
+                                    )
+                            ).append(
+                                $("<div>")
+                                    .addClass("col-xs-10")
+                                    .append(
+                                        $("<div>")
+                                            .addClass("row sender")
+                                            .css({"color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
+                                            .text(data.sender_name)
+                                    ).append(
+                                        $("<div>")
+                                            .addClass("row")
+                                            .append(
+                                                $("<div>")
+                                                    .addClass("message")
+                                                    .css({"border-color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
+                                                    .html(
+                                                        nl2br(escapeHtml(data.content))
+                                                    )
+                                            )
+                                    )
+                            );
+                            $('#message_area').append(message);
+                            scrollToBottom();
+                        });
 
                         // 村への参加
                         $('#joinToVillage')
@@ -139,66 +183,16 @@ namespace('werewolf.view.village', function(ns) {
                             });
 
                         // 送信ボタンで送信
-                        var $inputText = $('#input-text'),
-                            sendButtonEvent = $("#send").clickE(),
-                            pressReturnEvent = $inputText.keyupE().filter(function(event){return event.keyCode == 13;});
-
                         sendButtonEvent
                             .merge(pressReturnEvent)
                             .onValue(function() {
                                 var msg = $inputText.val();
                                 msg = jQuery.trim(msg);
                                 if (msg.length > 0) {
-                                    ws.send(msg);
+                                    socket.emit('message', msg);
                                 }
                                 $inputText.val("");
                             });
-
-                        // var ws = new WebSocket("ws://" + location.host + "/websocket?access_token=" + access_token + "&village_id=" + village.identity);
-
-                        // ws.onopen = function() {};
-
-                        // ws.onclose = function() {
-                        //     alert("Sorry, websocket closed. Please reload the page.");
-                        // };
-
-                        // ws.onerror = function() {
-                        //     alert("Sorry, error occured on websocket. Please reload the page.");
-                        // };
-
-                        // ws.onmessage = function (evt) {
-                        //     var data = JSON.parse(evt.data);
-                        //     var message = $("<div>").addClass("row").append(
-                        //         $("<div>")
-                        //             .addClass("col-xs-2")
-                        //             .append(
-                        //                 $("<img>")
-                        //                     .attr("src", data.sender_avatar)
-                        //             )
-                        //     ).append(
-                        //         $("<div>")
-                        //             .addClass("col-xs-10")
-                        //             .append(
-                        //                 $("<div>")
-                        //                     .addClass("row sender")
-                        //                     .css({"color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
-                        //                     .text(data.sender_name)
-                        //             ).append(
-                        //                 $("<div>")
-                        //                     .addClass("row")
-                        //                     .append(
-                        //                         $("<div>")
-                        //                             .addClass("message")
-                        //                             .css({"border-color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
-                        //                             .html(
-                        //                                 nl2br(escapeHtml(data.content))
-                        //                             )
-                        //                     )
-                        //             )
-                        //     );
-                        //     $('#message_area').append(message);
-                        //     scrollToBottom();
-                        // };
                     });
             }
         });

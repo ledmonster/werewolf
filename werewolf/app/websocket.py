@@ -39,9 +39,9 @@ class SocketHandler(websocket.WebSocketHandler):
             if msg.is_target_user(self.user):
                 self.write_message(json.dumps(msg.to_dict()))
 
-        # send comming message
+        # send coming message
         for client in clients[self.village_id]:
-            msg = MessageHandler.get_comming_message(self.user)
+            msg = MessageHandler.get_coming_message(self.user)
             client.write_message(json.dumps(msg.to_dict()))
 
     def on_message(self, message):

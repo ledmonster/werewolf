@@ -63,6 +63,7 @@ namespace('werewolf.repository.village', function(ns) {
             data: {},
             dataType: 'json'
         })
+            .map(".village")
             .map(function (v) {
                 return new werewolf.model.village.Village(v.identity, v.name, v.status);
             }).toProperty();
