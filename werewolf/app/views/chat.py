@@ -7,6 +7,9 @@ from socketio.namespace import BaseNamespace
 from socketio import socketio_manage
 from socketio.mixins import BroadcastMixin, RoomsMixin
 
+from werewolf.domain.user.models import *
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +36,29 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         self.broadcast_event('nicknames', self.nicknames)
         return True, nickname
 
+    def recv_connect(self):
+        u""" クライアント接続時に認証して self.user をセットする """
+        auth_token = self._get_auth_token(self.request)
+        if not auth_token:
+            self.error('connection failed', u'接続に失敗しました')
+            self.disconnect()
+            return
+
+        self.user = auth_token.client_session.user
+
+    def _get_auth_token(self, request):
+        u""" request を元に AccessToken オブジェクトを返す """
+        token = request.params.get('access_token', None)
+        if not token:
+            return None
+        try:
+            auth_token = AccessToken.objects.get(token=token)
+            if auth_token.is_revoked():
+                return None
+        except AccessToken.DoesNotExist:
+            return None
+        return auth_token
+
     def recv_disconnect(self):
         # Remove nickname from the list.
         self.log('Disconnected')
@@ -50,7 +76,7 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
         return True
 
 
-@view_config(route_name='socketio')
+@view_config(route_name='socketio', permission='everyone')
 def socketio_service(request):
     try:
         socketio_manage(request.environ, {'/chat': ChatNamespace}, request)

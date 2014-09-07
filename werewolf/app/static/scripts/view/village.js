@@ -104,6 +104,26 @@ namespace('werewolf.view.village', function(ns) {
                     })
                     .onValue(function(village) {
 
+                        var access_token = localStorage.getItem("access_token"),
+                            socket = io.connect("/chat?" + $.param({access_token: access_token}));
+
+                        socket.on('connect', function() {
+                            console.log('socket: connected');
+                        });
+
+                        socket.on('error', function(error) {
+                            console.log('socket: got error from server');
+                            console.log(error);
+                            alert('接続に失敗しました。');
+                            socket.disconnect();
+                        });
+
+                        socket.on('disconnect', function() {
+                            console.log('socket: disconnected');
+                        });
+
+
+
                         // 村への参加
                         $('#joinToVillage')
                             .clickE()
@@ -134,52 +154,51 @@ namespace('werewolf.view.village', function(ns) {
                                 $inputText.val("");
                             });
 
-                        var access_token = localStorage.getItem("access_token"),
-                            ws = new WebSocket("ws://" + location.host + "/websocket?access_token=" + access_token + "&village_id=" + village.identity);
+                        // var ws = new WebSocket("ws://" + location.host + "/websocket?access_token=" + access_token + "&village_id=" + village.identity);
 
-                        ws.onopen = function() {};
+                        // ws.onopen = function() {};
 
-                        ws.onclose = function() {
-                            alert("Sorry, websocket closed. Please reload the page.");
-                        };
+                        // ws.onclose = function() {
+                        //     alert("Sorry, websocket closed. Please reload the page.");
+                        // };
 
-                        ws.onerror = function() {
-                            alert("Sorry, error occured on websocket. Please reload the page.");
-                        };
+                        // ws.onerror = function() {
+                        //     alert("Sorry, error occured on websocket. Please reload the page.");
+                        // };
 
-                        ws.onmessage = function (evt) {
-                            var data = JSON.parse(evt.data);
-                            var message = $("<div>").addClass("row").append(
-                                $("<div>")
-                                    .addClass("col-xs-2")
-                                    .append(
-                                        $("<img>")
-                                            .attr("src", data.sender_avatar)
-                                    )
-                            ).append(
-                                $("<div>")
-                                    .addClass("col-xs-10")
-                                    .append(
-                                        $("<div>")
-                                            .addClass("row sender")
-                                            .css({"color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
-                                            .text(data.sender_name)
-                                    ).append(
-                                        $("<div>")
-                                            .addClass("row")
-                                            .append(
-                                                $("<div>")
-                                                    .addClass("message")
-                                                    .css({"border-color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
-                                                    .html(
-                                                        nl2br(escapeHtml(data.content))
-                                                    )
-                                            )
-                                    )
-                            );
-                            $('#message_area').append(message);
-                            scrollToBottom();
-                        };
+                        // ws.onmessage = function (evt) {
+                        //     var data = JSON.parse(evt.data);
+                        //     var message = $("<div>").addClass("row").append(
+                        //         $("<div>")
+                        //             .addClass("col-xs-2")
+                        //             .append(
+                        //                 $("<img>")
+                        //                     .attr("src", data.sender_avatar)
+                        //             )
+                        //     ).append(
+                        //         $("<div>")
+                        //             .addClass("col-xs-10")
+                        //             .append(
+                        //                 $("<div>")
+                        //                     .addClass("row sender")
+                        //                     .css({"color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
+                        //                     .text(data.sender_name)
+                        //             ).append(
+                        //                 $("<div>")
+                        //                     .addClass("row")
+                        //                     .append(
+                        //                         $("<div>")
+                        //                             .addClass("message")
+                        //                             .css({"border-color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
+                        //                             .html(
+                        //                                 nl2br(escapeHtml(data.content))
+                        //                             )
+                        //                     )
+                        //             )
+                        //     );
+                        //     $('#message_area').append(message);
+                        //     scrollToBottom();
+                        // };
                     });
             }
         });
