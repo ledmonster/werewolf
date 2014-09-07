@@ -4,6 +4,6 @@ from pyramid.view import notfound_view_config
 
 
 @notfound_view_config(renderer='layout.html', xhr=False)
-@view_config(route_name='layout', renderer='layout.html')
+@view_config(route_name='layout', permission='everyone', renderer='layout.html')
 def index(request):
     return {}

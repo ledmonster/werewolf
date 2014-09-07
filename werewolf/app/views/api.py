@@ -42,7 +42,7 @@ def api_village_join(request):
 
 
 @view_config(route_name='api_auth_token', renderer='json',
-             request_method='POST')
+             permission='everyone', request_method='POST')
 def api_auth_token(request):
     try:
         client_id = request.POST['client_id']

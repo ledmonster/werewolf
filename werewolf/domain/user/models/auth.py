@@ -35,11 +35,18 @@ class ClientSession(EntityModel):
 
 class AccessToken(models.Model):
     """ access token """
-    EXPIRES_IN = 3600
+    EXPIRES_IN = 3600 * 24
 
     token = models.CharField(max_length=32, primary_key=True, default=generate_token)
     expires_at = models.DateTimeField()
     client_session = models.ForeignKey('ClientSession')
+
+    def revoke(self):
+        u""" TODO: Implement revoke """
+        raise NotImplemented()
+
+    def is_revoked(self):
+        return self.expires_at < datetime.datetime.now()
 
     class Meta:
         app_label = 'werewolf'

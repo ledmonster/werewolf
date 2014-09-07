@@ -19,6 +19,10 @@ namespace('werewolf.presenter.village', function(ns) {
                     return {
                         type: 'GET',
                         url: '/api/v1/village/list',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("access_token"));
+                            xhr.setRequestHeader('Accept', "application/json");
+                        },
                         data: {},
                         dataType: 'json'
                     };
@@ -59,6 +63,10 @@ namespace('werewolf.presenter.village', function(ns) {
                     return {
                         type: 'GET',
                         url: '/api/v1/village/' + params.identity,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("access_token"));
+                            xhr.setRequestHeader('Accept', "application/json");
+                        },
                         data: {},
                         dataType: 'json'
                     };

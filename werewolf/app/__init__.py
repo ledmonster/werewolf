@@ -6,11 +6,16 @@ monkey.patch_all()
 import datetime
 import os
 
-from pyramid.config import Configurator
-from pyramid.renderers import JSON
 
 # initialize django
 os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
+
+
+from pyramid.authorization import ACLAuthorizationPolicy
+from pyramid.config import Configurator
+from pyramid.renderers import JSON
+
+from werewolf.app.authn import OAuth2AuthenticationPolicy
 
 
 def add_static_view(config, dir_name, view_root=None, cache_max_age=3600):
@@ -30,12 +35,22 @@ json_renderer.add_adapter(datetime.datetime, datetime_adapter)
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
-    """
-    config = Configurator(settings=settings)
+    """ This function returns a Pyramid WSGI application. """
+
+    authn_policy = OAuth2AuthenticationPolicy()
+    authz_policy = ACLAuthorizationPolicy()
+
+    config = Configurator(
+        settings=settings,
+        root_factory='werewolf.app.context.RootFactory',
+        default_permission='authenticated'
+    )
     config.include('pyramid_jinja2')
     config.add_renderer(".html", "pyramid_jinja2.renderer_factory")
     config.add_renderer('json', json_renderer)
+
+    config.set_authentication_policy(authn_policy)
+    config.set_authorization_policy(authz_policy)
 
     add_static_view(config, 'bower_components')
     add_static_view(config, 'css')
