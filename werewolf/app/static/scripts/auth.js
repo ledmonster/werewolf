@@ -3,9 +3,9 @@ namespace('werewolf.auth', function(ns) {
     'use strict';
 
     ns.disconnect = disconnect;
-    window.onSignInCallback = onSignIn;
+    window.onGoogleSignInCallback = onGoogleSignIn;
 
-    function onSignIn(authResult) {
+    function onGoogleSignIn(authResult) {
 
         var $result = $('#result'),
             $authResult = $('#auth-result'),
