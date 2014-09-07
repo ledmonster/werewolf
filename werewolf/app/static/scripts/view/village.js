@@ -12,30 +12,18 @@ namespace('werewolf.view.village', function(ns) {
 
             initialize: function() {
 
-                /**
-                 * 村一覧取得用パラメータ
-                 */
-                function getVillageListRequest() {
-                    return {
-                        type: 'GET',
-                        url: '/api/v1/village/list',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("access_token"));
-                            xhr.setRequestHeader('Accept', "application/json");
-                        },
-                        data: {},
-                        dataType: 'json'
-                    };
-                }
+                var villageRepo = new werewolf.repository.village.VillageRepository();
 
                 this.onLoad()
                     .doAction(function(params) {
                         router.loadView('header', {title: '村一覧'});
                     })
-                    .map(getVillageListRequest)
-                    .ajax()
+                    .flatMap(villageRepo, 'findAll')
                     .endOnError(function() {
-                        alert('サーバとの通信に失敗しました');
+                        alert('村一覧の取得に失敗しました');
+                    })
+                    .map(function (villages) {
+                        return {'villages': villages};
                     })
                     .doAction(this, 'renderTemplate', 'village_list')
                     .onValue(function(village_list) {
@@ -54,23 +42,8 @@ namespace('werewolf.view.village', function(ns) {
 
             initialize: function() {
 
-                var self = this;
-
-                /**
-                 * 村取得用パラメータ
-                 */
-                function getVillageRequest(params) {
-                    return {
-                        type: 'GET',
-                        url: '/api/v1/village/' + params.identity,
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader('Authorization', "Bearer " + localStorage.getItem("access_token"));
-                            xhr.setRequestHeader('Accept', "application/json");
-                        },
-                        data: {},
-                        dataType: 'json'
-                    };
-                }
+                var self = this,
+                    villageRepo = new werewolf.repository.village.VillageRepository();
 
                 /**
                  * 村参加用パラメータ
@@ -119,15 +92,15 @@ namespace('werewolf.view.village', function(ns) {
                 }
 
                 this.onLoad()
-                    .map(getVillageRequest)
-                    .ajax()
+                    .map(".identity")
+                    .flatMap(villageRepo, 'getByIdentity')
                     .endOnError(function() {
                         alert('村の取得に失敗しました');
                     })
-                    .doAction(function(params) {
-                        router.loadView('header', {title: params.village.name});
+                    .doAction(function(village) {
+                        router.loadView('header', {title: village.name});
                     })
-                    .doAction(function() {
+                    .doAction(function(village) {
                         self.renderTemplate('village_detail');
                         scrollToBottom();
                         focusToInput();
