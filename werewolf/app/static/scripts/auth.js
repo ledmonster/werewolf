@@ -3,10 +3,16 @@ namespace('werewolf.auth', function(ns) {
     'use strict';
 
     ns.on = on;
+    ns.trigger = trigger;
     ns.disconnect = disconnect;
+    ns.authenticateByIdToken = authenticateByIdToken;
     window.onGoogleSignInCallback = onGoogleSignIn;
 
     var _event = new Bacon.Bus();
+
+    function trigger(eventName, params) {
+        _event.push({event: eventName, params: params});
+    }
 
     function on(eventName, f) {
         _event.where().containerOf({event: eventName}).map(".params").onValue(f);
@@ -14,49 +20,36 @@ namespace('werewolf.auth', function(ns) {
 
     function onGoogleSignIn(response) {
         if (response['access_token']) {
-            _event.push({event: 'googleAuthenticated',
-                         params: {response: response}});
-            // Google 認証に成功したら続けて werewolf サーバで認証
-            authenticateWerewolf(response['id_token']);
+            trigger('googleAuthenticated', {response: response});
         } else if (response['error']) {
-            _event.push({event: 'googleAuthenticationFailed',
-                         params: {response: response}});
+            trigger('googleAuthenticationFailed', {response: response});
         }
     };
 
-    function authenticateWerewolf(idToken) {
-       var  $werewolfAuthResult = $('#werewolf-auth-result'),
-            $gConnect = $('#g-connect'),
-            $disConnect = $('#disconnect');
-
-        console.log('id_token: ', idToken);
+    function authenticateByIdToken(idToken) {
         $.ajax({
             type: 'POST',
-            url: 'http://' + location.host + '/api/v1/auth/token',
+            url: '/api/v1/auth/token',
             data: {
                 'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                 'client_id': '793850702446.apps.googleusercontent.com',
                 'assertion': idToken
             },
             dataType: 'json',
-            success: function(result) {
-                $werewolfAuthResult.html('Werewolf Auth Result:<br/>');
-                for (var field in result) {
-                    $werewolfAuthResult.append(' ' + field + ': ' +
-                                               result[field] + '<br/>');
-                };
-                localStorage.setItem("access_token", result["access_token"]);
-                localStorage.setItem("refresh_token", result["refresh_token"]);
+            success: function(response) {
+                localStorage.setItem("access_token", response["access_token"]);
+                localStorage.setItem("refresh_token", response["refresh_token"]);
+                trigger('authenticated', {response: response});
             },
             error: function(error) {
-                $werewolfAuthResult.html('Werewolf Auth Result: Error');
-                console.log(error);
-                $gConnect.show();
-                $disConnect.hide();
+                trigger('authenticationFailed', {response: response});
             }
         });
     };
 
+    /**
+     * TODO: refactoring
+     */
     function disconnect() {
         var $authResult = $('#auth-result'),
             $gConnect = $('#g-connect'),
@@ -90,6 +83,9 @@ namespace('werewolf.auth', function(ns) {
 werewolf.auth.on('googleAuthenticated', function(params) {
     console.log('google authenticated');
     console.log(params.response);
+
+    // Google 認証に成功したら続けて werewolf サーバで認証
+    werewolf.auth.authenticateByIdToken(params.response['id_token']);
 });
 
 werewolf.auth.on('googleAuthenticationFailed', function(params) {
@@ -97,8 +93,12 @@ werewolf.auth.on('googleAuthenticationFailed', function(params) {
     console.log(params.response);
 });
 
-werewolf.auth.on('authenticated', function(user) {
+werewolf.auth.on('authenticated', function(params) {
+    console.log('werewolf authenticated');
+    console.log(params.response);
 });
 
-werewolf.auth.on('authenticationFailed', function(error) {
+werewolf.auth.on('authenticationFailed', function(params) {
+    console.log('werewolf authentication failed');
+    console.log(params.response);
 });

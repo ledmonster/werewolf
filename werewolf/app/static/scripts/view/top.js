@@ -22,7 +22,8 @@ namespace('werewolf.view.top', function(ns) {
                         var $result = $('#result'),
                             $authResult = $('#auth-result'),
                             $gConnect = $('#g-connect'),
-                            $disConnect = $('#disconnect');
+                            $disConnect = $('#disconnect'),
+                            $werewolfAuthResult = $('#werewolf-auth-result');
 
                         $('#disconnect')
                             .clickE()
@@ -48,6 +49,20 @@ namespace('werewolf.view.top', function(ns) {
                             }
                             $authResult.append('Logged out');
                             $gConnect.show();
+                        });
+
+                        werewolf.auth.on('authenticated', function(params) {
+                            $werewolfAuthResult.html('Werewolf Auth Result:<br/>');
+                            for (var field in params.response) {
+                                $werewolfAuthResult.append(' ' + field + ': ' +
+                                                           params.response[field] + '<br/>');
+                            };
+                        });
+
+                        werewolf.auth.on('authenticationFailed', function(params) {
+                            $werewolfAuthResult.html('Werewolf Auth Result: Error');
+                            $gConnect.show();
+                            $disConnect.hide();
                         });
 
                     });
