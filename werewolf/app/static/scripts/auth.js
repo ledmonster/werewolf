@@ -2,32 +2,26 @@ namespace('werewolf.auth', function(ns) {
 
     'use strict';
 
+    ns.on = on;
     ns.disconnect = disconnect;
     window.onGoogleSignInCallback = onGoogleSignIn;
 
-    function onGoogleSignIn(authResult) {
+    var _event = new Bacon.Bus();
 
-        var $result = $('#result'),
-            $authResult = $('#auth-result'),
-            $gConnect = $('#g-connect'),
-            $disConnect = $('#disconnect');
+    function on(eventName, f) {
+        _event.where().containerOf({event: eventName}).map(".params").onValue(f);
+    }
 
-        $result.show();
-        $authResult.html('Auth Result:<br/>');
-        for (var field in authResult) {
-            $authResult.append(' ' + field + ': ' +
-                               authResult[field] + '<br/>');
+    function onGoogleSignIn(response) {
+        if (response['access_token']) {
+            _event.push({event: 'googleAuthenticated',
+                         params: {response: response}});
+            // Google 認証に成功したら続けて werewolf サーバで認証
+            authenticateWerewolf(response['id_token']);
+        } else if (response['error']) {
+            _event.push({event: 'googleAuthenticationFailed',
+                         params: {response: response}});
         }
-        if (authResult['access_token']) {
-            $gConnect.hide();
-            authenticateWerewolf(authResult['id_token']);
-            $disConnect.show();
-        } else if (authResult['error']) {
-            console.log('There was an error: ' + authResult['error']);
-            $authResult.append('Logged out');
-            $gConnect.show();
-        }
-        console.log('authResult', authResult);
     };
 
     function authenticateWerewolf(idToken) {
@@ -91,4 +85,20 @@ namespace('werewolf.auth', function(ns) {
             }
         });
     };
+});
+
+werewolf.auth.on('googleAuthenticated', function(params) {
+    console.log('google authenticated');
+    console.log(params.response);
+});
+
+werewolf.auth.on('googleAuthenticationFailed', function(params) {
+    console.log('google authentication failed');
+    console.log(params.response);
+});
+
+werewolf.auth.on('authenticated', function(user) {
+});
+
+werewolf.auth.on('authenticationFailed', function(error) {
 });
