@@ -27,9 +27,6 @@ namespace('werewolf.view.village', function(ns) {
                     })
                     .doAction(this, 'renderTemplate', 'village_list')
                     .onValue(function(village_list) {
-                        $('#disconnect')
-                            .clickE()
-                            .onValue(werewolf.auth, 'disconnect', undefined);
                     });
             }
         });
@@ -106,10 +103,6 @@ namespace('werewolf.view.village', function(ns) {
                         focusToInput();
                     })
                     .onValue(function(village) {
-                        // ログアウト
-                        $('#disconnect')
-                            .clickE()
-                            .onValue(werewolf.auth, 'disconnect', undefined);
 
                         // 村への参加
                         $('#joinToVillage')

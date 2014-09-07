@@ -13,7 +13,14 @@ namespace('werewolf.view.header', function(ns) {
             initialize: function() {
                 this.renderTemplate('header');
                 this.onLoad()
-                    .onValue(this, 'renderTemplate', 'header');
+                    .doAction(this, 'renderTemplate', 'header')
+                    .onValue(function(params) {
+
+                    });
+                // ログアウト (TODO: logout view を実装)
+                $('#disconnect')
+                    .clickE()
+                    .onValue(werewolf.auth, 'disconnect', undefined);
             }
         });
     });
