@@ -1,26 +1,91 @@
 # -*- coding: utf-8 -*-
 """ base entity model """
+import datetime
 import inspect
+import json
+import uuid
 
 from enum import Enum, EnumMeta
-from django.db import models
-from django_extensions.db.models import TimeStampedModel
-from django_extensions.db.fields import UUIDField
+from flywheel import Model, Field
+from flywheel.fields.types import TypeDefinition, NUMBER, STRING, register_type
+
+# from django.db import models
+# from django_extensions.db.models import TimeStampedModel
+# from django_extensions.db.fields import UUIDField
 
 __all__ = ["EntityModel", "ValueObject"]
 
 
-class EntityModel(TimeStampedModel):
-    identity = UUIDField(version=1, auto=True, primary_key=True)
+# class EntityModel(TimeStampedModel):
+#     identity = UUIDField(version=1, auto=True, primary_key=True)
 
-    def __eq__(self, other):
-        return self.identity == other.identity
+#     def __eq__(self, other):
+#         return self.identity == other.identity
 
-    def __ne__(self, other):
-        return self.identity != other.identity
+#     def __ne__(self, other):
+#         return self.identity != other.identity
 
-    class Meta:
-        abstract = True
+#     class Meta:
+#         abstract = True
+
+def register_enum_type(type_class, data_type):
+    u""" Enum 型の data_type を登録する """
+
+    class EnumType(TypeDefinition):
+        u""" Enum Type for {} """.format(type_class.__name__)
+        data_type = type_class
+        aliases = [type_class.__name__]
+        ddb_data_type = data_type
+
+        def ddb_dump(self, value):
+            u""" DynamoDB へ書き出す際の変換 """
+            return value.value
+
+        def ddb_load(self, value):
+            u""" DynamoDB から読み込む際の変換 """
+            return type_class(value)
+
+    register_type(EnumType)
+
+
+class UUIDType(TypeDefinition):
+    u""" UUID Type """
+
+    data_type = uuid.UUID
+    aliases = ['uuid']
+    ddb_data_type = NUMBER
+
+    def ddb_dump(self, value):
+        u""" DynamoDB へ書き出す際の変換 """
+        return value.int
+
+    def ddb_load(self, value):
+        u""" DynamoDB から読み込む際の変換 """
+        return uuid.UUID(int=value)
+
+register_type(UUIDType)
+
+
+class EntityModel(Model):
+    u""" Entity Model """
+
+    identity = Field(data_type='uuid', hash_key=True)
+    created = Field(data_type=datetime.datetime)
+    modified = Field(data_type=datetime.datetime)
+
+    def __init__(self, *args, **kwargs):
+        _kwargs = dict(
+            identity=uuid.uuid4(),
+            created=datetime.datetime.utcnow(),
+            modified=datetime.datetime.utcnow(),
+        )
+        _kwargs.update(kwargs)
+        self._residents = set()
+        super(EntityModel, self).__init__(*args, **_kwargs)
+
+    __metadata__ = {
+        '_abstract': True,
+    }
 
 
 class LabeledEnumMeta(EnumMeta):

@@ -6,33 +6,41 @@ from .village import VillageRepository
 class BehaviorRepository(object):
     u"""
     ユーザ操作に関する処理を行う Repository
-    Note: Repository なら村単体に紐付けるべきでないかも
     """
-    def __init__(self, village_id):
-        self.village_id = village_id
+    def __init__(self, engine):
+        self.engine = engine
         self.village_repository = VillageRepository(village_id)
 
-    def create_or_update(self, behavior_type, resident, target_resident):
+    def create_or_update(self, village_id, generation, day, behavior_type,
+                         resident_id, target_resident_id):
         village = self.village_repository.get_entity()
         try:
-            behavior = BehaviorModel.objects.get(
-                behavior_type=behavior_type, village=village,
-                resident=resident, generation=village.generation,
-                day=village.day)
-            behavior.target_resident = target_resident
-            behavior.save()
-        except BehaviorModel.DoesNotExist:
-            behavior = BehaviorModel.objects.create(
-                behavior_type=behavior_type, village=village,
-                resident=resident, target_resident=target_resident,
-                generation=village.generation, day=village.day)
+            behavior = self.get_by_type_and_resident(
+                village_id,
+                generation,
+                day,
+                behavior_type,
+                resident_id
+            )
+            behavior.target_resident_id = target_resident_id
+            self.engine.sync(behavior)
+        except ValueError:
+            behavior = BehaviorModel(
+                behavior_type=behavior_type,
+                village_id=village_id,
+                resident_id=resident_id,
+                target_resident_id=target_resident_id,
+                generation=generation,
+                day=day)
+            self.engine.save(behavior)
         return behavior
 
-    def get_by_type_and_resident(self, behavior_type, resident):
-        village = self.village_repository.get_entity()
-        return BehaviorModel.objects.get(
+    def get_by_type_and_resident(self, village_id, generation, day,
+                                 behavior_type, resident_id):
+        return self.engine(BehaviorModel).filter(
             behavior_type=behavior_type,
-            village=village,
-            generation=village.generation,
-            day=village.day,
-            resident=resident)
+            village_id=village_id,
+            generation=generation,
+            day=day,
+            resident_id=resident_id
+        ).one()

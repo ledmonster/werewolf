@@ -50,6 +50,9 @@ def api_auth_token(request):
     except KeyError:
         raise InvalidRequestError('invalid request')
 
+    if request.registry.settings["oauth2.client_id"] != client_id:
+        raise InvalidClientError('Invalid client_id: {}'.format(client_id))
+
     if grant_type == GrantType.JWT_BEARER.value:
         try:
             assertion = request.POST['assertion']

@@ -38,8 +38,8 @@ class MessageEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.MESSAGE,
-            user=self.user,
-            village=self.village,
+            user_id=self.user.identity,
+            village_id=self.village.identity,
             generation=self.village.generation,
             content=self.content);
 
@@ -56,8 +56,8 @@ class JoinEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.JOIN,
-            user=self.resident.user,
-            village=self.resident.village,
+            user_id=self.resident.user.identity,
+            village_id=self.resident.village.identity,
             generation=self.resident.generation,
             content=self.content);
 
@@ -74,8 +74,8 @@ class LeaveEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.LEAVE,
-            user=self.resident.user,
-            village=self.resident.village,
+            user_id=self.resident.user.identity,
+            village_id=self.resident.village.identity,
             generation=self.resident.generation,
             content=self.content);
 
@@ -92,7 +92,7 @@ class GameStartEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.START,
-            user=None,
+            user_id=None,
             village_id=self.village.identity,
             generation=self.village.generation,
             content=self.content);
@@ -101,7 +101,7 @@ class GameStartEvent(EternalEvent):
 class GameEndEvent(EternalEvent):
     u""" ゲーム終了イベント """
     def __init__(self, village, winner):
-        self.village = village
+        self.village_id = village
         self.winner = winner
 
     @property
@@ -111,7 +111,7 @@ class GameEndEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.END,
-            user=None,
+            user_id=None,
             village_id=self.village.identity,
             generation=self.village.generation,
             content=self.content);
@@ -129,7 +129,7 @@ class GameResetEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.RESET,
-            user=None,
+            user_id=None,
             village_id=self.new_village.identity,
             generation=self.new_village.generation-1,  # record previous generation
             content=self.content);
@@ -148,7 +148,7 @@ class NightEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.NIGHT,
-            user=None,
+            user_id=None,
             village_id=self.village.identity,
             generation=self.village.generation,
             content=self.content);
@@ -166,7 +166,7 @@ class MorningEvent(EternalEvent):
     def to_model(self):
         return EventModel(
             event_type=EventType.MORNING,
-            user=None,
+            user_id=None,
             village_id=self.village.identity,
             generation=self.village.generation,
             content=self.content);

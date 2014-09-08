@@ -4,8 +4,6 @@ Game class aggregates objects behind this game. """
 
 import random
 
-from django.db.models import F
-
 from werewolf.domain.user.models import *
 from werewolf.domain.user.repository import *
 from werewolf.domain.game.models import *

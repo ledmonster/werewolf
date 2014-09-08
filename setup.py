@@ -30,6 +30,7 @@ setup(name='werewolf',
           "PIL",
           "PyYAML",
           "enum34",
+          "flywheel",
       ],
       extras_require={
           "dev": ["gunicorn"],

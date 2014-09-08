@@ -1,7 +1,6 @@
 """ auth (using Google Backend) """
 import random
 
-from django.conf import settings
 from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
 
@@ -15,8 +14,7 @@ class Authenticator(object):
     """ Authenticator """
 
     def __init__(self, client_id):
-        if settings.OAUTH2["CLIENT_ID"] != client_id:
-            raise InvalidClientError('Invalid client_id: {}'.format(client_id))
+        self.client_id = client_id
 
 
 class IdTokenAuthenticator(Authenticator):
@@ -28,7 +26,7 @@ class IdTokenAuthenticator(Authenticator):
             assertion = assertion.encode('ascii')
 
         try:
-            audience = settings.OAUTH2["CLIENT_ID"]
+            audience = self.client_id
             payload = verify_id_token(assertion, audience)
         except AppIdentityError:
             raise InvalidGrantError('Invalid id_token: {}'.format(assertion))
