@@ -29,8 +29,9 @@ class OAuth2AuthenticationPolicy(CallbackAuthenticationPolicy):
             return None
 
         try:
-            auth_token = AccessToken.objects.get(token=token)
-        except AccessToken.DoesNotExist:
+            repo_token = request.context.repos['access_token']
+            auth_token = repo_token.get_by_token(token)
+        except ValueError:
             # Bad input, return 400 Invalid Request
             raise HTTPBadRequest()
 

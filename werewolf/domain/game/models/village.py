@@ -106,6 +106,12 @@ class ResidentModel(EntityModel):
             role=self.role,
         )
 
+class GameModel(EntityModel):
+    u""" 村で開催されるゲームのモデル """
+    village_id = Field(data_type='uuid', index='village-id-index')
+    generation = Field(data_type=int)  # 第X回として参照されるだけ
+    day = Field(data_type=int)
+
 
 class VillageModel(EntityModel):
     u""" 村のモデル

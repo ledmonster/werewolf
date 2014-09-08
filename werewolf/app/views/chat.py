@@ -7,7 +7,6 @@ from pyramid.view import view_config
 from socketio.namespace import BaseNamespace
 from socketio import socketio_manage
 
-from werewolf.app.message_handler import MessageHandler
 from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
 
@@ -43,6 +42,7 @@ class ChatNamespace(BaseNamespace):
 
     def initialize(self):
         self.log("Socketio session started")
+        self.message_handler = self.request.context.message_handler
 
     def log(self, message):
         logger.info("[{0}] {1}".format(self.socket.sessid, message))
@@ -55,12 +55,12 @@ class ChatNamespace(BaseNamespace):
         self.village_id = village_id
 
         # send initial messages
-        msg_list = MessageHandler.get_initial_messages(village_id, self.session.get("user"))
+        msg_list = self.message_handler.get_initial_messages(village_id, self.session.get("user"))
         room_name = self._get_room_name(village_id)
         self._send_messages(room_name, msg_list)
 
         # send coming message
-        msg_list = [MessageHandler.get_coming_message(self.session.get("user"))]
+        msg_list = [self.message_handler.get_coming_message(self.session.get("user"))]
         self._send_messages(room_name, msg_list)
 
         return True
@@ -81,7 +81,7 @@ class ChatNamespace(BaseNamespace):
     @auth_required
     def on_message(self, message):
         u"""" クライアントから受信したメッセージを処理 (event == 'message') """
-        msg_list = MessageHandler.dispatch(self.village_id, self.session.get('user'), message)
+        msg_list = self.message_handler.dispatch(self.village_id, self.session.get('user'), message)
         if not isinstance(msg_list, list):
             msg_list = [msg_list]
 
@@ -118,22 +118,24 @@ class ChatNamespace(BaseNamespace):
 
     def _get_auth_token(self, request):
         u""" request を元に AccessToken オブジェクトを返す """
+        repo_token = request.context.repos['access_token']
         token = request.params.get('access_token', None)
         if not token:
             return None
         try:
-            auth_token = AccessToken.objects.get(token=token)
+            auth_token = repo_token.get_by_token(token)
             if auth_token.is_revoked():
                 return None
-        except AccessToken.DoesNotExist:
+        except ValueError:
             return None
         return auth_token
 
 
 
 @view_config(route_name='socketio', permission='everyone')
-def socketio_service(request):
+def socketio_service(context, request):
     try:
+        # request.context = context
         socketio_manage(request.environ, {'/chat': ChatNamespace}, request)
     except:
         logger.error("Exception while handling socketio connection",

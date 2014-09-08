@@ -39,28 +39,16 @@ MEMBER_TYPES = {
 }
 
 
-class Game(object):
-    u"""
-    ゲームロジックを書くクラス。Game Service と呼んだ方がいいかも。（状態持つけど）
-    """
+class GameService(object):
+    u""" 村のゲーム運営を行うサービス """
 
-    instances = {}
-
-    @classmethod
-    def get_instance(cls, village_id):
-        if village_id not in cls.instances:
-            cls.instances[village_id] = cls(village_id)
-        return cls.instances[village_id]
-
-    def __init__(self, village_id):
-        self.village_id = village_id
-
-        self.user_repository = UserRepository()
-        self.village_repository = VillageRepository(village_id)
-        self.event_repository = EventRepository(village_id)
-        self.behavior_repository = BehaviorRepository(village_id)
-
-        self.village = self.village_repository.get_entity()
+    def __init__(self, context, village_id):
+        self.repo_user = context.repos['user']
+        self.repo_village = context.repos['village']
+        self.repo_resident = context.repos['resident']
+        self.repo_event = context.repos['event']
+        self.repo_behavior = context.repos['behavior']
+        self.village = self.repo_village.get_entity(village_id)
 
     def in_game(self):
         return self.village.status is VillageStatus.IN_GAME
@@ -69,7 +57,8 @@ class Game(object):
         if self.in_game():
             raise GameException(u"既にゲームは始まっています")
         residents = self.assign_roles(self.get_residents())
-        self.village = self.village_repository.update_status(VillageStatus.IN_GAME)
+        self.village = self.repo_village.update_status(
+            self.village.identity, VillageStatus.IN_GAME)
         self.record_event(GameStartEvent(self.village))
         return self.village
 
@@ -105,26 +94,40 @@ class Game(object):
         u""" generation を increment して次のゲームを始める """
         if not self.in_game():
             raise GameException(u"ゲームは始まっていません")
-        self.village = self.village_repository.increment_generation()
+        self.village = self.repo_village.increment_generation(
+            self.village.identity)
         return self.village
 
     def go_to_next_day(self):
         u""" 次の日に移る """
         if not self.in_game():
             raise GameException(u"ゲームは始まっていません")
-        self.village = self.village_repository.increment_day()
+        self.village = self.repo_village.increment_day(
+            self.village.identity)
         return self.village
 
     def get_residents(self, role=None):
-        return self.village_repository.get_residents(role)
+        criteria = {
+            "village_id": self.village.identity,
+            "generation": self.village.generation,
+            "role": role,
+        }
+        return self.repo_resident.find(**criteria)
 
     def get_alive_residents(self, role=None):
-        return self.village_repository.get_alive_residents(role)
+        criteria = {
+            "village_id": self.village.identity,
+            "generation": self.village.generation,
+            "role": role,
+            "status": ResidentStatus.ALIVE,
+        }
+        return self.repo_village.find(**criteria)
 
     def get_resident(self, user):
         try:
-            return self.village_repository.get_resident(user)
-        except ResidentModel.DoesNotExist:
+            return self.repo_resident.get_by_village_and_user(
+                self.village.identity, self.village.generation, user.identity)
+        except ValueError:
             raise GameException(u"{}さんは村に参加していません".format(user.name))
 
     def is_resident(self, user):
@@ -139,7 +142,8 @@ class Game(object):
             raise GameException(u"ゲームの開催中は参加できません")
         if self.is_resident(user):
             raise GameException(u"{} さんは既に村に参加しています".format(user.name))
-        resident = self.village_repository.add_resident(user)
+        resident = self.repo_resident.add_by_village_and_user(
+            self.village.identity, self.village.generation, user.identity)
         self.record_event(JoinEvent(resident))
         return resident
 
@@ -147,7 +151,7 @@ class Game(object):
         resident = self.get_resident(user)
         if self.in_game():
             raise GameException(u"ゲーム中は村から出られません。")
-        resident.delete()
+        self.repo_resident.delete(resident)
         self.record_event(LeaveEvent(resident))
 
     def get_role_constitution(self):
@@ -165,8 +169,7 @@ class Game(object):
             raise GameException(u"住人が多すぎます")
         roles = Util.shuffle(random.choice(MEMBER_TYPES[num_residents]))
         for i, resident in enumerate(residents):
-            resident.role = roles[i]
-            resident.save()
+            residents[i] = self.repo_resident.assign_role(resident, roles[i])
         return residents
 
     def set_execution_target(self, user, target_name):
@@ -175,8 +178,12 @@ class Game(object):
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を吊り対象にすることはできません")
-        self.behavior_repository.create_or_update(
-            BehaviorType.EXECUTION, resident, target_resident)
+        self.repo_behavior.create_or_update(
+            self.village,
+            BehaviorType.EXECUTION,
+            resident.identity,
+            target_resident.identity
+        )
 
     def set_attack_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
@@ -188,8 +195,12 @@ class Game(object):
             raise GameException(u"自分自身を襲撃することはできません")
         if target_resident.role is Role.WOLF:
             raise GameException(u"仲間を襲撃することはできません")
-        self.behavior_repository.create_or_update(
-            BehaviorType.ATTACK, resident, target_resident)
+        self.repo_behavior.create_or_update(
+            self.village,
+            BehaviorType.ATTACK,
+            resident.identity,
+            target_resident.identity
+        )
 
     def set_hunt_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
@@ -199,8 +210,12 @@ class Game(object):
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を道連れにすることはできません")
-        self.behavior_repository.create_or_update(
-            BehaviorType.HUNT, resident, target_resident)
+        self.repo_behavior.create_or_update(
+            self.village,
+            BehaviorType.HUNT,
+            resident.identity,
+            target_resident.identity
+        )
 
     def set_fortune_target(self, user, target_name):
         resident = self.ensure_alive_resident(user)
@@ -210,13 +225,17 @@ class Game(object):
         target_resident = self.ensure_alive_resident(target_user)
         if resident.user.identity == target_resident.user.identity:
             raise GameException(u"自分自身を占うことはできません")
-        self.behavior_repository.create_or_update(
-            BehaviorType.FORTUNE, resident, target_resident)
+        self.repo_behavior.create_or_update(
+            self.village,
+            BehaviorType.FORTUNE,
+            resident.identity,
+            target_resident.identity
+        )
 
     def get_user_by_name(self, name):
         u""" 名前をもとにユーザを取得(TODO: 同じ名前の人対応) """
         try:
-            return self.user_repository.get_by_name(name)
+            return self.repo_user.get_by_name(name)
         except User.DoesNotExist:
             raise GameException(u"{} という名前の人はいません".format(name))
 
@@ -299,8 +318,8 @@ class Game(object):
         voted = []
         for r in executors:
             try:
-                behavior = self.behavior_repository.\
-                           get_by_type_and_resident(behavior_type, r)
+                behavior = self.repo_behavior.\
+                           get_by_type_and_resident(village, behavior_type, r)
                 voted.append(behavior.target_resident)
             except BehaviorModel.DoesNotExist:
                 # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
@@ -321,7 +340,7 @@ class Game(object):
         return event
 
     def record_event(self, event):
-        return self.event_repository.add(event)
+        return self.repo_event.add(event)
 
     def get_current_events(self):
-        return self.event_repository.get_current_events()
+        return self.repo_event.get_current_events(self.village)

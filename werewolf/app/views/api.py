@@ -11,18 +11,20 @@ from werewolf.domain.user.exception import *
 
 #TODO: OAuth Authorization for this endpoint
 @view_config(route_name='api_village_list', renderer='json')
-def api_village_list(request):
+def api_village_list(context, request):
+    repo_village = context.repos['village']
     return {
-        "villages": [entity.to_dict() for entity in VillageModel.objects.all()]
+        "villages": [entity.to_dict() for entity in repo_village.find()]
         }
 
 
 @view_config(route_name='api_village_detail', renderer='json')
-def api_village_detail(request):
+def api_village_detail(context, request):
+    repo_village = context.repos['village']
     identity = request.matchdict.get('identity')
     try:
-        village = VillageModel.objects.get(identity=identity)
-    except VillageModel.DoesNotExist:
+        village = repo_village.get_entity(identity=identity)
+    except ValueError:
         raise NotFound('page not found')
 
     return {"village": village.to_dict()}
@@ -30,12 +32,9 @@ def api_village_detail(request):
 
 @view_config(route_name='api_village_join', renderer='json',
              request_method='POST')
-def api_village_join(request):
-    # TODO: pyramid でも動くようにする
-    token = request.headers["authorization"].split()[1]
-    user = AccessToken.objects.get(token=token).client_session.user
-
-    game = Game.get_instance(request.POST['identity'])
+def api_village_join(context, request):
+    user = context.repos['user'].get(request.authenticated_userid)
+    game = GameService(context, request.POST['identity'])
     resident = game.join(user)
 
     return resident.to_dict()
@@ -43,7 +42,7 @@ def api_village_join(request):
 
 @view_config(route_name='api_auth_token', renderer='json',
              permission='everyone', request_method='POST')
-def api_auth_token(request):
+def api_auth_token(context, request):
     try:
         client_id = request.POST['client_id']
         grant_type = request.POST['grant_type']
@@ -59,7 +58,7 @@ def api_auth_token(request):
         except KeyError:
             raise InvalidRequestError('invalid request')
 
-        authenticator = IdTokenAuthenticator(client_id)
+        authenticator = IdTokenAuthenticator(context, client_id)
         session = authenticator.validate(assertion)
     elif grant_type == GrantType.REFRESH_TOKEN.value:
         try:
@@ -67,7 +66,7 @@ def api_auth_token(request):
         except KeyError:
             raise InvalidRequestError('invalid request')
 
-        authenticator = RefreshTokenAuthenticator(client_id)
+        authenticator = RefreshTokenAuthenticator(context, client_id)
         session = authenticator.validate(refresh_token)
     else:
         raise UnsupportedGrantTypeError('unsupported grant type: {}'.format(grant_type))

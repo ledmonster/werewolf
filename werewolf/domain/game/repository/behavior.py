@@ -9,16 +9,14 @@ class BehaviorRepository(object):
     """
     def __init__(self, engine):
         self.engine = engine
-        self.village_repository = VillageRepository(village_id)
 
-    def create_or_update(self, village_id, generation, day, behavior_type,
-                         resident_id, target_resident_id):
-        village = self.village_repository.get_entity()
+    def create_or_update(self, village, behavior_type, resident_id,
+                         target_resident_id):
         try:
             behavior = self.get_by_type_and_resident(
-                village_id,
-                generation,
-                day,
+                village.identity,
+                village.generation,
+                village.day,
                 behavior_type,
                 resident_id
             )
@@ -27,20 +25,19 @@ class BehaviorRepository(object):
         except ValueError:
             behavior = BehaviorModel(
                 behavior_type=behavior_type,
-                village_id=village_id,
+                village_id=village.identity,
                 resident_id=resident_id,
                 target_resident_id=target_resident_id,
-                generation=generation,
-                day=day)
+                generation=village.generation,
+                day=village.day)
             self.engine.save(behavior)
         return behavior
 
-    def get_by_type_and_resident(self, village_id, generation, day,
-                                 behavior_type, resident_id):
+    def get_by_type_and_resident(self, village, behavior_type, resident_id):
         return self.engine(BehaviorModel).filter(
             behavior_type=behavior_type,
-            village_id=village_id,
-            generation=generation,
-            day=day,
+            village_id=village.identity,
+            generation=village.generation,
+            day=village.day,
             resident_id=resident_id
         ).one()

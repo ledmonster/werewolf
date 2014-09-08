@@ -17,6 +17,9 @@ class VillageRepository(object):
         # self.village_id = village_id
         # self.generation = self.get_entity().generation
 
+    def find(self):
+        return self.engine(VillageModel).all()
+
     def get_entity(self, identity):
         if isinstance(identity, str):
             identity = uuid.UUID(identity)
@@ -71,7 +74,7 @@ class ResidentRepository(object):
             village_id=village_id,
             generation=generation,
         }
-        criteria.update(extra_criteria)
+        criteria.update(filter(extra_criteria))
         return self.engine(ResidentModel).filter(**criteria).all()
 
     def add_by_village_and_user(self, village_id, generation, user_id):
@@ -81,6 +84,13 @@ class ResidentRepository(object):
             generation=generation,
             role=None
         )
-        self.engine(resident).save()
+        self.engine(ResidentModel).save()
 
         return resident
+
+    def delete(self, entity):
+        self.engine(ResidentModel).delete(entity)
+
+    def assign_role(self, entity, role):
+        resident.role = role
+        self.engine(ResidentModel).sync(entity)
