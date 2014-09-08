@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ user """
+import datetime
 import urllib, hashlib
 
 # from django.db import models
@@ -50,6 +51,7 @@ class UserCredential(Model):
     credential_type = Field(data_type='CredentialType', index='credentail-type-index')
     key = Field(data_type=str)
     secret = Field(data_type=str)
+    created = Field(data_type=datetime.datetime, range_key=True)
 
 
 # class User(EntityModel):

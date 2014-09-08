@@ -71,8 +71,8 @@ class ResidentRepository(object):
     def find(self, village_id, generation, **extra_criteria):
         u""" 村のIDとgenerationを元にresidentsを返す """
         criteria = {
-            village_id=village_id,
-            generation=generation,
+            "village_id": village_id,
+            "generation": generation,
         }
         criteria.update(filter(extra_criteria))
         return self.engine(ResidentModel).filter(**criteria).all()

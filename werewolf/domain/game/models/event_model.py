@@ -29,7 +29,7 @@ class EventType(ValueObject):
         NIGHT = u'夜のターン'
         MORNING = u'朝のターン'
 
-register_enum_type(EventType, START)
+register_enum_type(EventType, STRING)
 
 
 class EventModel(EntityModel):

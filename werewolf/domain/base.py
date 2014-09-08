@@ -28,14 +28,14 @@ __all__ = ["EntityModel", "ValueObject"]
 #     class Meta:
 #         abstract = True
 
-def register_enum_type(type_class, data_type):
+def register_enum_type(type_class, _ddb_data_type):
     u""" Enum 型の data_type を登録する """
 
     class EnumType(TypeDefinition):
         u""" Enum Type for {} """.format(type_class.__name__)
         data_type = type_class
         aliases = [type_class.__name__]
-        ddb_data_type = data_type
+        ddb_data_type = _ddb_data_type
 
         def ddb_dump(self, value):
             u""" DynamoDB へ書き出す際の変換 """
@@ -70,7 +70,7 @@ class EntityModel(Model):
     u""" Entity Model """
 
     identity = Field(data_type='uuid', hash_key=True)
-    created = Field(data_type=datetime.datetime)
+    created = Field(data_type=datetime.datetime, range_key=True)
     modified = Field(data_type=datetime.datetime)
 
     def __init__(self, *args, **kwargs):

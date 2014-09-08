@@ -36,7 +36,7 @@ class ClientSession(EntityModel):
     def generate_refresh_token_(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=RefreshToken.EXPIRES_IN_)
         return RefreshToken(
-            token=generate_token()
+            token=generate_token(),
             client_session_id=self.identity,
             expires_at=expires_at)
 
@@ -57,7 +57,7 @@ class AccessToken(Model):
         return self.expires_at < datetime.datetime.utcnow()
 
 
-class RefreshToken(models.Model):
+class RefreshToken(Model):
     u""" refresh token """
     EXPIRES_IN_ = 3600 * 24 * 365  # 1 year
 
