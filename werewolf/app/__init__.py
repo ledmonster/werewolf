@@ -6,11 +6,6 @@ monkey.patch_all()
 import datetime
 import os
 
-
-# initialize django
-os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
-
-
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.renderers import JSON
