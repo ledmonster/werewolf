@@ -3,7 +3,6 @@
 import datetime
 
 from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPException
 
 from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
@@ -26,7 +25,7 @@ def api_village_detail(context, request):
     try:
         village = repo_village.get_entity(identity=identity)
     except ValueError:
-        raise NotFound('page not found')
+        raise NotFoundError('page not found')
 
     return {"village": village.to_dict()}
 
