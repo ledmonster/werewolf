@@ -23,6 +23,7 @@ class RootFactory(object):
             "user": UserRepository(self.engine),
             "user_credential": UserCredentialRepository(self.engine),
             "access_token": AccessTokenRepository(self.engine),
+            "refresh_token": RefreshTokenRepository(self.engine),
             "client_session": ClientSessionRepository(self.engine),
             "village": VillageRepository(self.engine),
             "event": EventRepository(self.engine),

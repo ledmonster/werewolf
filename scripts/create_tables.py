@@ -3,6 +3,7 @@ from flywheel import Engine
 
 from werewolf.domain.user.models import *
 from werewolf.domain.game.models import *
+from werewolf.domain.game.repository import *
 
 
 engine = Engine()
@@ -19,3 +20,8 @@ engine.register(BehaviorModel)
 engine.register(EventModel)
 
 engine.create_schema()
+
+repo_village = VillageRepository(engine)
+
+repo_village.add(u'PyConJP 村')
+repo_village.add(u'ペンギン村')

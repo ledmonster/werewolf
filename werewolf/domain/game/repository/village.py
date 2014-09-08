@@ -17,8 +17,13 @@ class VillageRepository(object):
         # self.village_id = village_id
         # self.generation = self.get_entity().generation
 
+    def add(self, name):
+        entity = VillageModel(name=name)
+        self.engine.save(entity)
+        return entity
+
     def find(self):
-        return self.engine(VillageModel).all()
+        return self.engine.scan(VillageModel).all()
 
     def get_entity(self, identity):
         if isinstance(identity, str):

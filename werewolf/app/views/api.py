@@ -4,7 +4,6 @@ import datetime
 
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPException
-from pyramid.security import NO_PERMISSION_REQUIRED
 
 from werewolf.domain.game.models import *
 from werewolf.domain.user.models import *
@@ -43,7 +42,7 @@ def api_village_join(context, request):
 
 
 @view_config(route_name='api_auth_token', renderer='json',
-             permission=NO_PERMISSION_REQUIRED, request_method='POST')
+             permission='everyone', request_method='POST')
 def api_auth_token(context, request):
     try:
         client_id = request.POST['client_id']
@@ -76,6 +75,8 @@ def api_auth_token(context, request):
     # TODO: use old refresh_token for grant_type=refresh_token
     access_token = session.generate_access_token_()
     refresh_token = session.generate_refresh_token_()
+    context.repos['access_token'].save(access_token)
+    context.repos['refresh_token'].save(refresh_token)
 
     return dict(
         access_token = access_token.token,

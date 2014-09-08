@@ -11,6 +11,28 @@ class AccessTokenRepository(object):
     def get_by_token(self, token):
         return self.engine(AccessToken).filter(token=token).one()
 
+    def save(self, entity):
+        if not isinstance(entity, AccessToken):
+            raise ValueError
+        self.engine.save(entity)
+        return entity
+
+
+class RefreshTokenRepository(object):
+    u""" RefreshToken の Repository """
+
+    def __init__(self, engine):
+        self.engine = engine
+
+    def get_by_token(self, token):
+        return self.engine(RefreshToken).filter(token=token).one()
+
+    def save(self, entity):
+        if not isinstance(entity, RefreshToken):
+            raise ValueError
+        self.engine.save(entity)
+        return entity
+
 
 class ClientSessionRepository(object):
     u""" ClientSession リポジトリ """

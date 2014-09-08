@@ -126,9 +126,18 @@ class VillageModel(EntityModel):
     generation = Field(data_type=int)
     day = Field(data_type=int)
 
+    def __init__(self, *args, **kwargs):
+        _kwargs = dict(
+            status=VillageStatus.OUT_GAME,
+            generation=1,
+            day=1,
+        )
+        _kwargs.update(kwargs)
+        super(VillageModel, self).__init__(*args, **_kwargs)
+
     def to_dict(self):
         return dict(
-            identity=self.identity,
+            identity=self.identity.hex,
             name=self.name,
             status=self.status.name,
             day=self.day,
