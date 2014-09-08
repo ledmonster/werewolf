@@ -11,7 +11,7 @@ class UserRepository(object):
 
     def create(self, **params):
         user = User(**params)
-        self.engine(User).save(user)
+        self.engine.save(user)
         return user
 
     def get(self, identity):
@@ -31,13 +31,13 @@ class UserCredentialRepository(object):
         self.engine = engine
 
     def create(self, user_id, credential_type, key):
-        entity = CredentialType(
+        entity = UserCredential(
             user_id=user_id,
             credential_type=credential_type,
             key=key
         )
-        self.engine(CredentialType).save(entity)
+        self.engine.save(entity)
 
     def get(self, credential_type, key):
-        return self.engine(CredentialType).filter(
+        return self.engine(UserCredential).filter(
             credential_type=credential_type, key=key).one()

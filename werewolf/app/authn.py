@@ -33,11 +33,13 @@ class OAuth2AuthenticationPolicy(CallbackAuthenticationPolicy):
             auth_token = repo_token.get_by_token(token)
         except ValueError:
             # Bad input, return 400 Invalid Request
-            raise HTTPBadRequest()
+            # raise HTTPBadRequest()
+            return None
 
         # Expired or revoked token, return 401 invalid token
         if auth_token.is_revoked():
-            raise HTTPUnauthorized()
+            # raise HTTPUnauthorized()
+            return None
 
         return auth_token
 
@@ -45,8 +47,11 @@ class OAuth2AuthenticationPolicy(CallbackAuthenticationPolicy):
         auth_token = self._get_auth_token(request)
         if not auth_token:
             return None
+        repo_session = request.context.repos['client_session']
+        client_session_id = auth_token.client_session_id
+        client_session = repo_session.get(client_session_id)
 
-        return auth_token.client_session.user_id
+        return client_session.user_id
 
     def remember(self, request, principal, **kw):
         """

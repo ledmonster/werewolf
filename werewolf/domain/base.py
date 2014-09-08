@@ -53,15 +53,15 @@ class UUIDType(TypeDefinition):
 
     data_type = uuid.UUID
     aliases = ['uuid']
-    ddb_data_type = NUMBER
+    ddb_data_type = STRING
 
     def ddb_dump(self, value):
         u""" DynamoDB へ書き出す際の変換 """
-        return value.int
+        return value.hex
 
     def ddb_load(self, value):
         u""" DynamoDB から読み込む際の変換 """
-        return uuid.UUID(int=value)
+        return uuid.UUID(hex=value)
 
 register_type(UUIDType)
 
@@ -80,7 +80,6 @@ class EntityModel(Model):
             modified=datetime.datetime.utcnow(),
         )
         _kwargs.update(kwargs)
-        self._residents = set()
         super(EntityModel, self).__init__(*args, **_kwargs)
 
     __metadata__ = {

@@ -12,12 +12,16 @@ class AccessTokenRepository(object):
         return self.engine(AccessToken).filter(token=token).one()
 
 
-class CrientSessionRepository(object):
-    u""" CrientSession リポジトリ """
+class ClientSessionRepository(object):
+    u""" ClientSession リポジトリ """
 
     def __init__(self, engine):
         self.engine = engine
 
+    def get(self, identity):
+        return self.engine(ClientSession).filter(identity=identity).one()
+
     def create(self, user_id):
-        entity = CrientSession(user_id=user_id)
-        self.engine(CrientSession).save(entity)
+        entity = ClientSession(user_id=user_id)
+        self.engine.save(entity)
+        return entity

@@ -9,7 +9,6 @@ from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
-
 class Authenticator(object):
     """ Authenticator """
 
@@ -51,8 +50,9 @@ class IdTokenAuthenticator(Authenticator):
                 if params.get('email'):
                     user = repo_user.get_by_email(params['email'])
             except ValueError:
-                repo_user.create(**params)
+                user = repo_user.create(**params)
 
+            user_id = user.identity
             repo_credential.create(
                 user_id=user_id,
                 credential_type=CredentialType.GOOGLE,

@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
+from flywheel import Engine
 from pyramid.security import Allow, Everyone, Authenticated
 
 from werewolf.app.message_handler import MessageHandler
-from werewolf.domain.user.repository import (
-    UserRepository,
-    AccessTokenRepository,
-)
-from werewolf.domain.game.repository import (
-    VillageRepository,
-    EventRepository,
-    BehaviorRepository,
-)
+from werewolf.domain.user.repository import *
+from werewolf.domain.game.repository import *
 
 
 class RootFactory(object):
@@ -29,7 +23,7 @@ class RootFactory(object):
             "user": UserRepository(self.engine),
             "user_credential": UserCredentialRepository(self.engine),
             "access_token": AccessTokenRepository(self.engine),
-            "crient_session": CrientSessionRepository(self.engine),
+            "client_session": ClientSessionRepository(self.engine),
             "village": VillageRepository(self.engine),
             "event": EventRepository(self.engine),
             "behavior": BehaviorRepository(self.engine),

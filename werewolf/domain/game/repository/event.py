@@ -18,4 +18,4 @@ class EventRepository(object):
     def add(self, entity):
         if not isinstance(entity, EternalEvent):
             raise ValueError("entity is not an EternalEvent")
-        entity.to_model().save()
+        self.engine.save(entity.to_model())

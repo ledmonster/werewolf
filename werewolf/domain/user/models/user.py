@@ -53,6 +53,13 @@ class UserCredential(Model):
     secret = Field(data_type=str)
     created = Field(data_type=datetime.datetime, range_key=True)
 
+    def __init__(self, *args, **kwargs):
+        _kwargs = dict(
+            created=datetime.datetime.utcnow(),
+        )
+        _kwargs.update(kwargs)
+        super(UserCredential, self).__init__(*args, **_kwargs)
+
 
 # class User(EntityModel):
 #     """ user """

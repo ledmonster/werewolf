@@ -84,7 +84,7 @@ class ResidentRepository(object):
             generation=generation,
             role=None
         )
-        self.engine(ResidentModel).save()
+        self.engine.save(resident)
 
         return resident
 
