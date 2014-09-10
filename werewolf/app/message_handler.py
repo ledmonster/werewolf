@@ -223,7 +223,7 @@ class MessageHandler(object):
         if residents:
             contents.append("")
             contents.append(u"■住人")
-            contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.status.label) for r in residents]))
+            contents.append("\n".join([u"・{} （{}）".format(r.name, r.status) for r in residents]))
 
         from pyramid.threadlocal import get_current_request
         current_socket = get_current_request().environ["socketio"]
@@ -235,7 +235,7 @@ class MessageHandler(object):
 
         contents.append("")
         contents.append(u"■接続ユーザ")
-        contents.append("\n".join([u"・{} （{:d}接続）".format(u, n) for u, n in users.iteritems()]))
+        contents.append("\n".join([u"・{} （{:d}接続）".format(u.name, n) for u, n in users.iteritems()]))
 
         return Message("\n".join(contents), None, user)
 
@@ -266,9 +266,9 @@ class Message(object):
         default_avatar = "http://www.gravatar.com/avatar/?f=y&s=30"
         return dict(
             content = self.content,
-            sender_id = self.sender and self.sender.identity or None,
+            sender_id = self.sender and self.sender.identity.hex or None,
             sender_name = self.sender and self.sender.name or u"★Game Master★",
             sender_hue = self.sender and self.sender.hue or 0,
             sender_avatar = self.sender and self.sender.get_avatar_url(30) or default_avatar,
-            receiver_id = self.receiver and self.receiver.identity or None,
+            receiver_id = self.receiver and self.receiver.identity.hex or None,
         )

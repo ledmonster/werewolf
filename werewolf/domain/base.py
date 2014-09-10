@@ -121,4 +121,23 @@ class LabeledEnum(Enum):
 
 class ValueObject(LabeledEnum):
     """ Base class for Value Object """
-    pass
+
+    def __ge__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ >= other._value_
+        return NotImplemented
+
+    def __gt__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ > other._value_
+        return NotImplemented
+
+    def __le__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ <= other._value_
+        return NotImplemented
+
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ < other._value_
+        return NotImplemented

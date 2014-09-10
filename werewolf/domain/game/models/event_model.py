@@ -7,6 +7,7 @@ from flywheel import Model, Field
 from flywheel.fields.types import STRING
 
 from werewolf.domain.base import EntityModel, ValueObject, register_enum_type
+from werewolf.domain.user import get_repository
 
 
 class EventType(ValueObject):
@@ -44,6 +45,10 @@ class EventModel(EntityModel):
     __metadata__ = {
         'name': 'event',
     }
+
+    @property
+    def user(self):
+        return get_repository('user').get(self.user_id)
 
 
 # class EventModel(EntityModel):

@@ -51,13 +51,13 @@ class JoinEvent(EternalEvent):
 
     @property
     def content(self):
-        return {"resident": self.resident.identity}
+        return {"resident": self.resident.identity.hex}
 
     def to_model(self):
         return EventModel(
             event_type=EventType.JOIN,
-            user_id=self.resident.user.identity,
-            village_id=self.resident.village.identity,
+            user_id=self.resident.user_id,
+            village_id=self.resident.village_id,
             generation=self.resident.generation,
             content=self.content);
 
@@ -69,13 +69,13 @@ class LeaveEvent(EternalEvent):
 
     @property
     def content(self):
-        return {"resident": self.resident.identity}
+        return {"resident": self.resident.identity.hex}
 
     def to_model(self):
         return EventModel(
             event_type=EventType.LEAVE,
-            user_id=self.resident.user.identity,
-            village_id=self.resident.village.identity,
+            user_id=self.resident.user_id,
+            village_id=self.resident.village_id,
             generation=self.resident.generation,
             content=self.content);
 
@@ -101,7 +101,7 @@ class GameStartEvent(EternalEvent):
 class GameEndEvent(EternalEvent):
     u""" ゲーム終了イベント """
     def __init__(self, village, winner):
-        self.village_id = village
+        self.village = village
         self.winner = winner
 
     @property
@@ -143,7 +143,7 @@ class NightEvent(EternalEvent):
 
     @property
     def content(self):
-        return dict([(k, v.identity) for k, v in self.targets.iteritems() if v])
+        return dict([(k, v.identity.hex) for k, v in self.targets.iteritems() if v])
 
     def to_model(self):
         return EventModel(

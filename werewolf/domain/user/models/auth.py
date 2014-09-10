@@ -22,18 +22,14 @@ class ClientSession(EntityModel):
     u""" Client Session """
     user_id = Field(data_type='uuid')
 
-    @property
-    def user_(self):
-        pass
-
-    def generate_access_token_(self):
+    def generate_access_token(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN_)
         return AccessToken(
             token=generate_token(),
             client_session_id=self.identity,
             expires_at=expires_at)
 
-    def generate_refresh_token_(self):
+    def generate_refresh_token(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=RefreshToken.EXPIRES_IN_)
         return RefreshToken(
             token=generate_token(),
@@ -49,11 +45,11 @@ class AccessToken(Model):
     expires_at = Field(data_type=datetime.datetime)
     client_session_id = Field(data_type='uuid')
 
-    def revoke_(self):
+    def revoke(self):
         u""" TODO: Implement revoke """
         raise NotImplemented()
 
-    def is_revoked_(self):
+    def is_revoked(self):
         return self.expires_at < datetime.datetime.utcnow()
 
 

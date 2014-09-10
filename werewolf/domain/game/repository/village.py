@@ -67,7 +67,7 @@ class ResidentRepository(object):
 
     def get_by_village_and_user(self, village_id, generation, user_id):
         u""" village_id と user_id から resident を取得 """
-        return self.engine(ResidentModel).filter(
+        return self.engine.scan(ResidentModel).filter(
             village_id=village_id,
             generation=generation,
             user_id=user_id,
@@ -79,14 +79,16 @@ class ResidentRepository(object):
             "village_id": village_id,
             "generation": generation,
         }
-        criteria.update(filter(extra_criteria))
-        return self.engine(ResidentModel).filter(**criteria).all()
+        criteria.update(extra_criteria)
+        criteria = dict([(k, v) for k, v in criteria.iteritems() if v is not None])
+        return self.engine.scan(ResidentModel).filter(**criteria).all()
 
-    def add_by_village_and_user(self, village_id, generation, user_id):
+    def add_by_village_and_user(self, village, user):
         resident = ResidentModel(
-            village_id=village_id,
-            user_id=user_id,
-            generation=generation,
+            name=user.name,
+            village_id=village.identity,
+            user_id=user.identity,
+            generation=village.generation,
             role=None
         )
         self.engine.save(resident)
@@ -97,5 +99,10 @@ class ResidentRepository(object):
         self.engine(ResidentModel).delete(entity)
 
     def assign_role(self, entity, role):
-        resident.role = role
-        self.engine(ResidentModel).sync(entity)
+        entity.role = role
+        self.engine.sync(entity)
+
+    def update_status(self, entity, status):
+        entity.status = status
+        self.engine.sync(entity)
+        return entity

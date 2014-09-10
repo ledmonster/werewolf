@@ -7,7 +7,7 @@ from flywheel import Model, Field
 from flywheel.fields.types import NUMBER, STRING
 
 from werewolf.domain.base import EntityModel, ValueObject, register_enum_type
-
+from werewolf.domain.user import get_repository
 
 class ResidentStatus(ValueObject):
     """ Value Object """
@@ -86,22 +86,35 @@ register_enum_type(BehaviorType, STRING)
 class ResidentModel(EntityModel):
     u""" 村の住民 """
 
+    name = Field(data_type=unicode)
     village_id = Field(data_type='uuid', index='village-id-index')
     generation = Field(data_type=int)
     user_id = Field(data_type='uuid')
     status = Field(data_type='ResidentStatus')
     role = Field(data_type='Role')
 
-    def update_status_(self, new_status):
+    def __init__(self, *args, **kwargs):
+        _kwargs = dict(
+            status=ResidentStatus.ALIVE,
+        )
+        _kwargs.update(kwargs)
+        super(ResidentModel, self).__init__(*args, **_kwargs)
+
+    def update_status(self, new_status):
         if self.status is not ResidentStatus.ALIVE:
             raise AttributeError
         self.status = new_status
 
+    @property
+    def user(self):
+        return get_repository('user').get(self.user_id)
+
     def to_dict(self):
         return dict(
-            identity=self.identity,
-            village_id=self.village_id,
-            user_id=self.user_id,
+            identity=self.identity.hex,
+            name=self.name,
+            village_id=self.village_id.hex,
+            user_id=self.user_id.hex,
             status=self.status.name,
             role=self.role,
         )

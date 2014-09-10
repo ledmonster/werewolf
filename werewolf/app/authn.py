@@ -37,7 +37,7 @@ class OAuth2AuthenticationPolicy(CallbackAuthenticationPolicy):
             return None
 
         # Expired or revoked token, return 401 invalid token
-        if auth_token.is_revoked_():
+        if auth_token.is_revoked():
             # raise HTTPUnauthorized()
             return None
 

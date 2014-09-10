@@ -39,8 +39,7 @@ class User(EntityModel):
     hue = Field(data_type=int)
     status = Field(data_type='UserStatus')
 
-    @property
-    def avatar_url_(self, size):
+    def get_avatar_url(self, size):
         return "http://www.gravatar.com/avatar/{}?s={:d}".format(
             hashlib.md5(self.email.lower()).hexdigest(), size)
 

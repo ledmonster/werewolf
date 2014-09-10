@@ -26,6 +26,7 @@ class RootFactory(object):
             "refresh_token": RefreshTokenRepository(self.engine),
             "client_session": ClientSessionRepository(self.engine),
             "village": VillageRepository(self.engine),
+            "resident": ResidentRepository(self.engine),
             "event": EventRepository(self.engine),
             "behavior": BehaviorRepository(self.engine),
         }
@@ -38,3 +39,30 @@ class RootFactory(object):
     @property
     def message_handler(self):
         return self._message_handler
+
+
+def register_repositories():
+    repos = RootFactory(None).repos
+
+    # user domain
+    from werewolf.domain.user import register_repository
+    for key in [
+            "user",
+            "user_credential",
+            "access_token",
+            "refresh_token",
+            "client_session",
+    ]:
+        register_repository(key, repos[key])
+
+    # game domain
+    from werewolf.domain.game import register_repository
+    for key in [
+            "village",
+            "resident",
+            "event",
+            "behavior",
+    ]:
+        register_repository(key, repos[key])
+
+register_repositories()

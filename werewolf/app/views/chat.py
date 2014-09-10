@@ -93,7 +93,7 @@ class ChatNamespace(BaseNamespace):
     def _send_messages(self, room_name, msg_list):
         u""" 部屋に対してメッセージを送る """
         for sessid, socket in self.socket.server.sockets.iteritems():
-            if room_name in socket.session['room_list']:
+            if room_name in socket.session.get('room_list', []):
                 for msg in msg_list:
                     if msg.is_target_user(socket.session.get("user")):
                         pkt = dict(type="event",
@@ -110,7 +110,14 @@ class ChatNamespace(BaseNamespace):
             self.disconnect()
             return
 
-        self.session["user"] = auth_token.client_session.user
+        repo_session = self.request.context.repos['client_session']
+        client_session_id = auth_token.client_session_id
+        client_session = repo_session.get(client_session_id)
+        user_id = client_session.user_id
+        repo_user = self.request.context.repos['user']
+        user = repo_user.get(user_id)
+
+        self.session["user"] = user
 
     def recv_disconnect(self):
         self.disconnect(silent=True)

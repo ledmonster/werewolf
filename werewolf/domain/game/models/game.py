@@ -121,14 +121,17 @@ class GameService(object):
             "role": role,
             "status": ResidentStatus.ALIVE,
         }
-        return self.repo_village.find(**criteria)
+        return self.repo_resident.find(**criteria)
 
     def get_resident(self, user):
         try:
-            return self.repo_resident.get_by_village_and_user(
+            resident = self.repo_resident.get_by_village_and_user(
                 self.village.identity, self.village.generation, user.identity)
-        except ValueError:
-            raise GameException(u"{}さんは村に参加していません".format(user.name))
+            if resident is None:
+                raise ValueError('non')
+            return resident
+        except ValueError as e:
+            raise GameException(u"{}さんは村に参加していません: {} {}".format(user.name, str(e), self.village.generation))
 
     def is_resident(self, user):
         try:
@@ -143,7 +146,7 @@ class GameService(object):
         if self.is_resident(user):
             raise GameException(u"{} さんは既に村に参加しています".format(user.name))
         resident = self.repo_resident.add_by_village_and_user(
-            self.village.identity, self.village.generation, user.identity)
+            self.village, user)
         self.record_event(JoinEvent(resident))
         return resident
 
@@ -236,7 +239,7 @@ class GameService(object):
         u""" 名前をもとにユーザを取得(TODO: 同じ名前の人対応) """
         try:
             return self.repo_user.get_by_name(name)
-        except User.DoesNotExist:
+        except ValueError:
             raise GameException(u"{} という名前の人はいません".format(name))
 
     def ensure_alive_resident(self, user):
@@ -292,8 +295,7 @@ class GameService(object):
 
     def kill_resident(self, resident):
         u""" 住民が死ぬ """
-        resident.status = ResidentStatus.DEAD
-        resident.save()
+        self.repo_resident.update_status(resident, ResidentStatus.DEAD)
         return self.get_alive_residents()
 
     def select_execution_target(self, residents):
@@ -319,9 +321,9 @@ class GameService(object):
         for r in executors:
             try:
                 behavior = self.repo_behavior.\
-                           get_by_type_and_resident(village, behavior_type, r)
+                           get_by_type_and_resident(self.village, behavior_type, r.identity)
                 voted.append(behavior.target_resident)
-            except BehaviorModel.DoesNotExist:
+            except ValueError:
                 # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
                 targets = [rr for rr in targets if rr != r]
                 if targets:

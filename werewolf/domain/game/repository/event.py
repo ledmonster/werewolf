@@ -10,7 +10,7 @@ class EventRepository(object):
     def get_current_events(self, village):
         u""" TODO: order について確認 """
         generation = village.generation
-        return self.engine(EventModel).filter(
+        return self.engine.scan(EventModel).filter(
             village_id=village.identity,
             generation=village.generation,
         ).all()
