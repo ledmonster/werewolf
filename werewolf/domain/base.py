@@ -2,7 +2,6 @@
 """ base entity model """
 import datetime
 import inspect
-import json
 import uuid
 
 from enum import Enum, EnumMeta

@@ -34,10 +34,7 @@ class MessageHandler(object):
         return Message(u"{} さんが村を立ち去りました".format(user.name))
 
     def get_initial_messages(self, village_id, user):
-        u"""
-        接続時に過去メッセージを取得する
-        TODO: user を使う
-        """
+        u""" 接続時に過去メッセージを取得する """
         game = GameService(self.context, village_id)
         events = game.get_current_events()
 
