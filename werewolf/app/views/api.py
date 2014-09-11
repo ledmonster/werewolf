@@ -9,7 +9,6 @@ from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
-#TODO: OAuth Authorization for this endpoint
 @view_config(route_name='api_village_list', renderer='json')
 def api_village_list(context, request):
     repo_village = context.repos['village']

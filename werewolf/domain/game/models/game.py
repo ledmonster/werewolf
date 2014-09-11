@@ -9,7 +9,7 @@ from werewolf.domain.user.repository import *
 from werewolf.domain.game.models import *
 from werewolf.domain.game.repository import *
 from werewolf.domain.game.exception import GameException, GameNotFinished
-from werewolf.util import Util
+import werewolf.infra.util as util
 
 
 MEMBER_TYPES = {
@@ -170,7 +170,7 @@ class GameService(object):
             raise GameException(u"住人が少なすぎます")
         elif num_residents > 6:
             raise GameException(u"住人が多すぎます")
-        roles = Util.shuffle(random.choice(MEMBER_TYPES[num_residents]))
+        roles = util.shuffle(random.choice(MEMBER_TYPES[num_residents]))
         for i, resident in enumerate(residents):
             residents[i] = self.repo_resident.assign_role(resident, roles[i])
         return residents
@@ -327,8 +327,8 @@ class GameService(object):
                 # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
                 targets = [rr for rr in targets if rr != r]
                 if targets:
-                    voted.append(Util.shuffle(targets)[0])
-        return Util.select_most_voted(voted)
+                    voted.append(util.shuffle(targets)[0])
+        return util.select_most_voted(voted)
 
     def store_message(self, user, message):
         u"""
