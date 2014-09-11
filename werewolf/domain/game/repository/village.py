@@ -79,7 +79,7 @@ class ResidentRepository(object):
             village_id=village.identity,
             user_id=user.identity,
             generation=village.generation,
-            role=None
+            role=Role.NONE
         )
         self.engine.save(resident)
 

@@ -48,13 +48,10 @@ class GameService(object):
         self.repo_behavior = context.repos['behavior']
         self.village = self.repo_village.get_entity(village_id)
 
-    def in_game(self):
-        return self.village.status is VillageStatus.IN_GAME
-
     def start(self):
-        if self.in_game():
+        if self.village.in_game():
             raise GameException(u"既にゲームは始まっています")
-        residents = self.assign_roles(self.get_residents())
+        residents = self.assign_roles(self.village.get_residents())
         self.village = self.repo_village.update_status(
             self.village.identity, VillageStatus.IN_GAME)
         self.record_event(GameStartEvent(self.village))
@@ -79,7 +76,7 @@ class GameService(object):
             return False
 
     def get_winner(self):
-        residents = self.get_alive_residents()
+        residents = self.village.get_alive_residents()
         wolves = [r for r in residents if r.role is Role.WOLF]
         humans = [r for r in residents if r.role is not Role.WOLF]
         if len(wolves) == 0:
@@ -90,7 +87,7 @@ class GameService(object):
 
     def go_to_next_game(self):
         u""" generation を increment して次のゲームを始める """
-        if not self.in_game():
+        if not self.village.in_game():
             raise GameException(u"ゲームは始まっていません")
         self.village = self.repo_village.increment_generation(
             self.village.identity)
@@ -98,50 +95,16 @@ class GameService(object):
 
     def go_to_next_day(self):
         u""" 次の日に移る """
-        if not self.in_game():
+        if not self.village.in_game():
             raise GameException(u"ゲームは始まっていません")
         self.village = self.repo_village.increment_day(
             self.village.identity)
         return self.village
 
-    def get_residents(self, role=None):
-        criteria = {
-            "village_id": self.village.identity,
-            "generation": self.village.generation,
-            "role": role,
-        }
-        return self.repo_resident.find(**criteria)
-
-    def get_alive_residents(self, role=None):
-        criteria = {
-            "village_id": self.village.identity,
-            "generation": self.village.generation,
-            "role": role,
-            "status": ResidentStatus.ALIVE,
-        }
-        return self.repo_resident.find(**criteria)
-
-    def get_resident(self, user):
-        try:
-            resident = self.repo_resident.get_by_village_and_user(
-                self.village.identity, self.village.generation, user.identity)
-            if resident is None:
-                raise ValueError('non')
-            return resident
-        except ValueError as e:
-            raise GameException(u"{}さんは村に参加していません: {} {}".format(user.name, str(e), self.village.generation))
-
-    def is_resident(self, user):
-        try:
-            self.get_resident(user)
-            return True
-        except GameException:
-            return False
-
     def join(self, user):
-        if self.in_game():
+        if self.village.in_game():
             raise GameException(u"ゲームの開催中は参加できません")
-        if self.is_resident(user):
+        if self.village.is_resident(user):
             raise GameException(u"{} さんは既に村に参加しています".format(user.name))
         resident = self.repo_resident.add_by_village_and_user(
             self.village, user)
@@ -149,16 +112,18 @@ class GameService(object):
         return resident
 
     def leave(self, user):
-        resident = self.get_resident(user)
-        if self.in_game():
+        resident = self.village.get_resident(user)
+        if resident is None:
+            raise GameException(u"{}さんは村に参加していません".format(user.name))
+        if self.village.in_game():
             raise GameException(u"ゲーム中は村から出られません。")
         self.repo_resident.delete(resident)
         self.record_event(LeaveEvent(resident))
 
     def get_role_constitution(self):
-        if not self.in_game():
+        if not self.village.in_game():
             raise GameException(u"まだゲームは始まっていません")
-        residents = self.get_residents()
+        residents = self.village.get_residents()
         roles = [r.role for r in residents]
         return sorted(roles)
 
@@ -242,9 +207,11 @@ class GameService(object):
 
     def ensure_alive_resident(self, user):
         u""" user がゲーム中の村の生きた住人であることを保障 """
-        if not self.in_game():
+        if not self.village.in_game():
             raise GameException(u"まだゲームは始まってません")
-        resident = self.get_resident(user)
+        resident = self.village.get_resident(user)
+        if resident is None:
+            raise GameException(u"{}さんは村に参加していません".format(user.name))
         if resident.status is not ResidentStatus.ALIVE:
             raise GameException(u"{} さんは既に死んでいます".format(user.name))
         return resident
@@ -262,13 +229,13 @@ class GameService(object):
         - 占い対象を決めて結果を知らせる
         """
 
-        if not self.in_game():
+        if not self.village.in_game():
             raise GameException(u"ゲームは開始されていません")
 
         targets = {}
 
         # 占い
-        residents = self.get_alive_residents()
+        residents = self.village.get_alive_residents()
         targets['fortune'] = self.select_fortune_target(residents)
 
         # 吊り
@@ -294,7 +261,7 @@ class GameService(object):
     def kill_resident(self, resident):
         u""" 住民が死ぬ """
         self.repo_resident.update_status(resident, ResidentStatus.DEAD)
-        return self.get_alive_residents()
+        return self.village.get_alive_residents()
 
     def select_execution_target(self, residents):
         u""" 吊り対象を選ぶ """
@@ -333,7 +300,7 @@ class GameService(object):
         ゲーム開始状態でなければ誰でもメッセージを送れるが、
         ゲーム開始状態の場合は生きている参加者しかメッセージを送れない。
         """
-        if self.in_game():
+        if self.village.in_game():
             self.ensure_alive_resident(user)
         event = MessageEvent(self.village, user, message)
         self.record_event(event)
