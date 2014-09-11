@@ -197,6 +197,6 @@ werewolf.$.on('ready', function(router) {
         .assign(router, 'route');
 
     $(window).on('popstate', function(e) {
-        router.dispatch();
+        // router.dispatch();
     });
 });
