@@ -25,6 +25,11 @@ namespace('werewolf.view.top', function(ns) {
                             $disConnect = $('#disconnect'),
                             $werewolfAuthResult = $('#werewolf-auth-result');
 
+                        $disConnect.clickE()
+                            .onValue(function() {
+                                werewolf.auth.disconnect();
+                            });
+
                         werewolf.auth.on('googleAuthenticated', function(params) {
                             $result.show();
                             $authResult.html('Auth Result:<br/>');
