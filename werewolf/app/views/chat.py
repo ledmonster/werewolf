@@ -55,12 +55,14 @@ class ChatNamespace(BaseNamespace):
         self.village_id = village_id
 
         # send initial messages
-        msg_list = self.message_handler.get_initial_messages(village_id, self.session.get("user"))
+        msg_list = self.message_handler.get_initial_messages(
+            village_id, self.session.get("user"))
         room_name = self._get_room_name(village_id)
         self._send_messages(room_name, msg_list)
 
         # send coming message
-        msg_list = [self.message_handler.get_coming_message(self.session.get("user"))]
+        msg_list = [self.message_handler.get_coming_message(
+            self.session.get("user"))]
         self._send_messages(room_name, msg_list)
 
         return True
