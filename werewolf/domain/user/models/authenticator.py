@@ -4,7 +4,6 @@ import random
 from oauth2client.client import verify_id_token
 from oauth2client.crypt import AppIdentityError
 
-from werewolf.util import Util
 from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
