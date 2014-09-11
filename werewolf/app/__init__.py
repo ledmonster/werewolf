@@ -43,7 +43,7 @@ def main(global_config, **settings):
 
     config = Configurator(
         settings=settings,
-        root_factory='werewolf.app.context.RootFactory',
+        root_factory='werewolf.app.resource.RootResource',
         default_permission='authenticated'
     )
     config.include('pyramid_jinja2')

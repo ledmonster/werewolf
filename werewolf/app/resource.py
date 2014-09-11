@@ -7,7 +7,7 @@ from werewolf.domain.user.repository import *
 from werewolf.domain.game.repository import *
 
 
-class RootFactory(object):
+class RootResource(object):
     __name__ = None
     __parent__ = None
     __acl__ = [
@@ -42,7 +42,7 @@ class RootFactory(object):
 
 
 def register_repositories():
-    repos = RootFactory(None).repos
+    repos = RootResource(None).repos
 
     # user domain
     from werewolf.domain.user import register_repository
