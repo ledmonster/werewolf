@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import uuid
-
 from werewolf.domain.game.models import *
+from werewolf.domain.base import Identity
 
 
 class VillageRepository(object):
@@ -23,13 +22,7 @@ class VillageRepository(object):
         return self.engine.scan(VillageModel).all()
 
     def get_entity(self, identity):
-        if isinstance(identity, basestring):
-            identity = uuid.UUID(hex=identity)
-        elif isinstance(identity, int):
-            identity = uuid.UUID(int=identity)
-        elif not isinstance(identity, uuid.UUID):
-            raise ValueError
-
+        identity = Identity(identity)
         village = self.engine(VillageModel).filter(identity=identity).one()
         return village
 

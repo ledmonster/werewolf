@@ -9,7 +9,85 @@ from enum import Enum, EnumMeta
 from flywheel import Model, Field
 from flywheel.fields.types import TypeDefinition, NUMBER, STRING, register_type
 
-__all__ = ["EntityModel", "ValueObject"]
+__all__ = ["Identity", "EntityModel", "ValueObject"]
+
+
+class Identity(object):
+    u""" 識別子を表す Value Object
+
+    - Entity の識別子として利用
+    - None を保持できる
+    - value 属性で UUID にアクセスできる
+    """
+
+    def __init__(self, value):
+        if isinstance(value, Identity):
+            self._value = value.value
+        elif value in (None, ""):
+            self._value = None
+        elif isinstance(value, uuid.UUID):
+            self._value = value
+        elif isinstance(value, basestring):
+            self._value = uuid.UUID(value)
+        elif isinstance(value, int):
+            self._value = uuid.UUID(int=value)
+        else:
+            raise ValueError()
+
+    @classmethod
+    def create(cls):
+        return cls(uuid.uuid4())
+
+    @property
+    def value(self):
+        u""" UUID または None """
+        return self._value
+
+    @property
+    def hex(self):
+        return self._value.hex if self._value else ""
+
+    def is_empty(self):
+        return self._value is None
+
+    def __nonzero__(self):
+        return not self.is_empty()
+
+    def __eq__(self, other):
+        return self._value == other.value
+
+    def __ne__(self, other):
+        return self._value != other.value
+
+    def __str__(self):
+        return str(self._value) if self._value else ""
+
+    def __unicode__(self):
+        return unicode(str(self))
+
+    def __repr__(self):
+        return "<Identity '{}'>".format(str(self))
+
+    def __json__(self, request):
+        return self.hex
+
+
+class IdentityType(TypeDefinition):
+    u""" Identity Type """
+
+    data_type = Identity
+    aliases = ['identity']
+    ddb_data_type = STRING
+
+    def ddb_dump(self, value):
+        u""" DynamoDB へ書き出す際の変換 """
+        return value.hex
+
+    def ddb_load(self, value):
+        u""" DynamoDB から読み込む際の変換 """
+        return Identity(value)
+
+register_type(IdentityType)
 
 
 def register_enum_type(type_class, _ddb_data_type):
@@ -32,34 +110,16 @@ def register_enum_type(type_class, _ddb_data_type):
     register_type(EnumType)
 
 
-class UUIDType(TypeDefinition):
-    u""" UUID Type """
-
-    data_type = uuid.UUID
-    aliases = ['uuid']
-    ddb_data_type = STRING
-
-    def ddb_dump(self, value):
-        u""" DynamoDB へ書き出す際の変換 """
-        return value.hex
-
-    def ddb_load(self, value):
-        u""" DynamoDB から読み込む際の変換 """
-        return uuid.UUID(hex=value)
-
-register_type(UUIDType)
-
-
 class EntityModel(Model):
     u""" Entity Model """
 
-    identity = Field(data_type='uuid', hash_key=True)
+    identity = Field(data_type='identity', hash_key=True)
     created = Field(data_type=datetime.datetime, range_key=True)
     modified = Field(data_type=datetime.datetime)
 
     def __init__(self, *args, **kwargs):
         _kwargs = dict(
-            identity=uuid.uuid4(),
+            identity=Identity.create(),
             created=datetime.datetime.utcnow(),
             modified=datetime.datetime.utcnow(),
         )

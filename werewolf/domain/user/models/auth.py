@@ -19,7 +19,7 @@ class GrantType(ValueObject):
 
 class ClientSession(EntityModel):
     u""" Client Session """
-    user_id = Field(data_type='uuid')
+    user_id = Field(data_type='identity')
 
     def generate_access_token(self):
         expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN_)
@@ -42,7 +42,7 @@ class AccessToken(Model):
 
     token = Field(data_type=unicode, hash_key=True)
     expires_at = Field(data_type=datetime.datetime)
-    client_session_id = Field(data_type='uuid')
+    client_session_id = Field(data_type='identity')
 
     def revoke(self):
         u""" TODO: Implement revoke """
@@ -58,4 +58,4 @@ class RefreshToken(Model):
 
     token = Field(data_type=unicode, hash_key=True)
     expires_at = Field(data_type=datetime.datetime)
-    client_session_id = Field(data_type='uuid')
+    client_session_id = Field(data_type='identity')

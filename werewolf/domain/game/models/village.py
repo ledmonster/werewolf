@@ -84,9 +84,9 @@ class ResidentModel(EntityModel):
     u""" 村の住民 """
 
     name = Field(data_type=unicode)
-    village_id = Field(data_type='uuid', index='village-id-index')
+    village_id = Field(data_type='identity', index='village-id-index')
     generation = Field(data_type=int)
-    user_id = Field(data_type='uuid')
+    user_id = Field(data_type='identity')
     status = Field(data_type='ResidentStatus')
     role = Field(data_type='Role')
 
@@ -118,7 +118,7 @@ class ResidentModel(EntityModel):
 
 class GameModel(EntityModel):
     u""" 村で開催されるゲームのモデル """
-    village_id = Field(data_type='uuid', index='village-id-index')
+    village_id = Field(data_type='identity', index='village-id-index')
     generation = Field(data_type=int)  # 第X回として参照されるだけ
     day = Field(data_type=int)
 
@@ -161,8 +161,8 @@ class BehaviorModel(EntityModel):
     u""" 特定の回の村の、特定の日の、住人の行動を記録 """
 
     behavior_type = Field(data_type='BehaviorType')
-    village_id = Field(data_type='uuid')
+    village_id = Field(data_type='identity')
     generation = Field(data_type=int)
     day = Field(data_type=int)
-    resident_id = Field(data_type='uuid')
-    target_resident_id = Field(data_type='uuid')
+    resident_id = Field(data_type='identity')
+    target_resident_id = Field(data_type='identity')
