@@ -108,7 +108,7 @@ class MessageHandler(object):
             village = game.start()
         except GameException as e:
             return Message(unicode(e), None, user)
-        residents = game.get_residents()
+        residents = game.village.get_residents()
         messages = []
         messages.append(Message(u"さあ、第{}回目のゲームの始まりです。".format(village.generation)))
         for r in residents:
@@ -142,7 +142,7 @@ class MessageHandler(object):
                     messages.append(Message(u"{} が道連れになりました".format(t.user.name)))
                 elif k is BehaviorType.FORTUNE:
                     # 死んでても知らせる
-                    tellers = game.get_residents(role=Role.TELLER)
+                    tellers = game.village.get_residents(role=Role.TELLER)
                     for teller in tellers:
                         messages.append(
                             Message(u"{user.name} は「{role.label}」です".format(user=t.user, role=t.role), None, teller.user))
@@ -150,7 +150,7 @@ class MessageHandler(object):
         # ゲーム終了、または翌日へ
         if game.satisfy_game_end():
             winner = game.get_winner()
-            residents = game.get_residents()
+            residents = game.village.get_residents()
 
             messages.append(
                 Message(
@@ -203,16 +203,16 @@ class MessageHandler(object):
     def do_state(self, village_id, user, msg, args):
         game = GameService(self.context, village_id)
         village = game.village
-        residents = game.get_residents()
+        residents = game.village.get_residents()
         contents = []
 
         contents.append(u"【第{:d}回 {}】 （{}）".format(village.generation, village.name, village.status.label))
 
-        if game.in_game():
+        if village.in_game():
             roles = game.get_role_constitution()
             contents.append(u"住人構成：{}".format(", ".join([r.label for r in roles])))
             try:
-                resident = game.get_resident(user)
+                resident = village.get_resident(user)
                 contents.append(u"あなたは「{resident.role.label}」です。（{resident.status.label}）".format(resident=resident))
             except GameException as e:
                 pass
@@ -220,7 +220,7 @@ class MessageHandler(object):
         if residents:
             contents.append("")
             contents.append(u"■住人")
-            contents.append("\n".join([u"・{} （{}）".format(r.name, r.status) for r in residents]))
+            contents.append("\n".join([u"・{} （{}）".format(r.name, r.status.label) for r in residents]))
 
         from pyramid.threadlocal import get_current_request
         current_socket = get_current_request().environ["socketio"]

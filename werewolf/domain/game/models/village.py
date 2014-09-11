@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 """ village """
+import logging
+
 from flywheel import Model, Field
 from flywheel.fields.types import NUMBER, STRING
 
 from werewolf.domain.base import EntityModel, ValueObject, register_enum_type
-from werewolf.domain.user import get_repository
+from werewolf.domain.game import get_repository as get_game_repository
+from werewolf.domain.user import get_repository as get_user_repository
+
+logger = logging.Logger(__name__)
+
 
 class ResidentStatus(ValueObject):
     """ Value Object """
@@ -29,6 +35,7 @@ class VillageStatus(ValueObject):
 class Role(ValueObject):
     """ Value Object """
 
+    NONE = "none"
     WOLF = "wolf"
     VILLAGER = "villager"
     BERSERKER = "berserker"
@@ -37,6 +44,7 @@ class Role(ValueObject):
     MEDIUM = "medium"
 
     class Labels:
+        NONE = u'役職なし'
         WOLF = u'人狼'
         VILLAGER = u'村人'
         BERSERKER = u'狂人'
@@ -104,7 +112,7 @@ class ResidentModel(EntityModel):
 
     @property
     def user(self):
-        return get_repository('user').get(self.user_id)
+        return get_user_repository('user').get(self.user_id)
 
     def to_dict(self):
         return dict(
@@ -144,6 +152,33 @@ class VillageModel(EntityModel):
         )
         _kwargs.update(kwargs)
         super(VillageModel, self).__init__(*args, **_kwargs)
+
+    def get_resident(self, user):
+        try:
+            return get_game_repository('resident').get_by_village_and_user(
+                self.identity, self.generation, user.identity)
+        except ValueError as e:
+            logger.info("resident repository error: {}".format(e))
+            return None
+
+    def in_game(self):
+        return self.status is VillageStatus.IN_GAME
+
+    def is_resident(self, user):
+        return self.get_resident(user) is not None
+
+    def get_residents(self, role=None):
+        return get_game_repository('resident').find(
+            village_id=self.identity,
+            generation=self.generation,
+            role=role)
+
+    def get_alive_residents(self, role=None):
+        return get_game_repository('resident').find(
+            village_id=self.identity,
+            generation=self.generation,
+            status=ResidentStatus.ALIVE,
+            role=role)
 
     def to_dict(self):
         return dict(
