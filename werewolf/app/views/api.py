@@ -73,8 +73,6 @@ def api_auth_token(context, request):
     # TODO: use old refresh_token for grant_type=refresh_token
     access_token = session.generate_access_token()
     refresh_token = session.generate_refresh_token()
-    context.repos['access_token'].save(access_token)
-    context.repos['refresh_token'].save(refresh_token)
 
     return dict(
         access_token = access_token.token,
