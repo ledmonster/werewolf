@@ -1,26 +1,74 @@
 # -*- coding: utf-8 -*-
 """ base entity model """
+import datetime
 import inspect
+import json
+import uuid
 
 from enum import Enum, EnumMeta
-from django.db import models
-from django_extensions.db.models import TimeStampedModel
-from django_extensions.db.fields import UUIDField
+from flywheel import Model, Field
+from flywheel.fields.types import TypeDefinition, NUMBER, STRING, register_type
 
 __all__ = ["EntityModel", "ValueObject"]
 
 
-class EntityModel(TimeStampedModel):
-    identity = UUIDField(version=1, auto=True, primary_key=True)
+def register_enum_type(type_class, _ddb_data_type):
+    u""" Enum 型の data_type を登録する """
 
-    def __eq__(self, other):
-        return self.identity == other.identity
+    class EnumType(TypeDefinition):
+        u""" Enum Type for {} """.format(type_class.__name__)
+        data_type = type_class
+        aliases = [type_class.__name__]
+        ddb_data_type = _ddb_data_type
 
-    def __ne__(self, other):
-        return self.identity != other.identity
+        def ddb_dump(self, value):
+            u""" DynamoDB へ書き出す際の変換 """
+            return value.value
 
-    class Meta:
-        abstract = True
+        def ddb_load(self, value):
+            u""" DynamoDB から読み込む際の変換 """
+            return type_class(value)
+
+    register_type(EnumType)
+
+
+class UUIDType(TypeDefinition):
+    u""" UUID Type """
+
+    data_type = uuid.UUID
+    aliases = ['uuid']
+    ddb_data_type = STRING
+
+    def ddb_dump(self, value):
+        u""" DynamoDB へ書き出す際の変換 """
+        return value.hex
+
+    def ddb_load(self, value):
+        u""" DynamoDB から読み込む際の変換 """
+        return uuid.UUID(hex=value)
+
+register_type(UUIDType)
+
+
+class EntityModel(Model):
+    u""" Entity Model """
+
+    identity = Field(data_type='uuid', hash_key=True)
+    created = Field(data_type=datetime.datetime, range_key=True)
+    modified = Field(data_type=datetime.datetime)
+
+    def __init__(self, *args, **kwargs):
+        _kwargs = dict(
+            identity=uuid.uuid4(),
+            created=datetime.datetime.utcnow(),
+            modified=datetime.datetime.utcnow(),
+        )
+        _kwargs.update(kwargs)
+        super(EntityModel, self).__init__(*args, **_kwargs)
+
+    __metadata__ = {
+        '_abstract': True,
+    }
 
 
 class LabeledEnumMeta(EnumMeta):
@@ -57,4 +105,23 @@ class LabeledEnum(Enum):
 
 class ValueObject(LabeledEnum):
     """ Base class for Value Object """
-    pass
+
+    def __ge__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ >= other._value_
+        return NotImplemented
+
+    def __gt__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ > other._value_
+        return NotImplemented
+
+    def __le__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ <= other._value_
+        return NotImplemented
+
+    def __lt__(self, other):
+        if self.__class__ is other.__class__:
+            return self._value_ < other._value_
+        return NotImplemented
