@@ -20,7 +20,6 @@
 
     </div>
 
-    <script src="https://plus.google.com/js/client:plusone.js" async></script>
     <script src="/bower_components/jquery/jquery.js"></script>
     <script src="/bower_components/jquery-ui/jquery-ui.js"></script>
     <script src="/bower_components/lodash/dist/lodash.js"></script>
@@ -49,5 +48,12 @@
     <script src="/scripts/view/top.js"></script>
     <script src="/scripts/view/account.js"></script>
     <script src="/scripts/view/village.js"></script>
+    <script type="text/javascript">
+     (function() {
+       var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+       po.src = 'https://apis.google.com/js/client:plusone.js';
+       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+     })();
+    </script>
   </body>
 </html>
