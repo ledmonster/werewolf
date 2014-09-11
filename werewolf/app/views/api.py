@@ -83,12 +83,12 @@ def api_auth_token(context, request):
     }
 
 
-@view_config(context=Exception, renderer='json')
-def handle_exception(exc, request):
-    if isinstance(exc, HTTPException):
-        request.response.status_int = exc.code
-        return ServerError(str(exc)).to_dict()
-    if not isinstance(exc, APIError):
-        exc = ServerError(str(exc))
-    request.response.status_int = exc.status_code
-    return exc.to_dict()
+# @view_config(context=Exception, renderer='json')
+# def handle_exception(exc, request):
+#     if isinstance(exc, HTTPException):
+#         request.response.status_int = exc.code
+#         return ServerError(str(exc)).to_dict()
+#     if not isinstance(exc, APIError):
+#         exc = ServerError(str(exc))
+#     request.response.status_int = exc.status_code
+#     return exc.to_dict()
