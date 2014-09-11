@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import uuid
-
+from werewolf.domain.base import Identity
 from werewolf.domain.user.models import *
 
 
@@ -16,12 +15,7 @@ class UserRepository(object):
         return user
 
     def get(self, identity):
-        if isinstance(identity, basestring):
-            identity = uuid.UUID(hex=identity)
-        elif isinstance(identity, int):
-            identity = uuid.UUID(int=identity)
-        elif not isinstance(identity, uuid.UUID):
-            raise ValueError
+        identity = Identity(identity)
         return self.engine(User).filter(identity=identity).one()
 
     def get_by_name(self, name):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import uuid
-
+from werewolf.domain.base import Identity
 from werewolf.domain.user.models import *
 
 
@@ -43,12 +42,7 @@ class ClientSessionRepository(object):
         self.engine = engine
 
     def get(self, identity):
-        if isinstance(identity, basestring):
-            identity = uuid.UUID(hex=identity)
-        elif isinstance(identity, int):
-            identity = uuid.UUID(int=identity)
-        elif not isinstance(identity, uuid.UUID):
-            raise ValueError
+        identity = Identity(identity)
         return self.engine(ClientSession).filter(identity=identity).one()
 
     def create(self, user_id):

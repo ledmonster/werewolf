@@ -34,8 +34,8 @@ class EventModel(EntityModel):
     u""" event """
 
     event_type = Field(data_type='EventType')
-    user_id = Field(data_type='uuid')
-    village_id = Field(data_type='uuid')
+    user_id = Field(data_type='identity')
+    village_id = Field(data_type='identity')
     generation = Field(data_type=int)
     content = Field(data_type=dict)
 

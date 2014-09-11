@@ -51,7 +51,7 @@ class OAuth2AuthenticationPolicy(CallbackAuthenticationPolicy):
         client_session_id = auth_token.client_session_id
         client_session = repo_session.get(client_session_id)
 
-        return client_session.user_id
+        return client_session.user_id.hex
 
     def remember(self, request, principal, **kw):
         """

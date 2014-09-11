@@ -43,7 +43,7 @@ class User(EntityModel):
 
 class UserCredential(Model):
     u""" user credential model """
-    user_id = Field(data_type='uuid', hash_key=True)
+    user_id = Field(data_type='identity', hash_key=True)
     credential_type = Field(data_type='CredentialType', index='credentail-type-index')
     key = Field(data_type=str)
     secret = Field(data_type=str)
