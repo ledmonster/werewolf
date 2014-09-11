@@ -5,11 +5,9 @@ monkey.patch_all()
 
 import datetime
 import os
-import uuid
 
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from pyramid.renderers import JSON
 
 from werewolf.app.authn import OAuth2AuthenticationPolicy
 
@@ -20,19 +18,6 @@ def add_static_view(config, dir_name, view_root=None, cache_max_age=3600):
         os.path.join('static', view_root if view_root is not None else dir_name),
         cache_max_age=cache_max_age,
     )
-
-
-def datetime_adapter(obj, request):
-    return obj.isoformat()
-
-
-def uuid_adapter(obj, request):
-    return obj.hex
-
-
-json_renderer = JSON()
-json_renderer.add_adapter(datetime.datetime, datetime_adapter)
-json_renderer.add_adapter(uuid.UUID, uuid_adapter)
 
 
 def main(global_config, **settings):
@@ -48,7 +33,7 @@ def main(global_config, **settings):
     )
     config.include('pyramid_jinja2')
     config.add_renderer(".html", "pyramid_jinja2.renderer_factory")
-    config.add_renderer('json', json_renderer)
+    config.add_renderer('json', "werewolf.app.renderer.json_renderer")
 
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(authz_policy)
