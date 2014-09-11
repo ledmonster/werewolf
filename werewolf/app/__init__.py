@@ -45,10 +45,13 @@ def main(global_config, **settings):
 
     config.add_route('layout', '/')
 
+    config.add_route('api_user', '/api/v1/user')
+    config.add_route('api_user_nickname_update', '/api/v1/user/nickname/update')
+    config.add_route('api_auth_token', '/api/v1/auth/token')
+
     config.add_route('api_village_list', '/api/v1/village/list')
     config.add_route('api_village_detail', '/api/v1/village/{identity}')
     config.add_route('api_village_join', '/api/v1/village/join')
-    config.add_route('api_auth_token', '/api/v1/auth/token')
 
     config.add_route('socketio', '/socket.io/*remaining')
 

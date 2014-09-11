@@ -9,6 +9,21 @@ from werewolf.domain.user.models import *
 from werewolf.domain.user.exception import *
 
 
+@view_config(route_name='api_user', renderer='json')
+def api_user(context, request):
+    user = context.repos['user'].get(request.authenticated_userid)
+    return user.to_dict()
+
+
+@view_config(route_name='api_user_nickname_update', renderer='json')
+def api_user_nickname_update(context, request):
+    user = context.repos['user'].get(request.authenticated_userid)
+    nickname = request.params['nickname']
+    user.name = nickname
+    user = context.repos['user'].update(user)
+    return user.to_dict()
+
+
 @view_config(route_name='api_village_list', renderer='json')
 def api_village_list(context, request):
     repo_village = context.repos['village']
