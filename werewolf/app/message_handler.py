@@ -213,7 +213,8 @@ class MessageHandler(object):
             contents.append(u"住人構成：{}".format(", ".join([r.label for r in roles])))
             try:
                 resident = village.get_resident(user)
-                contents.append(u"あなたは「{resident.role.label}」です。（{resident.status.label}）".format(resident=resident))
+                if resident is not None:
+                    contents.append(u"あなたは「{resident.role.label}」です。（{resident.status.label}）".format(resident=resident))
             except GameException as e:
                 pass
 
