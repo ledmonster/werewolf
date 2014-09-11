@@ -81,7 +81,8 @@ class ChatNamespace(BaseNamespace):
     @auth_required
     def on_message(self, message):
         u"""" クライアントから受信したメッセージを処理 (event == 'message') """
-        msg_list = self.message_handler.dispatch(self.village_id, self.session.get('user'), message)
+        msg_list = self.message_handler.dispatch(
+            self.village_id, self.session.get('user'), message)
         if not isinstance(msg_list, list):
             msg_list = [msg_list]
 
@@ -142,7 +143,6 @@ class ChatNamespace(BaseNamespace):
 @view_config(route_name='socketio', permission='everyone')
 def socketio_service(context, request):
     try:
-        # request.context = context
         socketio_manage(request.environ, {'/chat': ChatNamespace}, request)
     except:
         logger.error("Exception while handling socketio connection",
