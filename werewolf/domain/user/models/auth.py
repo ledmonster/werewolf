@@ -4,6 +4,7 @@ import datetime
 from flywheel import Model, Field
 
 from werewolf.domain.base import EntityModel, ValueObject
+from werewolf.domain.user import get_repository
 
 
 def generate_token():
@@ -21,19 +22,27 @@ class ClientSession(EntityModel):
     u""" Client Session """
     user_id = Field(data_type='identity')
 
+    @property
+    def user(self):
+        return get_repository('user').get(self.user_id)
+
     def generate_access_token(self):
-        expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN_)
-        return AccessToken(
+        expires_at = datetime.datetime.now() + \
+            datetime.timedelta(seconds=AccessToken.EXPIRES_IN_)
+        token = AccessToken(
             token=generate_token(),
             client_session_id=self.identity,
             expires_at=expires_at)
+        return get_repository('access_token').add(token)
 
     def generate_refresh_token(self):
-        expires_at = datetime.datetime.now() + datetime.timedelta(seconds=RefreshToken.EXPIRES_IN_)
-        return RefreshToken(
+        expires_at = datetime.datetime.now() + \
+            datetime.timedelta(seconds=RefreshToken.EXPIRES_IN_)
+        token = RefreshToken(
             token=generate_token(),
             client_session_id=self.identity,
             expires_at=expires_at)
+        return get_repository('refresh_token').add(token)
 
 
 class AccessToken(Model):
