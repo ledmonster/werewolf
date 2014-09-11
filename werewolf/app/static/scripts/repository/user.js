@@ -59,6 +59,13 @@ namespace('werewolf.repository.user', function(ns) {
             data: {nickname: nickname},
             dataType: 'json'
         })
+            .flatMap(function (response){
+                if (response.result == "error") {
+                    return new Bacon.Error(response.message);
+                } else {
+                    return response.user;
+                }
+            })
             .map(function (user) {
                 return new werewolf.model.user.User(user.identity, user.name, user.email, user.status, user.hue);
             }).toProperty();

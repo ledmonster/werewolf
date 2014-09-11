@@ -32,12 +32,27 @@ namespace('werewolf.view.account', function(ns) {
                             $msg = $('#msg'),
                             nickname = Bacon.$.textFieldValue($nickname);
 
-                        nickname.sampledBy($updateButton.clickE())
-                            .flatMap(userRepo, "updateNickname")
-                            .log()
-                            .onValue(function() {
-                                $msg.text('更新しました');
+                        nickname
+                            .onValue(function(value) {
+                                if (value.match(/^\w+$/)) {
+                                    $msg.text('');
+                                    $updateButton.prop("disabled", false);
+                                } else {
+                                    $msg.text('ニックネームには半角英数字しか利用できません');
+                                    $updateButton.prop("disabled", true);
+                                }
                             });
+
+                        var response = nickname
+                                .sampledBy($updateButton.clickE())
+                                .flatMap(userRepo, "updateNickname");
+
+                        response.onError(function(error) {
+                            $msg.text(error);
+                        });
+                        response.onValue(function() {
+                            $msg.text('更新しました');
+                        });
                     });
             }
         });
