@@ -36,9 +36,24 @@ class User(EntityModel):
     hue = Field(data_type=int)
     status = Field(data_type='UserStatus')
 
+    def __init__(self, *args, **kwargs):
+        _kwargs = dict(
+            status=UserStatus.ENABLED,
+        )
+        _kwargs.update(kwargs)
+        super(User, self).__init__(*args, **_kwargs)
+
     def get_avatar_url(self, size):
         return "http://www.gravatar.com/avatar/{}?s={:d}".format(
             hashlib.md5(self.email.lower()).hexdigest(), size)
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "email": self.email,
+            "hue": self.hue,
+            "status": self.status.value,
+        }
 
 
 class UserCredential(Model):

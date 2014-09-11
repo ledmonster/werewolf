@@ -74,11 +74,13 @@ def api_auth_token(context, request):
     access_token = session.generate_access_token()
     refresh_token = session.generate_refresh_token()
 
-    return dict(
-        access_token = access_token.token,
-        token_type = 'bearer',
-        expires_in = (access_token.expires_at - datetime.datetime.now()).seconds,
-        refresh_token = refresh_token.token)
+    return {
+        "access_token": access_token.token,
+        "token_type": 'bearer',
+        "expires_in": (access_token.expires_at - datetime.datetime.now()).seconds,
+        "refresh_token": refresh_token.token,
+        "user": session.user.to_dict(),
+    }
 
 
 @view_config(context=Exception, renderer='json')
