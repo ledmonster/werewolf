@@ -19,9 +19,15 @@ def api_user(context, request):
 def api_user_nickname_update(context, request):
     user = context.repos['user'].get(request.authenticated_userid)
     nickname = request.params['nickname']
+    try:
+        existing = context.repos['user'].get_by_name(nickname)
+        if existing.identity != user.identity:
+            return {"result": "error", "message": u"既に使われています"}
+    except ValueError:
+        pass
     user.name = nickname
     user = context.repos['user'].update(user)
-    return user.to_dict()
+    return {"result": "success", "user": user.to_dict()}
 
 
 @view_config(route_name='api_village_list', renderer='json')
