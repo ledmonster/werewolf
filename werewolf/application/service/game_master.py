@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" deprecated """
+
 """ game master service on application layer, which manages games'
  time scheduling or so on. """
 

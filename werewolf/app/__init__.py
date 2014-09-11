@@ -5,11 +5,7 @@ monkey.patch_all()
 
 import datetime
 import os
-
-
-# initialize django
-os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
-
+import uuid
 
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
@@ -27,11 +23,16 @@ def add_static_view(config, dir_name, view_root=None, cache_max_age=3600):
 
 
 def datetime_adapter(obj, request):
-        return obj.isoformat()
+    return obj.isoformat()
+
+
+def uuid_adapter(obj, request):
+    return obj.hex
 
 
 json_renderer = JSON()
 json_renderer.add_adapter(datetime.datetime, datetime_adapter)
+json_renderer.add_adapter(uuid.UUID, uuid_adapter)
 
 
 def main(global_config, **settings):

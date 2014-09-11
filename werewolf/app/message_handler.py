@@ -21,25 +21,24 @@ class MessageHandler(object):
     @help:    ヘルプ表示
     """
 
-    @classmethod
-    def get_auth_error_message(cls):
+    def __init__(self, context):
+        self.context = context
+
+    def get_auth_error_message(self):
         return Message(u"認証に失敗しました")
 
-    @classmethod
-    def get_coming_message(cls, user):
+    def get_coming_message(self, user):
         return Message(u"{} さんが村にやってきました".format(user.name))
 
-    @classmethod
-    def get_leaving_message(cls, user):
+    def get_leaving_message(self, user):
         return Message(u"{} さんが村を立ち去りました".format(user.name))
 
-    @classmethod
-    def get_initial_messages(cls, village_id, user):
+    def get_initial_messages(self, village_id, user):
         u"""
         接続時に過去メッセージを取得する
         TODO: user を使う
         """
-        game = Game.get_instance(village_id)
+        game = GameService(self.context, village_id)
         events = game.get_current_events()
 
         messages = []
@@ -67,52 +66,47 @@ class MessageHandler(object):
             messages.append(message)
         return messages
 
-    @classmethod
-    def dispatch(cls, village_id, user, msg):
+    def dispatch(self, village_id, user, msg):
         u""" メッセージを各処理に振り分ける """
         msg = msg.strip()
         if msg.startswith("@"):
             cmd_name = msg.split()[0][1:]
             cmd_args = msg.split()[1:]
             method_name = "do_" + cmd_name
-            if hasattr(cls, method_name):
-                method = getattr(cls, method_name)
+            if hasattr(self, method_name):
+                method = getattr(self, method_name)
                 return method(village_id, user, msg, cmd_args)
             else:
-                return cls.do_help(village_id, user, msg, cmd_args)
+                return self.do_help(village_id, user, msg, cmd_args)
         else:
-            return cls.do_message(village_id, user, msg, [])
+            return self.do_message(village_id, user, msg, [])
 
-    @classmethod
-    def do_message(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_message(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             msg_event = game.store_message(user, msg)
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(msg_event.message, user)
 
-    @classmethod
-    def do_join(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_join(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             resident = game.join(user)
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"{} さんが村に参加しました".format(user.name))
 
-    @classmethod
-    def do_leave(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_leave(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             game.leave(user)
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"{} さんが村から出ました".format(user.name))
 
-    @classmethod
-    def do_start(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_start(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             village = game.start()
         except GameException as e:
@@ -125,18 +119,16 @@ class MessageHandler(object):
                 Message(u"あなたは「{role.label}」です".format(role = r.role), None, r.user))
         return messages
 
-    @classmethod
-    def do_reset(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_reset(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             village = game.reset()
         except GameException as e:
             return Message(unicode(e), None, user)
         return Message(u"第{:d}回のゲームをリセットしました".format(village.generation))
 
-    @classmethod
-    def do_night(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_night(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             targets = game.execute_night()
         except GameException as e:
@@ -175,9 +167,8 @@ class MessageHandler(object):
 
         return messages
 
-    @classmethod
-    def do_set(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_set(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             target_name = args and args[0] or ""
             game.set_execution_target(user, target_name)
@@ -185,9 +176,8 @@ class MessageHandler(object):
             return Message(unicode(e), None, user)
         return Message(u"{} を吊り対象にセットしました".format(target_name), None, user)
 
-    @classmethod
-    def do_attack(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_attack(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             target_name = args and args[0] or ""
             game.set_attack_target(user, target_name)
@@ -195,9 +185,8 @@ class MessageHandler(object):
             return Message(unicode(e), None, user)
         return Message(u"{} を襲撃対象にセットしました".format(target_name), None, user)
 
-    @classmethod
-    def do_hunt(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_hunt(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             target_name = args and args[0] or ""
             game.set_hunt_target(user, target_name)
@@ -205,9 +194,8 @@ class MessageHandler(object):
             return Message(unicode(e), None, user)
         return Message(u"{} を道連れ対象にセットしました".format(target_name), None, user)
 
-    @classmethod
-    def do_fortune(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_fortune(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         try:
             target_name = args and args[0] or ""
             game.set_fortune_target(user, target_name)
@@ -215,9 +203,8 @@ class MessageHandler(object):
             return Message(unicode(e), None, user)
         return Message(u"{} を占い対象にセットしました".format(target_name), None, user)
 
-    @classmethod
-    def do_state(cls, village_id, user, msg, args):
-        game = Game.get_instance(village_id)
+    def do_state(self, village_id, user, msg, args):
+        game = GameService(self.context, village_id)
         village = game.village
         residents = game.get_residents()
         contents = []
@@ -236,7 +223,7 @@ class MessageHandler(object):
         if residents:
             contents.append("")
             contents.append(u"■住人")
-            contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.status.label) for r in residents]))
+            contents.append("\n".join([u"・{} （{}）".format(r.name, r.status) for r in residents]))
 
         from pyramid.threadlocal import get_current_request
         current_socket = get_current_request().environ["socketio"]
@@ -248,13 +235,12 @@ class MessageHandler(object):
 
         contents.append("")
         contents.append(u"■接続ユーザ")
-        contents.append("\n".join([u"・{} （{:d}接続）".format(u, n) for u, n in users.iteritems()]))
+        contents.append("\n".join([u"・{} （{:d}接続）".format(u.name, n) for u, n in users.iteritems()]))
 
         return Message("\n".join(contents), None, user)
 
-    @classmethod
-    def do_help(cls, village_id, user, msg, args):
-        content = cls.__doc__.strip()
+    def do_help(self, village_id, user, msg, args):
+        content = self.__doc__.strip()
         return Message(content, None, user)
 
 
@@ -280,9 +266,9 @@ class Message(object):
         default_avatar = "http://www.gravatar.com/avatar/?f=y&s=30"
         return dict(
             content = self.content,
-            sender_id = self.sender and self.sender.identity or None,
+            sender_id = self.sender and self.sender.identity.hex or None,
             sender_name = self.sender and self.sender.name or u"★Game Master★",
             sender_hue = self.sender and self.sender.hue or 0,
             sender_avatar = self.sender and self.sender.get_avatar_url(30) or default_avatar,
-            receiver_id = self.receiver and self.receiver.identity or None,
+            receiver_id = self.receiver and self.receiver.identity.hex or None,
         )

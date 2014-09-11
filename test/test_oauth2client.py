@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 
-# initialize django
-os.environ["DJANGO_SETTINGS_MODULE"] = "werewolf.settings"
-
 from werewolf import settings
 from werewolf.auth import IdTokenAuthenticator
 

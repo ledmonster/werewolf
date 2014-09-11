@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-""" client session """
 import datetime
-from django.db import models
+
+from flywheel import Model, Field
 
 from werewolf.domain.base import EntityModel, ValueObject
 
@@ -18,47 +18,44 @@ class GrantType(ValueObject):
 
 
 class ClientSession(EntityModel):
-    """ Client Session """
-    user = models.ForeignKey('User')
+    u""" Client Session """
+    user_id = Field(data_type='uuid')
 
     def generate_access_token(self):
-        expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN)
-        return AccessToken.objects.create(client_session=self, expires_at=expires_at)
+        expires_at = datetime.datetime.now() + datetime.timedelta(seconds=AccessToken.EXPIRES_IN_)
+        return AccessToken(
+            token=generate_token(),
+            client_session_id=self.identity,
+            expires_at=expires_at)
 
     def generate_refresh_token(self):
-        expires_at = datetime.datetime.now() + datetime.timedelta(seconds=RefreshToken.EXPIRES_IN)
-        return RefreshToken.objects.create(client_session=self, expires_at=expires_at)
+        expires_at = datetime.datetime.now() + datetime.timedelta(seconds=RefreshToken.EXPIRES_IN_)
+        return RefreshToken(
+            token=generate_token(),
+            client_session_id=self.identity,
+            expires_at=expires_at)
 
-    class Meta:
-        app_label = 'werewolf'
 
+class AccessToken(Model):
+    u""" Access Token """
+    EXPIRES_IN_ = 3600 * 24
 
-class AccessToken(models.Model):
-    """ access token """
-    EXPIRES_IN = 3600 * 24
-
-    token = models.CharField(max_length=32, primary_key=True, default=generate_token)
-    expires_at = models.DateTimeField()
-    client_session = models.ForeignKey('ClientSession')
+    token = Field(data_type=unicode, hash_key=True)
+    expires_at = Field(data_type=datetime.datetime)
+    client_session_id = Field(data_type='uuid')
 
     def revoke(self):
         u""" TODO: Implement revoke """
         raise NotImplemented()
 
     def is_revoked(self):
-        return self.expires_at < datetime.datetime.now()
-
-    class Meta:
-        app_label = 'werewolf'
+        return self.expires_at < datetime.datetime.utcnow()
 
 
-class RefreshToken(models.Model):
-    """ refresh token """
-    EXPIRES_IN = 3600 * 24 * 365  # 1 year
+class RefreshToken(Model):
+    u""" refresh token """
+    EXPIRES_IN_ = 3600 * 24 * 365  # 1 year
 
-    token = models.CharField(max_length=32, primary_key=True, default=generate_token)
-    expires_at = models.DateTimeField()
-    client_session = models.ForeignKey('ClientSession')
-
-    class Meta:
-        app_label = 'werewolf'
+    token = Field(data_type=unicode, hash_key=True)
+    expires_at = Field(data_type=datetime.datetime)
+    client_session_id = Field(data_type='uuid')
