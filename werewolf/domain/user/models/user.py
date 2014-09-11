@@ -32,7 +32,7 @@ register_enum_type(CredentialType, NUMBER)
 class User(EntityModel):
     u""" user model """
     name = Field(data_type=unicode)
-    email = Field(data_type=str, index='email-index')
+    email = Field(data_type=unicode, index='email-index')
     hue = Field(data_type=int)
     status = Field(data_type='UserStatus')
 
