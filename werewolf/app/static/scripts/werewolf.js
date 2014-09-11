@@ -6,6 +6,7 @@ $(document).ready(function() {
 
         routes: {
             '/': 'top',
+            '/account/nickname': 'account_nickname',
             '/village/list': 'village_list',
             '/village/:identity': 'village_detail'
         },

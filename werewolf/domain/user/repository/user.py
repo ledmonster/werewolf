@@ -24,6 +24,10 @@ class UserRepository(object):
     def get_by_email(self, email):
         return self.engine(User).filter(email=email).one()
 
+    def update(self, entity):
+        self.engine.sync(entity)
+        return entity
+
 
 class UserCredentialRepository(object):
     u""" UserCredential のリポジトリ """

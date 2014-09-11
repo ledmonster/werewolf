@@ -220,7 +220,7 @@ class MessageHandler(object):
         if residents:
             contents.append("")
             contents.append(u"■住人")
-            contents.append("\n".join([u"・{} （{}）".format(r.name, r.status.label) for r in residents]))
+            contents.append("\n".join([u"・{} （{}）".format(r.user.name, r.status.label) for r in residents]))
 
         from pyramid.threadlocal import get_current_request
         current_socket = get_current_request().environ["socketio"]
