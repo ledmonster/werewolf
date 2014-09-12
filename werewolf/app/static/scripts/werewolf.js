@@ -27,4 +27,7 @@ werewolf.$.on('initialize', function(router) {
 
     router.$bodyContainer = $('#body-container');
     router.$headerContainer = $('#header-container');
+
+    // register handlebars helpers
+    werewolf.helper.Handlebars.registerFormatMessage();
 });

@@ -115,15 +115,12 @@ namespace('werewolf.view.village', function(ns) {
                         } else {
                             socket.on('connect', function() {
                                 console.log('socket: connected');
-
-                                // 村に参加する
                                 socket.emit('join', village.identity);
                             });
                         }
 
                         socket.on('error', function(error) {
-                            console.log('socket: got error from server');
-                            console.log(error);
+                            console.log('socket: got error from server: ' + error);
                             socket.disconnect();
                             alert("Sorry, error occured on websocket. Please reload the page.");
                         });
@@ -135,36 +132,7 @@ namespace('werewolf.view.village', function(ns) {
 
                         socket.on('message', function(data) {
                             console.log(data);
-
-                            var message = $("<div>").addClass("row").append(
-                                $("<div>")
-                                    .addClass("col-xs-2")
-                                    .append(
-                                        $("<img>")
-                                            .attr("src", data.sender_avatar)
-                                    )
-                            ).append(
-                                $("<div>")
-                                    .addClass("col-xs-10")
-                                    .append(
-                                        $("<div>")
-                                            .addClass("row sender")
-                                            .css({"color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
-                                            .text(data.sender_name)
-                                    ).append(
-                                        $("<div>")
-                                            .addClass("row")
-                                            .append(
-                                                $("<div>")
-                                                    .addClass("message")
-                                                    .css({"border-color": "hsl(" + data.sender_hue + ", 70%, 70%)"})
-                                                    .html(
-                                                        nl2br(escapeHtml(data.content))
-                                                    )
-                                            )
-                                    )
-                            );
-                            $('#message_area').append(message);
+                            $('#message_area').append(werewolf.template['message'](data));
                             scrollToBottom();
                         });
 

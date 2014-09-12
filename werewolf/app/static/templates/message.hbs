@@ -1,0 +1,15 @@
+<div class="row">
+  <div class="col-xs-2">
+    <img src="{{ sender_avater }}">
+  </div>
+  <div class="col-xs-10">
+    <div class="row sender" style="color: hsl({{ sender_hue }}, 70%, 70%)">
+      {{ sender_name }}
+    </div>
+    <div class="row">
+      <div class="message" style="border-color: hsl({{ sender_hue }}, 70%, 70%)">
+        {{ formatMessage content }}
+      </div>
+    </div>
+  </div>
+</div>
