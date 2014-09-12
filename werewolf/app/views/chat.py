@@ -82,7 +82,7 @@ class ChatNamespace(BaseNamespace):
 
     @auth_required
     def on_message(self, message):
-        u"""" クライアントから受信したメッセージを処理 (event == 'message') """
+        u"""" クライアントから受信したメッセージを処理 """
         msg_list = self.message_handler.dispatch(
             self.village_id, self.session.get('user'), message)
         if not isinstance(msg_list, list):

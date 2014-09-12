@@ -20,7 +20,7 @@ namespace('werewolf.view.top', function(ns) {
                     .onValue(function (params) {
 
                         // よくわからないけど safari で自動ログインがうまく動かないので追加
-                        gapi.signin.go('g-connect');
+                        // gapi.signin.go('g-connect');
 
                         var $result = $('#result'),
                             $authResult = $('#auth-result'),
