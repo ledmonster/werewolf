@@ -45,5 +45,4 @@ class EventModel(EntityModel):
 
     @property
     def user(self):
-        return ge# -*- coding: utf-8 -*-
-""" event """
+        return get_repository('user').get(self.user_id)
