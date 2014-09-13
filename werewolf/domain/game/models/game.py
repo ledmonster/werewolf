@@ -51,6 +51,16 @@ class GameService(object):
     def start(self):
         if self.village.in_game():
             raise GameException(u"既にゲームは始まっています")
+
+        # temporary logic for demo
+        com1 = self.repo_user.get('d4d8722d-3c15-4eee-9a76-dcc30bcd272f');
+        com2 = self.repo_user.get('c7a7f5fa-8113-40b1-9fd7-a4e07ceb89f2');
+        com3 = self.repo_user.get('be5ff2bf-f72f-44ee-a792-15e6f24ebf11');
+
+        self.join(com1)
+        self.join(com2)
+        self.join(com3)
+
         residents = self.assign_roles(self.village.get_residents())
         self.village = self.repo_village.update_status(
             self.village.identity, VillageStatus.IN_GAME)
