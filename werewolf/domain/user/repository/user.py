@@ -19,7 +19,10 @@ class UserRepository(object):
         return self.engine(User).filter(identity=identity).one()
 
     def get_by_name(self, name):
-        return self.engine(User).filter(name=name).one()
+        try:
+            return self.engine.scan(User).filter(name=unicode(name)).all()[0]
+        except IndexError:
+            raise ValueError('user not found. name: {}'.format(name))
 
     def get_by_email(self, email):
         return self.engine(User).filter(email=email).one()

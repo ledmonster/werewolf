@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from werewolf.domain.game.models import *
 from werewolf.domain.base import Identity
+
+
+logger = logging.Logger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class VillageRepository(object):
@@ -55,13 +61,23 @@ class ResidentRepository(object):
     def __init__(self, engine):
         self.engine = engine
 
+    def get(self, identity):
+        identity = Identity(identity)
+        return self.engine(ResidentModel).filter(identity=identity).one()
+
     def get_by_village_and_user(self, village_id, generation, user_id):
         u""" village_id と user_id から resident を取得 """
-        return self.engine.scan(ResidentModel).filter(
-            village_id=village_id,
-            generation=generation,
-            user_id=user_id,
-        ).one()
+
+        # TODO: flywheel のバグで scan と one() を組み合わせると正しい結果が返らない
+        # ので all()[0] を使う
+        try:
+            return self.engine.scan(ResidentModel).filter(
+                village_id=Identity(village_id),
+                generation=int(generation),
+                user_id=Identity(user_id),
+            ).all()[0]
+        except IndexError:
+            return None
 
     def find(self, village_id, generation, **extra_criteria):
         u""" 村のIDとgenerationを元にresidentsを返す """

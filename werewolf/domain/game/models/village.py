@@ -201,3 +201,11 @@ class BehaviorModel(EntityModel):
     day = Field(data_type=int)
     resident_id = Field(data_type='identity')
     target_resident_id = Field(data_type='identity')
+
+    @property
+    def resident(self):
+        return get_game_repository('resident').get(self.resident_id)
+
+    @property
+    def target_resident_(self):
+        return get_game_repository('resident').get(self.target_resident_id)

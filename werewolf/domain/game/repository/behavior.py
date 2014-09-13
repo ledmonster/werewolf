@@ -32,10 +32,16 @@ class BehaviorRepository(object):
         return behavior
 
     def get_by_type_and_resident(self, village, behavior_type, resident_id):
-        return self.engine(BehaviorModel).filter(
-            behavior_type=behavior_type,
-            village_id=village.identity,
-            generation=village.generation,
-            day=village.day,
-            resident_id=resident_id
-        ).one()
+
+        # TODO: flywheel のバグで scan と one() を組み合わせると正しい結果が返らない
+        # ので all()[0] を使う
+        try:
+            return self.engine.scan(BehaviorModel).filter(
+                behavior_type=behavior_type,
+                village_id=village.identity,
+                generation=village.generation,
+                day=village.day,
+                resident_id=resident_id
+            ).all()[0]
+        except IndexError:
+            raise ValueError('behavior not found')

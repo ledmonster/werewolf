@@ -101,6 +101,7 @@ class GameService(object):
             raise GameException(u"ゲームは始まっていません")
         self.village = self.repo_village.increment_generation(
             self.village.identity)
+
         return self.village
 
     def go_to_next_day(self):
@@ -253,7 +254,7 @@ class GameService(object):
         if targets['execution']:
             residents = self.kill_resident(targets['execution'])
             if targets['execution'].role is Role.HUNTER:
-                targets['hunt'] = self.select_hunt_target(hunter, residents)
+                targets['hunt'] = self.select_hunt_target(residents)
                 residents = self.kill_resident(targets['hunt'])
 
         # 襲撃
@@ -261,7 +262,7 @@ class GameService(object):
         if targets['attack']:
             residents = self.kill_resident(targets['attack'])
             if targets['execution'].role is Role.HUNTER:
-                targets['hunt'] = self.select_hunt_target(hunter, residents)
+                targets['hunt'] = self.select_hunt_target(residents)
                 residents = self.kill_resident(targets['hunt'])
 
         self.record_event(NightEvent(self.village, targets))
@@ -282,9 +283,9 @@ class GameService(object):
         wolves = [r for r in residents if r.role is Role.WOLF]
         return self.select_action_target(BehaviorType.ATTACK, wolves, humans)
 
-    def select_hunt_target(self, hunter, residents):
-        target = self.select_action_target(BehaviorType.HUNT, [hunter], residents)
-        self.kill_resident(target)
+    def select_hunt_target(self, residents):
+        hunters = [r for r in residents if r.role is Role.HUNTER]
+        return self.select_action_target(BehaviorType.HUNT, hunters, residents)
 
     def select_fortune_target(self, residents):
         tellers = [r for r in residents if r.role is Role.TELLER]
@@ -297,13 +298,16 @@ class GameService(object):
             try:
                 behavior = self.repo_behavior.\
                            get_by_type_and_resident(self.village, behavior_type, r.identity)
-                voted.append(behavior.target_resident)
+                voted.append(behavior.target_resident_id)
             except ValueError:
-                # ランダム選択. ここのロジックは Model に __eq__ が定義されてるからできる
-                targets = [rr for rr in targets if rr != r]
-                if targets:
-                    voted.append(util.shuffle(targets)[0])
-        return util.select_most_voted(voted)
+                my_targets = [rr.identity for rr in targets if rr.identity != r.identity]
+                if my_targets:
+                    voted.append(util.shuffle(my_targets)[0])
+
+        most_voted_id = util.select_most_voted(voted)
+        if most_voted_id:
+            return self.repo_resident.get(most_voted_id)
+        return None
 
     def store_message(self, user, message):
         u"""
