@@ -4,8 +4,8 @@ Game class aggregates objects behind this game. """
 
 import random
 
-from werewolf.domain.user.models import *
-from werewolf.domain.game.models import *
+from werewolf.domain.user import *
+from werewolf.domain.game import *
 from werewolf.domain.game.exception import GameException, GameNotFinished
 import werewolf.infra.util as util
 

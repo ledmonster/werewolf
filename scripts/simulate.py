@@ -6,9 +6,9 @@ from pyramid.paster import bootstrap
 
 from werewolf.app.resource import RootResource
 from werewolf.domain.base import Identity
-from werewolf.domain.user.models import *
+from werewolf.domain.user import *
 from werewolf.domain.user.repository import *
-from werewolf.domain.game.models import *
+from werewolf.domain.game import *
 from werewolf.domain.game.repository import *
 from werewolf.domain.game.exception import GameException, GameNotFinished
 

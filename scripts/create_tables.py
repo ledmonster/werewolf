@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from flywheel import Engine
 
-from werewolf.domain.user.models import *
-from werewolf.domain.game.models import *
+from werewolf.domain.user import *
+from werewolf.domain.game import *
 from werewolf.domain.game.repository import *
 
 

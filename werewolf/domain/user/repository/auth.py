@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from werewolf.domain.base import Identity
-from werewolf.domain.user.models import *
+from werewolf.domain.user import *
 
 
 class AccessTokenRepository(object):

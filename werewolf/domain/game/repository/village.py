@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from werewolf.domain.game.models import *
+from werewolf.domain.game import *
 from werewolf.domain.base import Identity
 
 

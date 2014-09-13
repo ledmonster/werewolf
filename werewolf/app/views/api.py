@@ -4,8 +4,8 @@ import datetime
 
 from pyramid.view import view_config
 
-from werewolf.domain.game.models import *
-from werewolf.domain.user.models import *
+from werewolf.domain.game import *
+from werewolf.domain.user import *
 from werewolf.domain.user.exception import *
 
 

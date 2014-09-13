@@ -7,8 +7,8 @@ from pyramid.view import view_config
 from socketio.namespace import BaseNamespace
 from socketio import socketio_manage
 
-from werewolf.domain.game.models import *
-from werewolf.domain.user.models import *
+from werewolf.domain.game import *
+from werewolf.domain.user import *
 
 
 logger = logging.getLogger(__name__)

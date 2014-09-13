@@ -7,7 +7,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPUnauthorized
 from zope.interface import implementer
 
-from werewolf.domain.user.models import AccessToken
+from werewolf.domain.user import AccessToken
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from werewolf.domain.game.models.event_model import EventModel, EventType
+from werewolf.domain.game.event_model import EventModel, EventType
 
 class Event(object):
     u""" イベントのベースクラス """
