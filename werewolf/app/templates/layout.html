@@ -34,12 +34,12 @@
     <script src="/bower_components/socket.io-client/dist/socket.io.js"></script>
     <script>WEB_SOCKET_SWF_LOCATION="/bower_components/socket.io-client/dist/WebSocketMain.swf";</script>
 
+    <script src="/scripts/auth.js"></script>
     <script src="/scripts/helper.js"></script>
     <script src="/scripts/model.js"></script>
     <script src="/scripts/templates.js"></script>
     <script src="/scripts/router.js"></script>
     <script src="/scripts/view.js"></script>
-    <script src="/scripts/auth.js"></script>
     <script src="/scripts/werewolf.js"></script>
     <script src="/scripts/model/user.js"></script>
     <script src="/scripts/model/village.js"></script>
@@ -52,7 +52,7 @@
     <script type="text/javascript">
      (function() {
        var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-       po.src = 'https://apis.google.com/js/client:plusone.js';
+       po.src = 'https://apis.google.com/js/client:plusone.js?onload=onLoadGoogleLibrary';
        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
      })();
     </script>

@@ -2,13 +2,18 @@ namespace('werewolf.auth', function(ns) {
 
     'use strict';
 
+    ns.isLoggedIn = isLoggedIn;
     ns.on = on;
     ns.trigger = trigger;
     ns.disconnect = disconnect;
     ns.authenticateByIdToken = authenticateByIdToken;
-    window.onGoogleSignInCallback = onGoogleSignIn;
+    window.onLoadGoogleLibrary = onLoadGoogleLibrary;
 
     var _event = new Bacon.Bus();
+
+    function isLoggedIn() {
+        return !! localStorage.getItem("access_token");
+    }
 
     function trigger(eventName, params) {
         _event.push({event: eventName, params: params});
@@ -16,6 +21,20 @@ namespace('werewolf.auth', function(ns) {
 
     function on(eventName, f) {
         _event.where().containerOf({event: eventName}).map(".params").onValue(f);
+    }
+
+    function onLoadGoogleLibrary() {
+        var params = {
+            'clientid': "793850702446.apps.googleusercontent.com",
+            'cookiepolicy': "single_host_origin",
+            'callback': onGoogleSignIn,
+            'scope': "https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.profile openid email"
+        };
+        var $googleLoginButton = $('#google-login');
+        $googleLoginButton.clickE()
+            .onValue(function() {
+                gapi.auth.signIn(params);
+            });
     }
 
     function onGoogleSignIn(response) {
@@ -52,7 +71,7 @@ namespace('werewolf.auth', function(ns) {
      */
     function disconnect() {
         var $authResult = $('#auth-result'),
-            $gConnect = $('#g-connect'),
+            $googleLogin = $('#google-login'),
             $disConnect = $('#disconnect');
 
         // remove token
@@ -60,23 +79,25 @@ namespace('werewolf.auth', function(ns) {
         localStorage.removeItem("refresh_token");
 
         // Revoke the access token.
-        $.ajax({
-            type: 'GET',
-            url: 'https://accounts.google.com/o/oauth2/revoke?token=' +
-                gapi.auth.getToken().access_token,
-            async: false,
-            contentType: 'application/json',
-            dataType: 'jsonp',
-            success: function(result) {
-                console.log('revoke response: ' + result);
-                $authResult.empty();
-                $gConnect.show();
-                $disConnect.hide();
-            },
-            error: function(e) {
-                console.log(e);
-            }
-        });
+        if (gapi.auth.getToken()) {
+            $.ajax({
+                type: 'GET',
+                url: 'https://accounts.google.com/o/oauth2/revoke?token=' +
+                    gapi.auth.getToken().access_token,
+                async: false,
+                contentType: 'application/json',
+                dataType: 'jsonp',
+                success: function(result) {
+                    console.log('revoke response: ' + result);
+                    $authResult.empty();
+                    $googleLogin.show();
+                    $disConnect.hide();
+                },
+                error: function(e) {
+                    console.log(e);
+                }
+            });
+        }
     };
 });
 

@@ -24,9 +24,22 @@ namespace('werewolf.view.top', function(ns) {
 
                         var $result = $('#result'),
                             $authResult = $('#auth-result'),
-                            $gConnect = $('#g-connect'),
+                            $googleLogin = $('#google-login'),
                             $disConnect = $('#disconnect'),
                             $werewolfAuthResult = $('#werewolf-auth-result');
+
+                        function toggleAuthButton() {
+                            console.log('called');
+                            if (werewolf.auth.isLoggedIn()) {
+                                $googleLogin.hide();
+                                $disConnect.show();
+                            } else {
+                                $googleLogin.show();
+                                $disConnect.hide();
+                            }
+                        }
+
+                        toggleAuthButton();
 
                         $disConnect.clickE()
                             .onValue(function() {
@@ -40,8 +53,7 @@ namespace('werewolf.view.top', function(ns) {
                                 $authResult.append(' ' + field + ': ' +
                                                    params.response[field] + '<br/>');
                             }
-                            $gConnect.hide();
-                            $disConnect.show();
+                            toggleAuthButton();
                         });
 
                         werewolf.auth.on('googleAuthenticationFailed', function(params) {
@@ -52,7 +64,7 @@ namespace('werewolf.view.top', function(ns) {
                                                    params.response[field] + '<br/>');
                             }
                             $authResult.append('Logged out');
-                            $gConnect.show();
+                            toggleAuthButton();
                         });
 
                         werewolf.auth.on('authenticated', function(params) {
@@ -65,8 +77,7 @@ namespace('werewolf.view.top', function(ns) {
 
                         werewolf.auth.on('authenticationFailed', function(params) {
                             $werewolfAuthResult.html('Werewolf Auth Result: Error');
-                            $gConnect.show();
-                            $disConnect.hide();
+                            toggleAuthButton();
                         });
 
                     });

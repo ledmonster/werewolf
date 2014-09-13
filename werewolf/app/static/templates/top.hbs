@@ -9,18 +9,12 @@
   </div>
 
   <div class="col-md-12">
-    <button id="disconnect"
-            style="display:none"
-            class="btn btn-default navbar-btn">Logout</button>
-    <span id="g-connect" style="display:none">
-      <span class="g-signin"
-            data-callback="onGoogleSignInCallback"
-            data-clientid="793850702446.apps.googleusercontent.com"
-            data-cookiepolicy="single_host_origin"
-            data-requestvisibleactions="http://schemas.google.com/AddActivity"
-            data-scope="https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.profile openid email">
-      </span>
-    </span>
+    <button id="disconnect" style="display:none" class="btn btn-default navbar-btn">
+      Logout
+    </button>
+    <button id="google-login" class="btn btn-default navbar-btn">
+      Google アカウントでログイン
+    </button>
   </div>
 
   <div id="result" style="display:none">
