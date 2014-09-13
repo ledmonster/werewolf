@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ user """
 import datetime
+import random
 import urllib, hashlib
 
 from flywheel import Model, Field
@@ -31,7 +32,7 @@ register_enum_type(CredentialType, NUMBER)
 
 class User(EntityModel):
     u""" user model """
-    name = Field(data_type=unicode)
+    name = Field(data_type=unicode, index='name-index')
     email = Field(data_type=unicode, index='email-index')
     hue = Field(data_type=int)
     status = Field(data_type='UserStatus')
@@ -39,6 +40,7 @@ class User(EntityModel):
     def __init__(self, *args, **kwargs):
         _kwargs = dict(
             status=UserStatus.ENABLED,
+            hue=int(random.random() * 360)
         )
         _kwargs.update(kwargs)
         super(User, self).__init__(*args, **_kwargs)
