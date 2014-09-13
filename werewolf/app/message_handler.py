@@ -134,13 +134,13 @@ class MessageHandler(object):
         messages = []
         for k, t in targets.iteritems():
             if t is not None:
-                if k is BehaviorType.EXECUTION:
+                if k == BehaviorType.EXECUTION.value:
                     messages.append(Message(u"{} が吊られました".format(t.user.name)))
-                elif k is BehaviorType.ATTACK:
+                elif k == BehaviorType.ATTACK.value:
                     messages.append(Message(u"{} が襲撃されました".format(t.user.name)))
-                elif k is BehaviorType.HUNT:
+                elif k == BehaviorType.HUNT.value:
                     messages.append(Message(u"{} が道連れになりました".format(t.user.name)))
-                elif k is BehaviorType.FORTUNE:
+                elif k == BehaviorType.FORTUNE.value:
                     # 死んでても知らせる
                     tellers = game.village.get_residents(role=Role.TELLER)
                     for teller in tellers:

@@ -271,7 +271,8 @@ class GameService(object):
 
     def kill_resident(self, resident):
         u""" 住民が死ぬ """
-        self.repo_resident.update_status(resident, ResidentStatus.DEAD)
+        if resident:
+            self.repo_resident.update_status(resident, ResidentStatus.DEAD)
         return self.village.get_alive_residents()
 
     def select_execution_target(self, residents):
