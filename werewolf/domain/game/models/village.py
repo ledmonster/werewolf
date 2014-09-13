@@ -6,8 +6,8 @@ from flywheel import Model, Field
 from flywheel.fields.types import NUMBER, STRING
 
 from werewolf.domain.base import EntityModel, ValueObject, register_enum_type
-from werewolf.domain.game import get_repository as get_game_repository
-from werewolf.domain.user import get_repository as get_user_repository
+from werewolf.domain.game.repository import get_repository as get_game_repository
+from werewolf.domain.user.repository import get_repository as get_user_repository
 
 logger = logging.Logger(__name__)
 

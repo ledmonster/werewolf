@@ -4,7 +4,7 @@ import datetime
 from flywheel import Model, Field
 
 from werewolf.domain.base import EntityModel, ValueObject
-from werewolf.domain.user import get_repository
+from werewolf.domain.user.repository import get_repository
 
 
 def generate_token():

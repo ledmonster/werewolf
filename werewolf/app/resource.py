@@ -45,7 +45,7 @@ def register_repositories():
     repos = RootResource(None).repos
 
     # user domain
-    from werewolf.domain.user import register_repository
+    from werewolf.domain.user.repository import register_repository
     for key in [
             "user",
             "user_credential",
@@ -56,7 +56,7 @@ def register_repositories():
         register_repository(key, repos[key])
 
     # game domain
-    from werewolf.domain.game import register_repository
+    from werewolf.domain.game.repository import register_repository
     for key in [
             "village",
             "resident",
