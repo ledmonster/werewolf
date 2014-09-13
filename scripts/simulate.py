@@ -34,12 +34,15 @@ pprint(targets)
 
 for k, t in targets.iteritems():
     if t is not None:
+        pprint(k)
         if k == BehaviorType.EXECUTION.value:
             print u"{} が吊られました".format(t.user.name)
         elif k == BehaviorType.ATTACK.value:
             print u"{} が襲撃されました".format(t.user.name)
         elif k == BehaviorType.HUNT.value:
             print u"{} が道連れになりました".format(t.user.name)
+        elif k == BehaviorType.FORTUNE.value:
+            print u"{} が占われました".format(t.user.name)
 
 
 if game.satisfy_game_end():

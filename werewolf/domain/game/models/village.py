@@ -61,7 +61,7 @@ class BehaviorType(ValueObject):
 
     EXECUTION = "execution"
     ATTACK = "attack"
-    HUNT = "fortune"
+    HUNT = "hunt"
     FORTUNE = "fortune"
     MEDIUM = "medium"
 

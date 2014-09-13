@@ -290,8 +290,7 @@ class GameService(object):
 
     def select_fortune_target(self, residents):
         tellers = [r for r in residents if r.role is Role.TELLER]
-        target = self.select_action_target(BehaviorType.FORTUNE, tellers, residents)
-        return target
+        return self.select_action_target(BehaviorType.FORTUNE, tellers, residents)
 
     def select_action_target(self, behavior_type, executors, targets):
         voted = []
