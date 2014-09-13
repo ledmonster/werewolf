@@ -14,9 +14,7 @@ class BehaviorRepository(object):
                          target_resident_id):
         try:
             behavior = self.get_by_type_and_resident(
-                village.identity,
-                village.generation,
-                village.day,
+                village,
                 behavior_type,
                 resident_id
             )
