@@ -5,7 +5,7 @@ Pyramid + socket.io ベースの人狼アプリです。
 詳細は下記発表資料を参照してください。
 
 * https://www.slideshare.net/secret/8CMopw2DnvjVVB
-
+* DEMO: http://ec2-54-64-134-137.ap-northeast-1.compute.amazonaws.com/
 
 開発環境
 =======
